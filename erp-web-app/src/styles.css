@@ -8,3 +8,7 @@ body .ui-progressbar {
     border: none !important;
     background: none !important;
 }
+
+body .ui-panelmenu .ui-panelmenu-header > a .ui-panelmenu-icon {
+ display: none !important;
+}

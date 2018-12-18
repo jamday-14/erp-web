@@ -10,7 +10,7 @@ import { UserService } from './services/user.service';
 })
 export class AppComponent {
   title = 'erp-web-app';
-  private items: MenuItem[];
+  items: MenuItem[];
 
   constructor(router: Router, private userService: UserService) {
     router.navigate(['/home']);
@@ -67,7 +67,7 @@ export class AppComponent {
       },
       {
         label: 'Maintenance',
-        icon: 'pi pi-fw pi-pencil',
+        icon: 'pi pi-fw pi-cog',
         items: [
           { label: 'Customer', icon: 'pi pi-fw pi-refresh', routerLink: ['/customers'] },
           { label: 'Employee ', icon: 'pi pi-fw pi-refresh' },

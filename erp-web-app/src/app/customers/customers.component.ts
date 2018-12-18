@@ -9,10 +9,13 @@ import { MaintenanceService } from '../services/maintenance.service';
 })
 export class CustomersComponent implements OnInit {
 
-  private menuItems: MenuItem[];
+  menuItems: MenuItem[];
   currentIndex = 0;
   records: any;
-  items: any = [];
+  item: any;
+  selectedItem: any;
+  items: any[];
+  cols: any[];
   loading = false;
 
   constructor(private maintenanceService: MaintenanceService) { }
@@ -20,12 +23,20 @@ export class CustomersComponent implements OnInit {
   ngOnInit() {
 
     this.menuItems = [
-      { label: 'New', icon: 'pi pi-file'},
-      { label: 'Refresh', icon: 'pi pi-refresh'}
-      ];
+      { label: 'New', icon: 'pi pi-file' },
+      { label: 'Refresh', icon: 'pi pi-refresh' }
+    ];
 
-      this.getData();
+    this.cols = [
+      { field: 'code', header: 'Code' },
+      { field: 'name', header: 'Name' },
+      { field: 'address', header: 'Address' },
+      { field: 'telNo', header: 'Contact No.' }
+    ];
+
+    this.getData();
   }
+
   getData(): any {
     this.loading = true;
     this.maintenanceService.queryCustomers().subscribe((resp) => {
@@ -38,4 +49,15 @@ export class CustomersComponent implements OnInit {
   }
 
 
+  onRowSelect(event) {
+    this.item = this.cloneCar(event.data);
+  }
+
+  cloneCar(c: any): any {
+    let item = {};
+    for (let prop in c) {
+      item[prop] = c[prop];
+    }
+    return item;
+  }
 }
