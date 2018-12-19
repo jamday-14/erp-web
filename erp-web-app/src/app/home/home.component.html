@@ -1,3 +1,10 @@
-<p>
-  home works!
-</p>
+<p-panel header="Monthly Sales"class="ui-g">
+  <p-toast [style]="{marginTop: '80px'}"></p-toast>
+  <p-chart type="line" [data]="salesData" (onDataSelect)="selectData($event)" width="80vw" height="30vh"></p-chart>
+</p-panel>
+<p-panel header="Item Sales" class="ui-g-6">
+    <p-chart type="pie" [data]="itemSalesData"></p-chart>
+</p-panel>
+<p-panel header="Events" class="ui-g-6">
+    <p-fullCalendar [events]="events" [options]="calendarOptions"></p-fullCalendar>
+</p-panel>

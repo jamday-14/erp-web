@@ -11,6 +11,7 @@ import { UserService } from './services/user.service';
 export class AppComponent {
   title = 'erp-web-app';
   items: MenuItem[];
+  settings: any[];
 
   constructor(router: Router, private userService: UserService) {
     router.navigate(['/home']);
@@ -18,6 +19,23 @@ export class AppComponent {
 
   ngOnInit() {
     this.login();
+    this.initializeNavigationMenu();
+    this.initializeSettingsMenu();
+  }
+
+  initializeSettingsMenu(): any {
+    this.settings = [{
+      label: 'Settings',
+      icon: 'pi pi-fw pi-cog',
+      items: [
+        { label: 'My Profile', icon: 'pi pi-fw pi-user' },
+        { label: 'Change Password', icon: 'pi pi-fw pi-lock' }
+      ]
+    },
+    { label: 'Log out', icon: 'pi pi-fw pi-sign-out' }
+  ];
+  }
+  private initializeNavigationMenu() {
     this.items = [
       { label: 'Home', icon: 'pi pi-home', routerLink: ['/home'] },
       {
@@ -69,14 +87,15 @@ export class AppComponent {
         label: 'Maintenance',
         icon: 'pi pi-fw pi-cog',
         items: [
-          { label: 'Customer', icon: 'pi pi-fw pi-refresh', routerLink: ['/customers'] },
-          { label: 'Employee ', icon: 'pi pi-fw pi-refresh' },
-          { label: 'Item', icon: 'pi pi-fw pi-refresh' },
-          { label: 'Vendor', icon: 'pi pi-fw pi-refresh' },
+          { label: 'Customer', icon: 'pi pi-fw pi-users', routerLink: ['/customers'] },
+          { label: 'Employee ', icon: 'pi pi-fw pi-users', routerLink: ['/employees'] },
+          { label: 'Item', icon: 'pi pi-fw pi-list', routerLink: ['/items'] },
+          { label: 'Vendor', icon: 'pi pi-fw pi-users', routerLink: ['/vendors'] },
         ]
       },
     ];
   }
+
   login(): any {
     this.userService.login({ email: "admin", password: "Password1" }).subscribe((resp) => {
 

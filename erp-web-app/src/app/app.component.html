@@ -1,7 +1,15 @@
 <!--The content below is only a placeholder and can be replaced.-->
-<div class='header'>
-  <h1>ALTRON ERP System</h1>
+<div class='header ui-g'>
+  <div class="ui-g-10">
+    ALTRON ERP System
+  </div>
+  <div class="ui-g-2 text-right">
+      <p-menubar [model]="settings"></p-menubar>
+  </div>
 </div>
+<p-sidebar [(visible)]="displaySettings" position="top" class="ui-g">
+  
+</p-sidebar>
 <div class="ui-g menu-container">
   <div class="ui-g-2">
     <nav>
@@ -13,5 +21,5 @@
   </div>
 </div>
 <div class='footer'>
-Copyright @ Altron LLC.
+  Copyright @ Altron LLC.
 </div>
