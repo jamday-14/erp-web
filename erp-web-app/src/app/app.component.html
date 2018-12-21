@@ -1,22 +1,23 @@
-<!--The content below is only a placeholder and can be replaced.-->
-<div class='header ui-g'>
-  <div class="ui-g-10">
-    ALTRON ERP System
+<div class="p-grid">
+  <div class="p-col-12">
+    <div class="p-grid">
+      <div class="p-col-12 p-md-8 p-lg-10 header">
+        ALTRON ERP System
+      </div>
+      <div class="p-col-12 p-md-4 p-lg-2">
+        <p-menubar [model]="settings"></p-menubar>
+      </div>
+    </div>
   </div>
-  <div class="ui-g-2 text-right">
-      <p-menubar [model]="settings"></p-menubar>
+  <div class="p-col-12 p-md-2">
+    <p-panelMenu [model]="items" [multiple]="false"></p-panelMenu>
   </div>
-</div>
-<div class="ui-g menu-container">
-  <div class="ui-g-2">
-    <nav>
-      <p-panelMenu [model]="items" [multiple]="false"></p-panelMenu>
-    </nav>
+  <div class="p-col-12 p-md-10 p-col-nogutter menu-content">
+    <div class="p-col-12">
+      <router-outlet></router-outlet>
+    </div>
   </div>
-  <div class="ui-g-10 menu-content">
-    <router-outlet></router-outlet>
+  <div class="p-col-12 footer">
+      &copy; Copyright @ Altron LLC.
   </div>
-</div>
-<div class='footer'>
-  Copyright @ Altron LLC.
 </div>

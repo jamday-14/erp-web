@@ -76,7 +76,7 @@ export class AppComponent {
       },
       {
         label: 'Reports',
-        icon: 'pi pi-pw pi-file',
+        icon: 'pi pi-file',
         items: [
           { label: 'Sales Quotation', icon: 'pi pi-fw pi-user-plus' },
           { label: 'Sales Order', icon: 'pi pi-fw pi-user-plus' },
@@ -85,7 +85,7 @@ export class AppComponent {
       },
       {
         label: 'Maintenance',
-        icon: 'pi pi-fw pi-cog',
+        icon: 'pi pi-cog',
         items: [
           { label: 'Customer', icon: 'pi pi-fw pi-users', routerLink: ['/customers'] },
           { label: 'Employee ', icon: 'pi pi-fw pi-users', routerLink: ['/employees'] },
