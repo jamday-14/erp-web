@@ -2,7 +2,7 @@
   <p-toast></p-toast>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <p-menubar [model]="menuItems"></p-menubar>
-  <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="selectedItem" (onRowSelect)="onRowSelect($event)"
+  <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="item" (onRowSelect)="onRowSelect($event)"
     [paginator]="true" [rows]="15" [globalFilterFields]="['firstName','lastName']" sortField="lastName">
     <ng-template pTemplate="caption">
       <div style="text-align: right">
