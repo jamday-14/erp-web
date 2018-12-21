@@ -27,7 +27,8 @@
     "primeng": "^7.0.0",
     "primeflex": "1.0.0-rc.1",
     "rxjs": "~6.2.0",
-    "zone.js": "~0.8.26"
+    "zone.js": "~0.8.26",
+    "font-awesome": "4.7.0"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.8.0",
