@@ -21,6 +21,7 @@ import { InputMaskModule } from 'primeng/inputmask';
 import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
+import { CheckboxModule } from 'primeng/checkbox';
 import { HomeComponent } from './home/home.component';
 import { CustomersComponent } from './maintenance/customers/customers.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -82,6 +83,7 @@ const appRoutes: Routes = [
     InputTextareaModule,
     MessagesModule,
     MessageModule,
+    CheckboxModule,
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true } // <-- debugging purposes only

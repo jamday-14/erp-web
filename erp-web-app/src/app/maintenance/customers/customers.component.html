@@ -2,7 +2,7 @@
   <p-toast></p-toast>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <p-menubar [model]="menuItems"></p-menubar>
-  <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="selectedItem" (onRowSelect)="onRowSelect($event)"
+  <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="item" (onRowSelect)="onRowSelect($event)"
     [paginator]="true" [rows]="10" [globalFilterFields]="['name','code']" sortField="name">
     <ng-template pTemplate="caption">
       <div style="text-align: right">
@@ -33,37 +33,37 @@
       <div class="p-grid ui-fluid" *ngIf="item">
         <div class="p-col-12 p-md-6 p-lg-6">
           <div class="p-grid">
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="code">Code</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="code" formControlName="code" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="registeredName">Registered Name</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="registeredName" formControlName="registeredName" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="contactPerson">Contact Person</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="contactPerson" formControlName="contactPerson" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="businessStyle">Business Style</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="businessStyle" formControlName="businessStyle" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="tinno">TIN No</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="tinno" formControlName="tinno" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="telNo">Telephone No</label>
             </div>
             <div class="p-col-8">
@@ -73,39 +73,39 @@
         </div>
         <div class="p-col-12 p-md-6 p-lg-6">
           <div class="p-grid">
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="name">Name</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="name" formControlName="name" class="ng-dirty ng-invalid" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="registeredOwner">Registered Owner</label>
             </div>
             <div class="p-col-8">
               <input pInputText id="registeredOwner" formControlName="registeredOwner" />
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="salesPersonId">Sales Person</label>
             </div>
             <div class="p-col-8">
               <p-dropdown [options]="salesPersons" id="salesPersonId" [style]="{width: '100%'}" formControlName="salesPersonId"
                 placeholder="Select a sales person"></p-dropdown>
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="customerTypeId">Customer Type</label>
             </div>
             <div class="p-col-8">
               <p-dropdown [options]="customerTypes" id="customerTypeId" [style]="{width: '100%'}" formControlName="customerTypeId"
                 placeholder="Select customer type"></p-dropdown>
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="termId">Terms</label>
             </div>
             <div class="p-col-8">
               <p-dropdown [options]="terms" id="termId" [style]="{width: '100%'}" formControlName="termId" placeholder="Select payment term"></p-dropdown>
             </div>
-            <div class="p-col-4">
+            <div class="p-col-4 text-right">
               <label for="faxNo">Fax No</label>
             </div>
             <div class="p-col-8">
@@ -115,7 +115,7 @@
         </div>
         <div class="p-col-12">
           <div class="p-grid">
-            <div class="p-col-2">
+            <div class="p-col-2 text-right">
               <label for="address">Address</label>
             </div>
             <div class="p-col-10">

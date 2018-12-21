@@ -12,3 +12,7 @@ body .ui-progressbar {
 body .ui-panelmenu .ui-panelmenu-header > a .ui-panelmenu-icon {
  display: none !important;
 }
+
+.text-right{
+    text-align: right;
+}

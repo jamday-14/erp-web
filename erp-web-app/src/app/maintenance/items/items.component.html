@@ -1,7 +1,8 @@
 <div>
+  <p-toast></p-toast>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <p-menubar [model]="menuItems"></p-menubar>
-  <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="selectedItem" (onRowSelect)="onRowSelect($event)"
+  <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="item" (onRowSelect)="onRowSelect($event)"
     [paginator]="true" [rows]="10" [globalFilterFields]="['itemCode','description']" sortField="name">
     <ng-template pTemplate="caption">
       <div style="text-align: right">
@@ -26,38 +27,85 @@
       </tr>
     </ng-template>
   </p-table>
-  <p-dialog header="Item Form" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true">
-    <div class="ui-g ui-fluid" *ngIf="item">
-      <div class="ui-g-12">
-        <div class="ui-g-4">
-          <label for="vin">Code</label>
+  <form *ngIf="form" [formGroup]="form" (ngSubmit)="createItem()">
+    <p-dialog header="Item Form" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true"
+      [style]="{width:'800px'}">
+      <div class="p-grid ui-fluid" *ngIf="item">
+        <div class="p-col-12 p-md-6 p-lg-6">
+          <div class="p-grid">
+            <div class="p-col-4 text-right">
+              <label for="itemCode">Item Code</label>
+            </div>
+            <div class="p-col-8">
+              <input pInputText id="itemCode" formControlName="itemCode" />
+            </div>
+          </div>
         </div>
-        <div class="ui-g-8">
-          <input pInputText id="code" (ngModel)="item.code" />
+        <div class="p-col-12 p-md-6 p-lg-6">
+          <div class="p-grid">
+            <div class="p-col-4 text-right">
+              <label for="unitId">Unit</label>
+            </div>
+            <div class="p-col-8">
+              <p-dropdown [options]="units" id="unitId" [style]="{width: '100%'}" formControlName="unitId" placeholder="Select item unit"></p-dropdown>
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="p-grid">
+            <div class="p-col-2 text-right">
+              <label for="description">Description</label>
+            </div>
+            <div class="p-col-10">
+              <textarea pInputTextarea id="description" formControlName="description"></textarea>
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="p-grid">
+            <div class="p-col-2 text-right">
+              <label for="quantity">Quantity</label>
+            </div>
+            <div class="p-col-2">
+              <input type="number" pInputText id="quantity" formControlName="quantity" />
+            </div>
+            <div class="p-col-2 text-right">
+              <label for="unitPrice">Unit Price</label>
+            </div>
+            <div class="p-col-2 text-right">
+              <input type="number" pInputText id="unitPrice" formControlName="unitPrice" />
+            </div>
+            <div class="p-col-2 text-right">
+              <label for="costPrice">Cost Price</label>
+            </div>
+            <div class="p-col-2">
+              <input type="number" pInputText id="costPrice" formControlName="costPrice" />
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="p-grid">
+            <div class="p-col-3">
+              <p-checkbox binary="true" label="Is Purchased" formControlName="isPurchased"></p-checkbox>
+            </div>
+            <div class="p-col-3">
+              <p-checkbox binary="true" label="Is For Sale" formControlName="isForSale"></p-checkbox>
+            </div>
+            <div class="p-col-3">
+              <p-checkbox binary="true" label="Is Inventory" formControlName="isInventory"></p-checkbox>
+            </div>
+            <div class="p-col-3">
+              <p-checkbox binary="true" label="Is Imported" formControlName="isImported"></p-checkbox>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="ui-g-12">
-        <div class="ui-g-4">
-          <label for="name">Name</label>
+      <p-footer>
+        <div class="ui-dialog-buttonpane ui-helper-clearfix">
+          <button type="button" pButton icon="fa fa-close" label="Close" (click)="toggleDialog(false)"></button>
+          <button type="submit" pButton icon="fa fa-check" label="Save"></button>
         </div>
-        <div class="ui-g-8">
-          <input pInputText id="name" (ngModel)="item.name" />
-        </div>
-      </div>
-      <div class="ui-g-12">
-        <div class="ui-g-4">
-          <label for="address">Address</label>
-        </div>
-        <div class="ui-g-8">
-          <input pInputText id="address" (ngModel)="item.address" />
-        </div>
-      </div>
-    </div>
-    <p-footer>
-      <div class="ui-dialog-buttonpane ui-helper-clearfix">
-        <button type="button" pButton icon="fa fa-close" label="Delete"></button>
-        <button type="button" pButton icon="fa fa-check" label="Save"></button>
-      </div>
-    </p-footer>
-  </p-dialog>
+      </p-footer>
+    </p-dialog>
+  </form>
 </div>
