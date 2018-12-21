@@ -26,6 +26,10 @@ body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link.ui-state
     color: #FFFFFF !important;
 }
 
+body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link{
+    padding-left: 40px !important;
+}
+
 body .ui-panelmenu .ui-panelmenu-content .ui-corner-all {
     border-radius: 0px !important;
 }
