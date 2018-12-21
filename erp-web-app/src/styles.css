@@ -19,3 +19,13 @@ body .ui-panelmenu .ui-panelmenu-header > a .ui-panelmenu-icon {
 .text-center {
     text-align: center;
 }
+
+
+body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link.ui-state-active {
+    background-color: #005B9F !important;
+    color: #FFFFFF !important;
+}
+
+body .ui-panelmenu .ui-panelmenu-content .ui-corner-all {
+    border-radius: 0px !important;
+}

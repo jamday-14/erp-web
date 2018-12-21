@@ -42,45 +42,56 @@ export class AppComponent {
         label: 'Sales',
         icon: 'pi pi-chart-bar',
         items: [
-          { label: 'Sales Quotation', icon: 'pi pi-fw pi-user-plus' },
-          { label: 'Sales Order', icon: 'pi pi-fw pi-user-plus', routerLink: ['/sales-orders'] },
-          { label: 'Sales Invoice', icon: 'pi pi-fw pi-user-plus' }
+          { label: 'Sales Quotation' },
+          { label: 'Sales Order', routerLink: ['/sales-orders']},
+          { label: 'Delivery Receipt' },
+          { label: 'Sales Invoice' },
+          { label: 'Sales Return' }
         ]
       },
       {
         label: 'Purchasing',
         icon: 'pi pi-shopping-cart',
         items: [
-          { label: 'Purchase Order', icon: 'pi pi-fw pi-refresh' },
-          { label: 'Goods Receipt ', icon: 'pi pi-fw pi-refresh' },
-          { label: 'Bills Payment', icon: 'pi pi-fw pi-refresh' }
+          { label: 'Purchase Request' },
+          { label: 'Purchase Order' },
+          { label: 'Goods Receipt' },
+          { label: 'Goods Return' },
+          { label: 'Bills' },
+          { label: 'Bills Payment' }
         ]
       },
       {
         label: 'Inventory',
         icon: 'pi pi-bars',
         items: [
-          { label: 'Sales Quotation', icon: 'pi pi-fw pi-user-plus' },
-          { label: 'Sales Order', icon: 'pi pi-fw pi-user-plus' },
-          { label: 'Sales Invoice', icon: 'pi pi-fw pi-user-plus' }
+          { label: 'Inventory Adjustment' },
+          { label: 'Relocate Goods'},
+          { label: 'Physical Inventory' }
         ]
       },
       {
         label: 'Accounting',
         icon: 'pi pi-money-bill',
         items: [
-          { label: 'Purchase Order', icon: 'pi pi-fw pi-refresh' },
-          { label: 'Goods Receipt ', icon: 'pi pi-fw pi-refresh' },
-          { label: 'Bills Payment', icon: 'pi pi-fw pi-refresh' }
+          { label: 'Chart of Accounts' },
+          { label: 'Subsidiary'},
+          { label: 'Journal Voucher' },
+          { label: 'Check Voucher' },
+          { label: 'Cash Receipt Voucher'}
         ]
       },
       {
         label: 'Reports',
         icon: 'pi pi-file',
         items: [
-          { label: 'Sales Quotation', icon: 'pi pi-fw pi-user-plus' },
-          { label: 'Sales Order', icon: 'pi pi-fw pi-user-plus' },
-          { label: 'Sales Invoice', icon: 'pi pi-fw pi-user-plus' }
+          { label: 'Inventory Balance' },
+          { label: 'Inventory Ledger'},
+          { label: 'Trial Balance' },
+          { label: 'General Ledger' },
+          { label: 'Subsidiary Ledger'},
+          { label: 'Balance Sheet' },
+          { label: 'Income Statement' }
         ]
       },
       {
