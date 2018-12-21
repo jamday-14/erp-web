@@ -1,4 +1,5 @@
 <div>
+  <p-toast></p-toast>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <p-menubar [model]="menuItems"></p-menubar>
   <p-table #dt [columns]="cols" [value]="items" selectionMode="single" [(selection)]="selectedItem" (onRowSelect)="onRowSelect($event)"
@@ -26,38 +27,101 @@
       </tr>
     </ng-template>
   </p-table>
-  <p-dialog header="Customer Form" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true">
-    <div class="ui-g ui-fluid" *ngIf="item">
-      <div class="ui-g-12">
-        <div class="ui-g-4">
-          <label for="vin">Code</label>
+  <form *ngIf="form" [formGroup]="form" (ngSubmit)="createItem()">
+    <p-dialog header="Employee Form" [(visible)]="displayDialog" [responsive]="true" showEffect="fade" [modal]="true"
+      [style]="{width:'1000px'}">
+      <div class="p-grid ui-fluid" *ngIf="item">
+        <div class="p-col-12 p-md-6 p-lg-6">
+          <div class="p-grid">
+            <div class="p-col-4 text-right">
+              <label for="lastName">Last Name</label>
+            </div>
+            <div class="p-col-8">
+              <input pInputText id="lastName" formControlName="lastName" />
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="firstName">First Name</label>
+            </div>
+            <div class="p-col-8">
+              <input pInputText id="firstName" formControlName="firstName" />
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="middleName">Middle Name</label>
+            </div>
+            <div class="p-col-8">
+              <input pInputText id="middleName" formControlName="middleName" />
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="telNo">Contact No</label>
+            </div>
+            <div class="p-col-8">
+              <p-inputMask mask="(999)999-9999" id="telNo" formControlName="telNo"></p-inputMask>
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="address">Address</label>
+            </div>
+            <div class="p-col-8">
+              <textarea pInputTextarea id="address" formControlName="address"></textarea>
+            </div>
+          </div>
         </div>
-        <div class="ui-g-8">
-          <input pInputText id="code" (ngModel)="item.code" />
+        <div class="p-col-12 p-md-6 p-lg-6">
+          <div class="p-grid">
+            <div class="p-col-4 text-right">
+              <label for="bday">Birthdate</label>
+            </div>
+            <div class="p-col-8">
+              <p-calendar formControlName="bday" [showIcon]="true" [monthNavigator]="true" [yearNavigator]="true" yearRange="1930:2030"></p-calendar>
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="philHealthNo">Philhealth No</label>
+            </div>
+            <div class="p-col-8">
+              <p-inputMask mask="99-999999999-9" id="philHealthNo" formControlName="philHealthNo"></p-inputMask>
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="sssno">SSS No</label>
+            </div>
+            <div class="p-col-8">
+              <p-inputMask mask="99-9999999-9" id="sssno" formControlName="sssno"></p-inputMask>
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="tinno">TIN No</label>
+            </div>
+            <div class="p-col-8">
+              <p-inputMask mask="999-999-999-999" id="tinno" formControlName="tinno"></p-inputMask>
+            </div>
+            <div class="p-col-4 text-right">
+              <label for="pagibigNo">Pag ibig No</label>
+            </div>
+            <div class="p-col-8">
+              <p-inputMask mask="9999-9999-9999" id="pagibigNo" formControlName="pagibigNo"></p-inputMask>
+            </div>
+          </div>
+        </div>
+        <div class="p-col-12">
+          <div class="p-grid">
+            <div class="p-col-3 text-center">
+              <p-checkbox binary="true" label="Regular" formControlName="isRegular"></p-checkbox>
+            </div>
+            <div class="p-col-3 text-center">
+              <p-checkbox binary="true" label="Contractual" formControlName="isContract"></p-checkbox>
+            </div>
+            <div class="p-col-3 text-center">
+              <p-checkbox binary="true" label="Contractual Extended" formControlName="isExtendContract"></p-checkbox>
+            </div>
+            <div class="p-col-3 text-center">
+              <p-checkbox binary="true" label="Sales Person" formControlName="isSalesPerson"></p-checkbox>
+            </div>
+          </div>
         </div>
       </div>
-      <div class="ui-g-12">
-        <div class="ui-g-4">
-          <label for="name">Name</label>
+      <p-footer>
+        <div class="ui-dialog-buttonpane ui-helper-clearfix">
+          <button type="button" pButton icon="fa fa-close" label="Close" (click)="toggleDialog(false)"></button>
+          <button type="submit" pButton icon="fa fa-check" label="Save"></button>
         </div>
-        <div class="ui-g-8">
-          <input pInputText id="name" (ngModel)="item.name" />
-        </div>
-      </div>
-      <div class="ui-g-12">
-        <div class="ui-g-4">
-          <label for="address">Address</label>
-        </div>
-        <div class="ui-g-8">
-          <input pInputText id="address" (ngModel)="item.address" />
-        </div>
-      </div>
-    </div>
-    <p-footer>
-      <div class="ui-dialog-buttonpane ui-helper-clearfix">
-        <button type="button" pButton icon="fa fa-close" label="Delete"></button>
-        <button type="button" pButton icon="fa fa-check" label="Save"></button>
-      </div>
-    </p-footer>
-  </p-dialog>
+      </p-footer>
+    </p-dialog>
+  </form>
 </div>

@@ -16,3 +16,6 @@ body .ui-panelmenu .ui-panelmenu-header > a .ui-panelmenu-icon {
 .text-right{
     text-align: right;
 }
+.text-center {
+    text-align: center;
+}

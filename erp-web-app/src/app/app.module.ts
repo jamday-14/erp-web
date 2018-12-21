@@ -22,6 +22,7 @@ import { InputTextareaModule } from 'primeng/inputtextarea';
 import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { CheckboxModule } from 'primeng/checkbox';
+import { CalendarModule } from 'primeng/calendar';
 import { HomeComponent } from './home/home.component';
 import { CustomersComponent } from './maintenance/customers/customers.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -84,6 +85,7 @@ const appRoutes: Routes = [
     MessagesModule,
     MessageModule,
     CheckboxModule,
+    CalendarModule,
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true } // <-- debugging purposes only
