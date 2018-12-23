@@ -47,3 +47,8 @@ body .ui-table .ui-table-tfoot > tr > td {
     color: #FFF;
     background-color: #005b9f;
 }
+
+.settings.ui-menubar {
+    width: 250px;
+    float: right;
+}
