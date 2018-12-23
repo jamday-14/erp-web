@@ -5,6 +5,7 @@ import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import { SumFilterPipe } from 'src/app/sum-filter.pipe';
 import _ from "lodash";
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-sales-order',
@@ -48,7 +49,10 @@ export class SalesOrderComponent implements OnInit {
   }
   initializeOrderDetails(): any {
     for (let a = 0; a < 10; a++) {
-      this.orderDetails.push({ itemCode: null, description: '', qty: null, unitId: null, unitDescription: null, unitPrice: null, discount: null, subTotal: null, remarks: '' });
+      this.orderDetails.push({
+        itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+        unitPrice: null, discount: null, subTotal: null, remarks: ''
+      });
     }
   }
 
@@ -80,39 +84,36 @@ export class SalesOrderComponent implements OnInit {
 
   private getReferenceData(): any {
     this.loading = true;
-    this.maintenanceService.queryTerms().subscribe((resp) => {
-      let arr: any;
-      arr = resp;
-      arr.forEach(element => {
-        this.terms.push({ value: element.id, label: element.name })
-      });
-    }, (err) => { });
-    this.maintenanceService.queryCustomers()
-      .subscribe((resp) => {
-        let arr: any;
-        arr = resp;
-        arr.forEach(element => {
-          this.customers.push({ value: element.id, label: element.name })
-        });
-      }, (err) => { });
-    this.maintenanceService.queryUnits()
-      .subscribe((resp) => {
-        let arr: any;
-        arr = resp;
-        arr.forEach(element => {
-          this.units.push({ value: element.id, label: element.name })
-        });
-      }, (err) => { });
+    var termsRequest = this.maintenanceService.queryTerms();
+    var customersRequest = this.maintenanceService.queryCustomers();
+    var unitsRequest = this.maintenanceService.queryUnits();
+    var itemsRequest = this.maintenanceService.queryItems();
+    
+    forkJoin([termsRequest, customersRequest, unitsRequest, itemsRequest])
+      .subscribe((response) => {
+        let termsResponse = response[0];
+        let customersReponse = response[1];
+        let unitsResponse = response[2];
+        let itemsResponse = response[3];
 
-    this.maintenanceService.queryItems()
-      .subscribe((resp) => {
-        let arr: any;
-        arr = resp;
-        arr.forEach(element => {
+        _.forEach(termsResponse, (element => {
+          this.terms.push({ value: element.id, label: element.name })
+        }));
+
+        _.forEach(customersReponse, (element => {
+          this.customers.push({ value: element.id, label: element.name })
+        }));
+
+        _.forEach(unitsResponse, (element => {
+          this.units.push({ value: element.id, label: element.name })
+        }));
+
+        _.forEach(itemsResponse, (element => {
           this.items.push({ value: element.id, label: element.description, code: element.itemCode, unitPrice: element.unitPrice, unitId: element.unitId })
-        });
+        }));
+
         this.loading = false;
-      }, (err) => { });
+      }, (err) => { this.loading = false; });
   }
 
   get f() { return this.form.controls; }
@@ -121,6 +122,7 @@ export class SalesOrderComponent implements OnInit {
     let item = this.findItem(event.value);
     let unit = this.findUnit(item.unitId);
 
+    rowData.itemId = item.value;
     rowData.description = item.label;
     rowData.itemCode = item.code;
     rowData.unitPrice = item.unitPrice;
@@ -138,6 +140,7 @@ export class SalesOrderComponent implements OnInit {
   findUnit(unitId) {
     return this.units.find(x => x.value == unitId);
   }
+
   searchItems(event) {
     this.searchedItems = this.items.filter((item) => {
       return (item.label.toLowerCase().indexOf(event.query.toLowerCase()) > -1);

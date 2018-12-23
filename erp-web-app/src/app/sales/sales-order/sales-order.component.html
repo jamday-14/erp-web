@@ -1,5 +1,6 @@
 <div>
   <p-toast></p-toast>
+  <p-blockUI [blocked]="loading"></p-blockUI>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <p-menubar [model]="menuItems"></p-menubar>
   <form *ngIf="form" [formGroup]="form" (ngSubmit)="createItem()">

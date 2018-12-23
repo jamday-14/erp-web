@@ -24,6 +24,7 @@ import { MessageModule } from 'primeng/message';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
+import { BlockUIModule } from 'primeng/blockui';
 import { HomeComponent } from './home/home.component';
 import { CustomersComponent } from './maintenance/customers/customers.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -93,6 +94,7 @@ const appRoutes: Routes = [
     CheckboxModule,
     CalendarModule,
     AutoCompleteModule,
+    BlockUIModule,
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true } // <-- debugging purposes only
