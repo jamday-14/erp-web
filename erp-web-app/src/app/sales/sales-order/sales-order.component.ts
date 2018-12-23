@@ -6,6 +6,8 @@ import { MaintenanceService } from 'src/app/services/maintenance.service';
 import { SumFilterPipe } from 'src/app/sum-filter.pipe';
 import _ from "lodash";
 import { forkJoin } from 'rxjs';
+import { SalesService } from 'src/app/services/sales.service';
+import { MessagingService } from 'src/app/services/messaging.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -30,9 +32,11 @@ export class SalesOrderComponent implements OnInit {
 
   constructor(
     private maintenanceService: MaintenanceService,
+    private salesService: SalesService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private sumPipe: SumFilterPipe
+    private sumPipe: SumFilterPipe,
+    private messaging: MessagingService
   ) {
     this.customers = [];
     this.terms = [];
@@ -47,6 +51,7 @@ export class SalesOrderComponent implements OnInit {
     this.getReferenceData();
     this.initializeOrderDetails();
   }
+
   initializeOrderDetails(): any {
     for (let a = 0; a < 10; a++) {
       this.orderDetails.push({
@@ -72,23 +77,23 @@ export class SalesOrderComponent implements OnInit {
     });
   }
 
-  private initializeMenu() {
+  initializeMenu() {
     this.menuItems = [
       {
         label: 'Save', icon: 'pi pi-save', command: () => {
-          // this.router.navigate(['/sales-order']);
+          this.save();
         }
       }
     ];
   }
 
-  private getReferenceData(): any {
+  getReferenceData(): any {
     this.loading = true;
     var termsRequest = this.maintenanceService.queryTerms();
     var customersRequest = this.maintenanceService.queryCustomers();
     var unitsRequest = this.maintenanceService.queryUnits();
     var itemsRequest = this.maintenanceService.queryItems();
-    
+
     forkJoin([termsRequest, customersRequest, unitsRequest, itemsRequest])
       .subscribe((response) => {
         let termsResponse = response[0];
@@ -182,5 +187,71 @@ export class SalesOrderComponent implements OnInit {
 
   getTotalItem() {
     return _.size(this.getOrderDetails());
+  }
+
+  save(): any {
+    if (!this.form.valid) {
+      this.messaging.warningMessage(this.messaging.REQUIRED);
+      return;
+    }
+
+    if (_.size(this.getOrderDetails()) == 0) {
+      this.messaging.warningMessage(this.messaging.ONE_LINE_ITEM);
+      return;
+    }
+
+    if (!_.every(this.getOrderDetails(), (x) => { return x.qty > 0 && x.subTotal > 0 })) {
+      this.messaging.warningMessage(this.messaging.QTY_AND_PRICE);
+      return;
+    }
+
+    this.loading = true;
+
+    this.salesService.addSalesOrder({
+      date: this.f.date.value,
+      refNo: this.f.refNo.value,
+      address: this.f.address.value,
+      telNo: this.f.telNo.value,
+      faxNo: this.f.faxNo.value,
+      contactPerson: this.f.contactPerson.value,
+      systemNo: this.f.systemNo.value,
+      customerId: this.f.customerId.value,
+      termId: this.f.termId.value,
+      amount: this.getTotalSubTotal()
+    }).subscribe((resp) => {
+
+      let order: any;
+      let detailsRequests = [];
+      order = resp;
+
+      _.forEach(this.getOrderDetails(), (detail) => {
+
+        detailsRequests.push(
+          this.salesService.addSalesOrderDetail({
+
+            salesOrderId: order.id,
+            itemId: detail.itemId,
+            qty: detail.qty,
+            unitPrice: detail.unitPrice,
+            discount: detail.discount,
+            subTotal: detail.subTotal,
+            unitId: detail.unitId,
+            remarks: detail.remarks
+          })
+        );
+      });
+      forkJoin(detailsRequests)
+        .subscribe((resp) => {
+          this.loading = false;
+          this.messaging.successMessage(this.messaging.ADD_SUCCESS);
+          this.router.navigate(['/sales-orders'])
+        }, (err) => {
+          this.loading = false;
+          this.messaging.errorMessage(this.messaging.ADD_ERROR);
+        });
+    }, (err) => {
+      this.loading = false;
+      this.messaging.errorMessage(this.messaging.ADD_ERROR);
+    });
   }
 }
