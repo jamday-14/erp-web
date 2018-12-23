@@ -1,6 +1,12 @@
 .header{
-    /* height: 40px; */
-    font-size:2em;
+    margin-bottom: -20px;
+}
+.company-name{
+    
+}
+.page-title{
+    font-weight: bold;
+    margin: auto 0;
 }
 .menu-container {
     margin-left: -10px;

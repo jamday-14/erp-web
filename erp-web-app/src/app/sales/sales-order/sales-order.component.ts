@@ -8,6 +8,7 @@ import _ from "lodash";
 import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
+import { AppComponent } from 'src/app/app.component';
 
 @Component({
   selector: 'app-sales-order',
@@ -36,7 +37,8 @@ export class SalesOrderComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private sumPipe: SumFilterPipe,
-    private messaging: MessagingService
+    private messaging: MessagingService,
+    private app: AppComponent
   ) {
     this.customers = [];
     this.terms = [];
@@ -46,6 +48,7 @@ export class SalesOrderComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.app.title = "Sales Order Entry";
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
@@ -105,8 +108,8 @@ export class SalesOrderComponent implements OnInit {
           this.terms.push({ value: element.id, label: element.name })
         }));
 
-        _.forEach(customersReponse, (element => {
-          this.customers.push({ value: element.id, label: element.name })
+        _.forEach(customersReponse, (el => {
+          this.customers.push({ value: el.id, label: el.name, address: el.address, contactPerson: el.contactPerson, telNo: el.telNo, faxNo: el.faxNo, termId: el.termId })
         }));
 
         _.forEach(unitsResponse, (element => {
@@ -138,12 +141,28 @@ export class SalesOrderComponent implements OnInit {
     }
   }
 
+  customerChanged(event) {
+    if (event.value) {
+      let customer = this.findCustomer(event.value);
+
+      this.f.address.setValue(customer.address);
+      this.f.telNo.setValue(customer.telNo);
+      this.f.faxNo.setValue(customer.faxNo);
+      this.f.contactPerson.setValue(customer.contactPerson);
+      this.f.termId.setValue(customer.termId);
+    }
+  }
+
   findItem(itemId) {
     return this.items.find(x => x.value == itemId);
   }
 
   findUnit(unitId) {
     return this.units.find(x => x.value == unitId);
+  }
+
+  findCustomer(customerId) {
+    return this.customers.find(x => x.value == customerId);
   }
 
   searchItems(event) {

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MessageService } from 'primeng/api';
+import { AppComponent } from '../app.component';
 
 @Component({
   selector: 'app-home',
@@ -7,14 +8,19 @@ import { MessageService } from 'primeng/api';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
+
   salesData: { labels: string[]; datasets: { label: string; data: number[]; fill: boolean; borderColor: string; }[]; };
   itemSalesData: { labels: string[]; datasets: { data: number[]; backgroundColor: string[]; hoverBackgroundColor: string[]; }[]; };
   events: ({ "title": string; "start": string; "end"?: undefined; } | { "title": string; "start": string; "end": string; })[];
   calendarOptions: { defaultDate: string; header: { left: string; center: string; right: string; }; editable: boolean; };
 
-  constructor(private messageService: MessageService) { }
+  constructor(
+    private messageService: MessageService,
+    private app: AppComponent) { }
 
   ngOnInit() {
+    this.app.title = "Dashboard";
+
     this.getSalesData();
     this.getItemSalesData();
     this.setCalendarOptions();

@@ -33,7 +33,7 @@
           </div>
           <div class="p-col-6">
             <p-dropdown [options]="customers" id="customerId" [style]="{width: '100%'}" formControlName="customerId"
-              placeholder="Select customer" filter="true"></p-dropdown>
+              placeholder="Select customer" filter="true" (onChange)="customerChanged($event)"></p-dropdown>
           </div>
         </div>
         <div class="p-grid">

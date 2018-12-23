@@ -9,7 +9,7 @@ import { UserService } from './services/user.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'erp-web-app';
+  title = 'Dashboard';
   items: MenuItem[];
   settings: any[];
 

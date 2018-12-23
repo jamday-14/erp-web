@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Router } from '@angular/router';
+import { AppComponent } from 'src/app/app.component';
 
 @Component({
   selector: 'app-sales-orders',
@@ -13,10 +14,12 @@ export class SalesOrdersComponent implements OnInit {
   loading: boolean;
 
   constructor(
-    private router : Router
+    private router : Router,
+    private app: AppComponent
   ) { }
 
   ngOnInit() {
+    this.app.title = "Sales Order";
     this.initializeMenu();
   }
 
