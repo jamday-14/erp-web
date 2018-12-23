@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { MenuItem } from 'primeng/api';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-sales-orders',
@@ -7,9 +9,29 @@ import { Component, OnInit } from '@angular/core';
 })
 export class SalesOrdersComponent implements OnInit {
 
-  constructor() { }
+  menuItems: MenuItem[];
+
+  constructor(
+    private router : Router
+  ) { }
 
   ngOnInit() {
+    this.initializeMenu();
+  }
+
+  private initializeMenu() {
+    this.menuItems = [
+      {
+        label: 'New', icon: 'pi pi-file', command: () => {
+          this.router.navigate(['/sales-order']);
+        }
+      },
+      {
+        label: 'Refresh', icon: 'pi pi-refresh', command: () => {
+          //this.getData();
+        }
+      }
+    ];
   }
 
 }

@@ -23,6 +23,7 @@ import { MessagesModule } from 'primeng/messages';
 import { MessageModule } from 'primeng/message';
 import { CheckboxModule } from 'primeng/checkbox';
 import { CalendarModule } from 'primeng/calendar';
+import { AutoCompleteModule } from 'primeng/autocomplete';
 import { HomeComponent } from './home/home.component';
 import { CustomersComponent } from './maintenance/customers/customers.component';
 import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -35,6 +36,8 @@ import { SalesInvoicesComponent } from './sales/sales-invoices/sales-invoices.co
 import { SalesReturnsComponent } from './sales/sales-returns/sales-returns.component';
 import { DeliveryReceiptsComponent } from './sales/delivery-receipts/delivery-receipts.component';
 import { MessageService } from 'primeng/api';
+import { SalesOrderComponent } from './sales/sales-order/sales-order.component';
+import { SumFilterPipe } from './sum-filter.pipe';
 
 const appRoutes: Routes = [
   { path: 'sales-orders', component: SalesOrdersComponent },
@@ -43,7 +46,8 @@ const appRoutes: Routes = [
   { path: 'employees', component: EmployeesComponent },
   { path: 'items', component: ItemsComponent },
   { path: 'vendors', component: VendorsComponent },
-
+  { path: 'sales-order', component: SalesOrderComponent },
+  { path: 'sales-orders', component: SalesOrdersComponent }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   //{ path: '**', component: PageNotFoundComponent }
 ];
@@ -59,7 +63,9 @@ const appRoutes: Routes = [
     VendorsComponent,
     SalesInvoicesComponent,
     SalesReturnsComponent,
-    DeliveryReceiptsComponent
+    DeliveryReceiptsComponent,
+    SalesOrderComponent,
+    SumFilterPipe
   ],
   imports: [
     BrowserModule,
@@ -86,6 +92,7 @@ const appRoutes: Routes = [
     MessageModule,
     CheckboxModule,
     CalendarModule,
+    AutoCompleteModule,
     RouterModule.forRoot(
       appRoutes,
       { enableTracing: true } // <-- debugging purposes only
@@ -97,7 +104,8 @@ const appRoutes: Routes = [
       useClass: AuthService,
       multi: true
     },
-    MessageService
+    MessageService,
+    SumFilterPipe
   ],
   bootstrap: [AppComponent]
 })
