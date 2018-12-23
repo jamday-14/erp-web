@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import { SumFilterPipe } from 'src/app/sum-filter.pipe';
+import _ from "lodash";
 
 @Component({
   selector: 'app-sales-order',
@@ -123,7 +124,7 @@ export class SalesOrderComponent implements OnInit {
     rowData.description = item.label;
     rowData.itemCode = item.code;
     rowData.unitPrice = item.unitPrice;
-    
+
     if (unit) {
       rowData.unitId = unit.value;
       rowData.unitDescription = unit.label;

@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 export class SalesOrdersComponent implements OnInit {
 
   menuItems: MenuItem[];
+  loading: boolean;
 
   constructor(
     private router : Router
