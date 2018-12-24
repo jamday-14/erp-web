@@ -19,7 +19,7 @@ export class UserService {
       Username: accountInfo.email,
       Password: accountInfo.password
     }
-    let seq = this.api.post('auth/login', credentials);
+    let seq = this.api.post('auth/login', credentials, false);
 
     seq.subscribe((res: any) => {
       // If the API returned a successful response, mark the user as logged in

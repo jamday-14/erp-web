@@ -6,6 +6,8 @@ import { ApiService } from './api.service';
 })
 export class MaintenanceService {
 
+  items: any[];
+  
   constructor(public api: ApiService) {
 
   }

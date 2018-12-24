@@ -39,6 +39,9 @@ import { DeliveryReceiptsComponent } from './sales/delivery-receipts/delivery-re
 import { MessageService } from 'primeng/api';
 import { SalesOrderComponent } from './sales/sales-order/sales-order.component';
 import { SumFilterPipe } from './sum-filter.pipe';
+import { SalesInvoiceComponent } from './sales/sales-invoice/sales-invoice.component';
+import { RequestCacheWithMap } from './services/request-cache.service';
+import { CachingInterceptor } from './services/caching-interceptor.service';
 
 const appRoutes: Routes = [
   { path: 'sales-orders', component: SalesOrdersComponent },
@@ -48,7 +51,9 @@ const appRoutes: Routes = [
   { path: 'items', component: ItemsComponent },
   { path: 'vendors', component: VendorsComponent },
   { path: 'sales-order', component: SalesOrderComponent },
-  { path: 'sales-orders', component: SalesOrdersComponent }
+  { path: 'sales-orders', component: SalesOrdersComponent },
+  { path: 'sales-invoices', component: SalesInvoicesComponent },
+  { path: 'sales-invoice', component: SalesInvoiceComponent }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   //{ path: '**', component: PageNotFoundComponent }
 ];
@@ -66,7 +71,8 @@ const appRoutes: Routes = [
     SalesReturnsComponent,
     DeliveryReceiptsComponent,
     SalesOrderComponent,
-    SumFilterPipe
+    SumFilterPipe,
+    SalesInvoiceComponent
   ],
   imports: [
     BrowserModule,
@@ -106,6 +112,8 @@ const appRoutes: Routes = [
       useClass: AuthService,
       multi: true
     },
+    RequestCacheWithMap,
+    { provide: HTTP_INTERCEPTORS, useClass: CachingInterceptor, multi: true },
     MessageService,
     SumFilterPipe
   ],

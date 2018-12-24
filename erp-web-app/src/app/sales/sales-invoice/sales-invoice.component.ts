@@ -11,11 +11,11 @@ import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
 
 @Component({
-  selector: 'app-sales-order',
-  templateUrl: './sales-order.component.html',
-  styleUrls: ['./sales-order.component.css']
+  selector: 'app-sales-invoice',
+  templateUrl: './sales-invoice.component.html',
+  styleUrls: ['./sales-invoice.component.css']
 })
-export class SalesOrderComponent implements OnInit {
+export class SalesInvoiceComponent implements OnInit {
 
   form: FormGroup;
   menuItems: MenuItem[];
@@ -28,8 +28,10 @@ export class SalesOrderComponent implements OnInit {
   units: Array<any>;
   items: Array<any>;
   orderDetails: Array<any>;
+  orders: Array<any>;
   searchedItems: any[];
   footerData: any;
+  cols: any[];
 
   constructor(
     private maintenanceService: MaintenanceService,
@@ -45,22 +47,32 @@ export class SalesOrderComponent implements OnInit {
     this.units = [];
     this.items = [];
     this.orderDetails = [];
+    this.orders = [];
   }
 
   ngOnInit() {
-    this.app.title = "Sales Order Entry";
+    this.app.title = "Sales Invoice Entry";
+    this.initializeColumns();
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
     this.initializeOrderDetails();
   }
+  initializeColumns(): any {
+    this.cols = [
+      { field: 'date', header: 'Date' },
+      { field: 'refNo', header: 'Reference No' },
+      { field: 'systemNo', header: 'System No.' },
+      { field: 'isInvoice', header: 'Is Invoice' }
+  ];
+  }
 
   initializeOrderDetails(): any {
     this.orderDetails = [];
-    for (let a = 0; a < 10; a++) {
+    for (let a = 0; a < 8; a++) {
       this.orderDetails.push({
         itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-        unitPrice: null, discount: null, subTotal: null, remarks: ''
+        unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
       });
     }
   }
@@ -77,7 +89,9 @@ export class SalesOrderComponent implements OnInit {
       telNo: [item != null ? item.telNo : ''],
       faxNo: [item != null ? item.faxNo : ''],
       contactPerson: [item != null ? item.contactPerson : ''],
-      termId: [item != null ? item.termId : null]
+      termId: [item != null ? item.termId : null],
+      comments: [item != null ? item.comments : ''],
+      mopid: [item != null ? item.mopid : null]
     });
   }
 
@@ -157,6 +171,15 @@ export class SalesOrderComponent implements OnInit {
       this.f.faxNo.setValue(customer.faxNo);
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
+
+      this.initializeOrders();
+    }
+  }
+  initializeOrders(): any {
+    for (let a = 0; a < 5; a++) {
+      this.orders.push({
+        date: null, systemNo: '', refNo: '', closed: false
+      });
     }
   }
 
@@ -280,4 +303,5 @@ export class SalesOrderComponent implements OnInit {
       this.messaging.errorMessage(this.messaging.ADD_ERROR);
     });
   }
+
 }

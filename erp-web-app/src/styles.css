@@ -1,10 +1,20 @@
+
 /* You can add global styles to this file, and also import other style files */
 body{
-    font-family: "Open Sans", "Helvetica Neue", "sans-serif"
+    font-family: "Open Sans", "Helvetica Neue", "sans-serif";
+    font-size: 12px;
+}
+
+body .ui-inputtext{
+    font-size: 12px;
+}
+
+body .ui-widget{
+    font-size: 12px;
 }
 
 body .ui-progressbar {
-    height: 2px !important;
+    height: 2px;
     border: none !important;
     background: none !important;
 }
@@ -13,13 +23,9 @@ body .ui-panelmenu .ui-panelmenu-header > a .ui-panelmenu-icon {
  display: none !important;
 }
 
-.text-right{
-    text-align: right;
+body .ui-table .ui-editable-column input{
+    font-size: 12px;
 }
-.text-center {
-    text-align: center;
-}
-
 
 body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link.ui-state-active {
     background-color: #005B9F !important;
@@ -27,6 +33,7 @@ body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link.ui-state
 }
 
 body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link{
+    font-size: 14px;
     padding-left: 40px !important;
 }
 
@@ -34,8 +41,13 @@ body .ui-panelmenu .ui-panelmenu-content .ui-corner-all {
     border-radius: 0px !important;
 }
 
+.midTable.ui-table{
+    width: 60%;
+    margin-bottom: 10px;
+}
+
 body .ui-table .ui-table-tbody > tr > td {
-    height: 35px;
+    height: 30px;
 }
 
 body .ui-table .ui-table-thead > tr > th {
@@ -49,6 +61,13 @@ body .ui-table .ui-table-tfoot > tr > td {
 }
 
 .settings.ui-menubar {
-    width: 250px;
+    width: 210px;
     float: right;
+}
+
+.text-right{
+    text-align: right;
+}
+.text-center {
+    text-align: center;
 }
