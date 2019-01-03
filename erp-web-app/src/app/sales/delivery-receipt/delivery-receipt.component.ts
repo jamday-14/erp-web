@@ -56,7 +56,7 @@ export class DeliveryReceiptComponent implements OnInit {
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
-    this.initializeOrderDetails();
+    this.initializeOrderDetails(null);
   }
   initializeColumns(): any {
     this.cols = [
@@ -67,14 +67,32 @@ export class DeliveryReceiptComponent implements OnInit {
     ];
   }
 
-  initializeOrderDetails(): any {
+  initializeOrderDetails(id: number): any {
     this.orderDetails = [];
-    for (let a = 0; a < 8; a++) {
-      this.orderDetails.push({
-        itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-        unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
+    var records = [];
+    if (id != null)
+      this.salesService.querySalesOrderDetails(id).subscribe((resp) => {
+        records = resp;
+        _.forEach(records, (record => {
+          var item = this.findItem(record.itemId);
+          var unit = this.findUnit(record.unitId);
+
+          this.orderDetails.push({
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: '', closed: record.closed
+          });
+        }))
+        this.loading = false;
+      }, (err) => {
+        this.loading = false;
       });
-    }
+    else
+      for (let a = 0; a < 8; a++) {
+        this.orderDetails.push({
+          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
+        });
+      }
   }
 
   initializeForm(item: any): any {
@@ -105,7 +123,7 @@ export class DeliveryReceiptComponent implements OnInit {
       {
         label: 'Reset', icon: 'pi pi-circle-off', command: () => {
           this.initializeForm(null);
-          this.initializeOrderDetails();
+          this.initializeOrderDetails(null);
         }
       }
     ];
@@ -172,15 +190,30 @@ export class DeliveryReceiptComponent implements OnInit {
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
 
-      this.initializeOrders();
+      this.initializeOrders(event.value);
+      this.initializeOrderDetails(null);
     }
   }
-  initializeOrders(): any {
-    for (let a = 0; a < 5; a++) {
-      this.orders.push({
-        date: null, systemNo: '', refNo: '', closed: false
-      });
-    }
+
+  initializeOrders(customerId: number): any {
+    this.loading = true;
+    var records = [];
+    this.orders = [];
+    this.salesService.querySalesOrdersByCustomer(customerId).subscribe((resp) => {
+      records = resp;
+      _.forEach(records, (record => {
+        this.orders.push({
+          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed
+        });
+      }))
+      this.loading = false;
+    }, (err) => {
+      this.loading = false;
+    });
+  }
+
+  onRowSelect(event) {
+    this.initializeOrderDetails(event.data.id);
   }
 
   findItem(itemId) {

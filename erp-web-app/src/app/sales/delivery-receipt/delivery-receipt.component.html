@@ -88,7 +88,7 @@
     </div>
   </form>
   <p-table [columns]="cols" [value]="orders" *ngIf="orders.length > 0" styleClass="midTable" [scrollable]="true"
-    scrollHeight="150px">
+    scrollHeight="150px" selectionMode="single" (onRowSelect)="onRowSelect($event)">
     <ng-template pTemplate="header" let-columns>
       <tr>
         <th *ngFor="let col of columns">
@@ -97,9 +97,9 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
-      <tr>
+      <tr [pSelectableRow]="rowData">
         <td>
-          {{rowData.date}}
+          {{rowData.date | date:'longDate'}}
         </td>
         <td>
           {{rowData.systemNo}}
@@ -123,7 +123,7 @@
         <th style="width:100px">Unit Price</th>
         <th style="width:100px">Discount</th>
         <th style="width:150px">Sub Total</th>
-        <th style="width:100px" pResizableColumn>DR Ref No</th>
+        <th style="width:100px" pResizableColumn>SO Ref No</th>
         <th style="width:70px">Closed</th>
       </tr>
     </ng-template>
