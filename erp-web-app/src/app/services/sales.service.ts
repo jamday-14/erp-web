@@ -16,6 +16,14 @@ export class SalesService {
     return this.api.post('sales/order/detail', request);
   }
 
+  addDeliveryReceipt(request: any) {
+    return this.api.post('sales/delivery-receipts', request);
+  }
+
+  addDeliveryReceiptDetail(request: any) {
+    return this.api.post('sales/delivery-receipt/detail', request);
+  }
+
   queryDeliveryReceiptsByCustomer(customerId: number): any {
     return this.api.get(`sales/delivery-receipts/${customerId}/pending`, null);
   }

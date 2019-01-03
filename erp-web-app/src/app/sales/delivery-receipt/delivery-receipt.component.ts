@@ -63,29 +63,31 @@ export class DeliveryReceiptComponent implements OnInit {
       { field: 'date', header: 'Date' },
       { field: 'refNo', header: 'Reference No' },
       { field: 'systemNo', header: 'System No.' },
-      { field: 'isDR', header: 'Is DR' }
+      { field: 'isDR', header: 'Is DR' },
+      { field: 'action', header: '' },
     ];
   }
 
-  initializeOrderDetails(id: number): any {
-    this.orderDetails = [];
+  initializeOrderDetails(rowData): any {
     var records = [];
-    if (id != null)
-      this.salesService.querySalesOrderDetails(id).subscribe((resp) => {
+    if (rowData != null) {
+      this.loading = true;
+      this.salesService.querySalesOrderDetails(rowData.id).subscribe((resp) => {
         records = resp;
+        this.loading = false;
         _.forEach(records, (record => {
           var item = this.findItem(record.itemId);
           var unit = this.findUnit(record.unitId);
 
           this.orderDetails.push({
             itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: '', closed: record.closed
+            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed
           });
         }))
-        this.loading = false;
       }, (err) => {
         this.loading = false;
       });
+    }
     else
       for (let a = 0; a < 8; a++) {
         this.orderDetails.push({
@@ -191,7 +193,7 @@ export class DeliveryReceiptComponent implements OnInit {
       this.f.termId.setValue(customer.termId);
 
       this.initializeOrders(event.value);
-      this.initializeOrderDetails(null);
+      this.orderDetails = [];
     }
   }
 
@@ -203,7 +205,7 @@ export class DeliveryReceiptComponent implements OnInit {
       records = resp;
       _.forEach(records, (record => {
         this.orders.push({
-          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed
+          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
         });
       }))
       this.loading = false;
@@ -212,8 +214,9 @@ export class DeliveryReceiptComponent implements OnInit {
     });
   }
 
-  onRowSelect(event) {
-    this.initializeOrderDetails(event.data.id);
+  loadDetail(rowData) {
+    rowData.isLoaded = true;
+    this.initializeOrderDetails(rowData);
   }
 
   findItem(itemId) {
@@ -289,16 +292,18 @@ export class DeliveryReceiptComponent implements OnInit {
 
     this.loading = true;
 
-    this.salesService.addSalesOrder({
+    this.salesService.addDeliveryReceipt({
       date: this.f.date.value,
       refNo: this.f.refNo.value,
       address: this.f.address.value,
+      comments: this.f.comments.value,
       telNo: this.f.telNo.value,
       faxNo: this.f.faxNo.value,
       contactPerson: this.f.contactPerson.value,
       systemNo: this.f.systemNo.value,
       customerId: this.f.customerId.value,
       termId: this.f.termId.value,
+      mopid: this.f.mopid.value,
       amount: this.getTotalSubTotal()
     }).subscribe((resp) => {
 
@@ -309,9 +314,9 @@ export class DeliveryReceiptComponent implements OnInit {
       _.forEach(this.getOrderDetails(), (detail) => {
 
         detailsRequests.push(
-          this.salesService.addSalesOrderDetail({
+          this.salesService.addDeliveryReceiptDetail({
 
-            salesOrderId: order.id,
+            deliveryReceiptId: order.id,
             itemId: detail.itemId,
             qty: detail.qty,
             unitPrice: detail.unitPrice,
@@ -326,7 +331,7 @@ export class DeliveryReceiptComponent implements OnInit {
         .subscribe((resp) => {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
-          this.router.navigate(['/sales-orders'])
+          this.router.navigate(['/delivery-receipts'])
         }, (err) => {
           this.loading = false;
           this.messaging.errorMessage(this.messaging.ADD_ERROR);

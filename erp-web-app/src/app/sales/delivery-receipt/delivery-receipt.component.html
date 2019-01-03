@@ -88,7 +88,7 @@
     </div>
   </form>
   <p-table [columns]="cols" [value]="orders" *ngIf="orders.length > 0" styleClass="midTable" [scrollable]="true"
-    scrollHeight="150px" selectionMode="single" (onRowSelect)="onRowSelect($event)">
+    scrollHeight="150px">
     <ng-template pTemplate="header" let-columns>
       <tr>
         <th *ngFor="let col of columns">
@@ -97,18 +97,21 @@
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
-      <tr [pSelectableRow]="rowData">
+      <tr>
         <td>
           {{rowData.date | date:'longDate'}}
         </td>
         <td>
-          {{rowData.systemNo}}
+          {{rowData.refNo}}
         </td>
         <td>
-          {{rowData.refNo}}
+          {{rowData.systemNo}}
         </td>
         <td class="text-center">
           <p-checkbox binary="true" [(ngModel)]="rowData.isDR"></p-checkbox>
+        </td>
+        <td class="text-center">
+          <button pButton type="button" label="Load" class="ui-button-raised" (click)="loadDetail(rowData)" [disabled]="rowData.isLoaded"></button>
         </td>
       </tr>
     </ng-template>
