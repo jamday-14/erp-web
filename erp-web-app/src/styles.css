@@ -3,6 +3,7 @@
 body{
     font-family: "Open Sans", "Helvetica Neue", "sans-serif";
     font-size: 12px;
+    background-image: url(assets/images/background.jpg)
 }
 
 body .ui-inputtext{

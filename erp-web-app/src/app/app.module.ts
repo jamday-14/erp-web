@@ -42,6 +42,7 @@ import { SumFilterPipe } from './sum-filter.pipe';
 import { SalesInvoiceComponent } from './sales/sales-invoice/sales-invoice.component';
 import { RequestCacheWithMap } from './services/request-cache.service';
 import { CachingInterceptor } from './services/caching-interceptor.service';
+import { DeliveryReceiptComponent } from './sales/delivery-receipt/delivery-receipt.component';
 
 const appRoutes: Routes = [
   { path: 'sales-orders', component: SalesOrdersComponent },
@@ -53,7 +54,9 @@ const appRoutes: Routes = [
   { path: 'sales-order', component: SalesOrderComponent },
   { path: 'sales-orders', component: SalesOrdersComponent },
   { path: 'sales-invoices', component: SalesInvoicesComponent },
-  { path: 'sales-invoice', component: SalesInvoiceComponent }
+  { path: 'sales-invoice', component: SalesInvoiceComponent },
+  { path: 'delivery-receipts', component: DeliveryReceiptsComponent },
+  { path: 'delivery-receipt', component: DeliveryReceiptComponent }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   //{ path: '**', component: PageNotFoundComponent }
 ];
@@ -72,7 +75,8 @@ const appRoutes: Routes = [
     DeliveryReceiptsComponent,
     SalesOrderComponent,
     SumFilterPipe,
-    SalesInvoiceComponent
+    SalesInvoiceComponent,
+    DeliveryReceiptComponent
   ],
   imports: [
     BrowserModule,
@@ -107,13 +111,9 @@ const appRoutes: Routes = [
     )
   ],
   providers: [
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthService,
-      multi: true
-    },
-    RequestCacheWithMap,
+    { provide: HTTP_INTERCEPTORS, useClass: AuthService, multi: true },
     { provide: HTTP_INTERCEPTORS, useClass: CachingInterceptor, multi: true },
+    RequestCacheWithMap,
     MessageService,
     SumFilterPipe
   ],

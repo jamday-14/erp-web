@@ -15,9 +15,11 @@ export class AuthService implements HttpInterceptor {
         'Content-Type': 'application/json; charset=utf-8',
         'Accept': 'application/json',
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        'cacheable': req.headers.get('cacheable')
       }
     });
+
+    request.headers.append('cacheable', req.headers != null ? req.headers.get('cacheable') : 'false');
+    
     return next.handle(request).pipe(tap((event: HttpEvent<any>) => {
       if (event instanceof HttpResponse) {
         // do stuff with response if you want

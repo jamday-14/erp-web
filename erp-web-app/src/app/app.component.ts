@@ -44,7 +44,7 @@ export class AppComponent {
         items: [
           { label: 'Sales Quotation' },
           { label: 'Sales Order', routerLink: ['/sales-orders']},
-          { label: 'Delivery Receipt' },
+          { label: 'Delivery Receipt' , routerLink: ['/delivery-receipts']},
           { label: 'Sales Invoice' , routerLink: ['/sales-invoices']},
           { label: 'Sales Return' }
         ]
