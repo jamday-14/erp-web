@@ -56,7 +56,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
-    this.initializeOrderDetails();
+    this.initializeOrderDetails(null);
   }
   initializeColumns(): any {
     this.cols = [
@@ -64,17 +64,35 @@ export class SalesInvoiceComponent implements OnInit {
       { field: 'refNo', header: 'Reference No' },
       { field: 'systemNo', header: 'System No.' },
       { field: 'isInvoice', header: 'Is Invoice' }
-  ];
+    ];
   }
 
-  initializeOrderDetails(): any {
+  initializeOrderDetails(id: number): any {
     this.orderDetails = [];
-    for (let a = 0; a < 8; a++) {
-      this.orderDetails.push({
-        itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-        unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
+    var records = [];
+    if (id != null)
+      this.salesService.queryDeliveryReceiptDetails(id).subscribe((resp) => {
+        records = resp;
+        _.forEach(records, (record => {
+          var item = this.findItem(record.itemId);
+          var unit = this.findUnit(record.unitId);
+
+          this.orderDetails.push({
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: record.sorefNo, closed: record.closed
+          });
+        }))
+        this.loading = false;
+      }, (err) => {
+        this.loading = false;
       });
-    }
+    else
+      for (let a = 0; a < 8; a++) {
+        this.orderDetails.push({
+          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
+        });
+      }
   }
 
   initializeForm(item: any): any {
@@ -105,7 +123,7 @@ export class SalesInvoiceComponent implements OnInit {
       {
         label: 'Reset', icon: 'pi pi-circle-off', command: () => {
           this.initializeForm(null);
-          this.initializeOrderDetails();
+          this.initializeOrderDetails(null);
         }
       }
     ];
@@ -172,15 +190,26 @@ export class SalesInvoiceComponent implements OnInit {
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
 
-      this.initializeOrders();
+      this.initializeOrders(event.value);
+      this.initializeOrderDetails(null);
     }
   }
-  initializeOrders(): any {
-    for (let a = 0; a < 5; a++) {
-      this.orders.push({
-        date: null, systemNo: '', refNo: '', closed: false
-      });
-    }
+
+  initializeOrders(customerId: number): any {
+    this.loading = true;
+    var records = [];
+    this.orders = [];
+    this.salesService.queryDeliveryReceiptsByCustomer(customerId).subscribe((resp) => {
+      records = resp;
+      _.forEach(records, (record => {
+        this.orders.push({
+          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed
+        });
+      }))
+      this.loading = false;
+    }, (err) => {
+      this.loading = false;
+    });
   }
 
   findItem(itemId) {
@@ -216,6 +245,10 @@ export class SalesInvoiceComponent implements OnInit {
 
   getOrderDetails(): any {
     return this.orderDetails.filter(x => x.itemCode != null);
+  }
+
+  onRowSelect(event) {
+    this.initializeOrderDetails(event.data.id);
   }
 
   getTotalQty() {
