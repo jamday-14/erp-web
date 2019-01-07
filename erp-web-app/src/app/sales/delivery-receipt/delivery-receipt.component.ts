@@ -27,6 +27,7 @@ export class DeliveryReceiptComponent implements OnInit {
   customers: Array<any>;
   units: Array<any>;
   items: Array<any>;
+  warehouses: Array<any>;
   orderDetails: Array<any>;
   orders: Array<any>;
   searchedItems: any[];
@@ -46,6 +47,7 @@ export class DeliveryReceiptComponent implements OnInit {
     this.terms = [];
     this.units = [];
     this.items = [];
+    this.warehouses = [];
     this.orderDetails = [];
     this.orders = [];
   }
@@ -78,10 +80,13 @@ export class DeliveryReceiptComponent implements OnInit {
         _.forEach(records, (record => {
           var item = this.findItem(record.itemId);
           var unit = this.findUnit(record.unitId);
+          var whouse = this.findWarehouse(record.warehouseId);
 
           this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
+            unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
+            refNo: rowData.systemNo, closed: record.closed, soid: record.salesOrderId, sodetailId: record.id,
+            warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label
           });
         }))
       }, (err) => {
@@ -92,7 +97,8 @@ export class DeliveryReceiptComponent implements OnInit {
       for (let a = 0; a < 8; a++) {
         this.orderDetails.push({
           itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
+          unitPrice: null, discount: null, subTotal: null, refNo: null, closed: false, soid: null, sodetailId: null,
+          warehouseId: null, warehouseDescription: null
         });
       }
   }
@@ -137,13 +143,15 @@ export class DeliveryReceiptComponent implements OnInit {
     var customersRequest = this.maintenanceService.queryCustomers();
     var unitsRequest = this.maintenanceService.queryUnits();
     var itemsRequest = this.maintenanceService.queryItems();
+    var warehouseRequest = this.maintenanceService.queryWarehouses();
 
-    forkJoin([termsRequest, customersRequest, unitsRequest, itemsRequest])
+    forkJoin([termsRequest, customersRequest, unitsRequest, itemsRequest, warehouseRequest])
       .subscribe((response) => {
         let termsResponse = response[0];
         let customersReponse = response[1];
         let unitsResponse = response[2];
         let itemsResponse = response[3];
+        let warehousesResponse = response[4];
 
         _.forEach(termsResponse, (element => {
           this.terms.push({ value: element.id, label: element.name })
@@ -155,6 +163,10 @@ export class DeliveryReceiptComponent implements OnInit {
 
         _.forEach(unitsResponse, (element => {
           this.units.push({ value: element.id, label: element.name })
+        }));
+
+        _.forEach(warehousesResponse, (element => {
+          this.warehouses.push({ value: element.id, label: element.name })
         }));
 
         _.forEach(itemsResponse, (element => {
@@ -192,8 +204,8 @@ export class DeliveryReceiptComponent implements OnInit {
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
 
-      this.initializeOrders(event.value);
       this.orderDetails = [];
+      this.initializeOrders(event.value);
     }
   }
 
@@ -208,6 +220,11 @@ export class DeliveryReceiptComponent implements OnInit {
           id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
         });
       }))
+
+      if (_.size(this.orders) == 0) {
+        this.initializeOrderDetails(null);
+      }
+
       this.loading = false;
     }, (err) => {
       this.loading = false;
@@ -225,6 +242,10 @@ export class DeliveryReceiptComponent implements OnInit {
 
   findUnit(unitId) {
     return this.units.find(x => x.value == unitId);
+  }
+
+  findWarehouse(unitId) {
+    return this.warehouses.find(x => x.value == unitId);
   }
 
   findCustomer(customerId) {
@@ -247,6 +268,15 @@ export class DeliveryReceiptComponent implements OnInit {
 
       rowData.unitId = unit.value;
       rowData.unitDescription = unit.label;
+    }
+  }
+
+  warehouseChanged(event, rowData) {
+    if (event.value) {
+      let warehouse = this.findWarehouse(event.value);
+
+      rowData.warehouseId = warehouse.value;
+      rowData.warehouseDescription = warehouse.label;
     }
   }
 
@@ -304,7 +334,8 @@ export class DeliveryReceiptComponent implements OnInit {
       customerId: this.f.customerId.value,
       termId: this.f.termId.value,
       mopid: this.f.mopid.value,
-      amount: this.getTotalSubTotal()
+      amount: this.getTotalSubTotal(),
+      totalAmount: 0
     }).subscribe((resp) => {
 
       let order: any;
@@ -323,7 +354,11 @@ export class DeliveryReceiptComponent implements OnInit {
             discount: detail.discount,
             subTotal: detail.subTotal,
             unitId: detail.unitId,
-            remarks: detail.remarks
+            remarks: detail.remarks,
+            soid: detail.soid,
+            sodetailId: detail.sodetailId,
+            sorefNo: detail.refNo,
+            warehouseId: detail.warehouseId
           })
         );
       });

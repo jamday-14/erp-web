@@ -21,7 +21,7 @@ export class SalesService {
   }
 
   addDeliveryReceiptDetail(request: any) {
-    return this.api.post('sales/delivery-receipt/detail', request);
+    return this.api.post('sales/delivery-receipts/detail', request);
   }
 
   queryDeliveryReceiptsByCustomer(customerId: number): any {

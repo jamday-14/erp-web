@@ -122,6 +122,7 @@
         <th pResizableColumn>Item Code</th>
         <th pResizableColumn style="width:450px">Description</th>
         <th style="width:100px">Qty</th>
+        <th>Warehouse</th>
         <th>Unit</th>
         <th style="width:100px">Unit Price</th>
         <th style="width:100px">Discount</th>
@@ -158,6 +159,17 @@
             </ng-template>
           </p-cellEditor>
         </td>
+        <td pEditableColumn>
+            <p-cellEditor>
+              <ng-template pTemplate="input">
+                <p-dropdown [options]="warehouses" [(ngModel)]="rowData.warehouseId" [appendTo]="searchItemLoc"
+                  (onChange)="warehouseChanged($event, rowData)" placeholder="Select Warehouse" required></p-dropdown>
+              </ng-template>
+              <ng-template pTemplate="output">
+                {{rowData.warehouseDescription}}
+              </ng-template>
+            </p-cellEditor>
+          </td>
         <td pEditableColumn>
           <p-cellEditor>
             <ng-template pTemplate="input">
@@ -213,6 +225,7 @@
         <td>No. of Items : {{ getTotalItem() }}</td>
         <td></td>
         <td class="text-right">{{ getTotalQty() }}</td>
+        <td></td>
         <td></td>
         <td class="text-right">{{ getTotalUnitPrice() | currency:"&#8369;" }}</td>
         <td class="text-right">{{ getTotalDiscount() | currency:"&#8369;" }}</td>
