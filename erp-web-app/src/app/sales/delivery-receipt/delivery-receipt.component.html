@@ -15,16 +15,16 @@
               yearRange="1930:2030"></p-calendar>
           </div>
           <div class="p-col-1 text-right">
-            <label for="refNo">Reference No.*</label>
+            <label for="refNo">Reference No.</label>
           </div>
           <div class="p-col-2">
             <input pInputText id="refNo" formControlName="refNo" />
           </div>
           <div class="p-col-1 text-right">
-            <label for="systemNo">System No.*</label>
+            <!-- <label for="systemNo">System No.*</label> -->
           </div>
           <div class="p-col-2">
-            <input pInputText id="systemNo" formControlName="systemNo" />
+            <!-- <input pInputText id="systemNo" formControlName="systemNo" /> -->
           </div>
         </div>
         <div class="p-grid">
@@ -106,9 +106,6 @@
         </td>
         <td>
           {{rowData.systemNo}}
-        </td>
-        <td class="text-center">
-          <p-checkbox binary="true" [(ngModel)]="rowData.isDR"></p-checkbox>
         </td>
         <td class="text-center">
           <button pButton type="button" label="Load" class="ui-button-raised" (click)="loadDetail(rowData)" [disabled]="rowData.isLoaded"></button>

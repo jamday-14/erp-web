@@ -60,47 +60,14 @@ export class DeliveryReceiptComponent implements OnInit {
     this.getReferenceData();
     this.initializeOrderDetails(null);
   }
+
   initializeColumns(): any {
     this.cols = [
       { field: 'date', header: 'Date' },
       { field: 'refNo', header: 'Reference No' },
       { field: 'systemNo', header: 'System No.' },
-      { field: 'isDR', header: 'Is DR' },
       { field: 'action', header: '' },
     ];
-  }
-
-  initializeOrderDetails(rowData): any {
-    var records = [];
-    if (rowData != null) {
-      this.loading = true;
-      this.salesService.querySalesOrderDetails(rowData.id).subscribe((resp) => {
-        records = resp;
-        this.loading = false;
-        _.forEach(records, (record => {
-          var item = this.findItem(record.itemId);
-          var unit = this.findUnit(record.unitId);
-          var whouse = this.findWarehouse(record.warehouseId);
-
-          this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
-            unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
-            refNo: rowData.systemNo, closed: record.closed, soid: record.salesOrderId, sodetailId: record.id,
-            warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label
-          });
-        }))
-      }, (err) => {
-        this.loading = false;
-      });
-    }
-    else
-      for (let a = 0; a < 8; a++) {
-        this.orderDetails.push({
-          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, refNo: null, closed: false, soid: null, sodetailId: null,
-          warehouseId: null, warehouseDescription: null
-        });
-      }
   }
 
   initializeForm(item: any): any {
@@ -109,7 +76,7 @@ export class DeliveryReceiptComponent implements OnInit {
     this.form = this.formBuilder.group({
       date: [item != null ? item.name : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
-      systemNo: [item != null ? item.systemNo : '', Validators.required],
+      // systemNo: [item != null ? item.systemNo : '', Validators.required],
       customerId: [item != null ? item.customerId : null, Validators.required],
       address: [item != null ? item.address : ''],
       telNo: [item != null ? item.telNo : ''],
@@ -231,6 +198,39 @@ export class DeliveryReceiptComponent implements OnInit {
     });
   }
 
+  initializeOrderDetails(rowData): any {
+    var records = [];
+    if (rowData != null) {
+      this.loading = true;
+      this.salesService.querySalesOrderDetails(rowData.id).subscribe((resp) => {
+        records = resp;
+        this.loading = false;
+        _.forEach(records, (record => {
+          var item = this.findItem(record.itemId);
+          var unit = this.findUnit(record.unitId);
+          var whouse = this.findWarehouse(record.warehouseId);
+
+          this.orderDetails.push({
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
+            unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
+            refNo: rowData.systemNo, closed: record.closed, soid: record.salesOrderId, sodetailId: record.id,
+            warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label
+          });
+        }))
+      }, (err) => {
+        this.loading = false;
+      });
+    }
+    else
+      for (let a = 0; a < 8; a++) {
+        this.orderDetails.push({
+          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+          unitPrice: null, discount: null, subTotal: null, refNo: null, closed: false, soid: null, sodetailId: null,
+          warehouseId: null, warehouseDescription: null
+        });
+      }
+  }
+
   loadDetail(rowData) {
     rowData.isLoaded = true;
     this.initializeOrderDetails(rowData);
@@ -330,7 +330,7 @@ export class DeliveryReceiptComponent implements OnInit {
       telNo: this.f.telNo.value,
       faxNo: this.f.faxNo.value,
       contactPerson: this.f.contactPerson.value,
-      systemNo: this.f.systemNo.value,
+      // systemNo: this.f.systemNo.value,
       customerId: this.f.customerId.value,
       termId: this.f.termId.value,
       mopid: this.f.mopid.value,
@@ -358,7 +358,8 @@ export class DeliveryReceiptComponent implements OnInit {
             soid: detail.soid,
             sodetailId: detail.sodetailId,
             sorefNo: detail.refNo,
-            warehouseId: detail.warehouseId
+            warehouseId: detail.warehouseId,
+            closed: detail.closed
           })
         );
       });

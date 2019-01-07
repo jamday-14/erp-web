@@ -63,36 +63,8 @@ export class SalesInvoiceComponent implements OnInit {
       { field: 'date', header: 'Date' },
       { field: 'refNo', header: 'Reference No' },
       { field: 'systemNo', header: 'System No.' },
-      { field: 'isInvoice', header: 'Is Invoice' }
+      { field: 'action', header: '' },
     ];
-  }
-
-  initializeOrderDetails(id: number): any {
-    this.orderDetails = [];
-    var records = [];
-    if (id != null)
-      this.salesService.queryDeliveryReceiptDetails(id).subscribe((resp) => {
-        records = resp;
-        _.forEach(records, (record => {
-          var item = this.findItem(record.itemId);
-          var unit = this.findUnit(record.unitId);
-
-          this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: record.sorefNo, closed: record.closed
-          });
-        }))
-        this.loading = false;
-      }, (err) => {
-        this.loading = false;
-      });
-    else
-      for (let a = 0; a < 8; a++) {
-        this.orderDetails.push({
-          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false
-        });
-      }
   }
 
   initializeForm(item: any): any {
@@ -101,7 +73,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.form = this.formBuilder.group({
       date: [item != null ? item.name : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
-      systemNo: [item != null ? item.systemNo : '', Validators.required],
+      // systemNo: [item != null ? item.systemNo : '', Validators.required],
       customerId: [item != null ? item.customerId : null, Validators.required],
       address: [item != null ? item.address : ''],
       telNo: [item != null ? item.telNo : ''],
@@ -190,8 +162,8 @@ export class SalesInvoiceComponent implements OnInit {
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
 
+      this.orderDetails = [];
       this.initializeOrders(event.value);
-      this.initializeOrderDetails(null);
     }
   }
 
@@ -203,13 +175,46 @@ export class SalesInvoiceComponent implements OnInit {
       records = resp;
       _.forEach(records, (record => {
         this.orders.push({
-          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed
+          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
         });
       }))
+
+      if (_.size(this.orders) == 0) {
+        this.initializeOrderDetails(null);
+      }
+
       this.loading = false;
     }, (err) => {
       this.loading = false;
     });
+  }
+
+  initializeOrderDetails(rowData): any {
+    var records = [];
+    if (rowData != null)
+      this.salesService.queryDeliveryReceiptDetails(rowData.id).subscribe((resp) => {
+        records = resp;
+        _.forEach(records, (record => {
+          var item = this.findItem(record.itemId);
+          var unit = this.findUnit(record.unitId);
+
+          this.orderDetails.push({
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed, 
+            drid: record.deliveryReceiptId, drdetailId: record.id
+          });
+        }))
+        this.loading = false;
+      }, (err) => {
+        this.loading = false;
+      });
+    else
+      for (let a = 0; a < 8; a++) {
+        this.orderDetails.push({
+          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false, drid: null, drdetailId: null
+        });
+      }
   }
 
   findItem(itemId) {
@@ -247,8 +252,9 @@ export class SalesInvoiceComponent implements OnInit {
     return this.orderDetails.filter(x => x.itemCode != null);
   }
 
-  onRowSelect(event) {
-    this.initializeOrderDetails(event.data.id);
+  loadDetail(rowData) {
+    rowData.isLoaded = true;
+    this.initializeOrderDetails(rowData);
   }
 
   getTotalQty() {
@@ -289,17 +295,20 @@ export class SalesInvoiceComponent implements OnInit {
 
     this.loading = true;
 
-    this.salesService.addSalesOrder({
+    this.salesService.addSalesInvoice({
       date: this.f.date.value,
       refNo: this.f.refNo.value,
       address: this.f.address.value,
+      comments: this.f.comments.value,
       telNo: this.f.telNo.value,
       faxNo: this.f.faxNo.value,
       contactPerson: this.f.contactPerson.value,
-      systemNo: this.f.systemNo.value,
+      // systemNo: this.f.systemNo.value,
       customerId: this.f.customerId.value,
       termId: this.f.termId.value,
-      amount: this.getTotalSubTotal()
+      mopid: this.f.mopid.value,
+      amount: this.getTotalSubTotal(),
+      totalAmount: 0
     }).subscribe((resp) => {
 
       let order: any;
@@ -309,16 +318,20 @@ export class SalesInvoiceComponent implements OnInit {
       _.forEach(this.getOrderDetails(), (detail) => {
 
         detailsRequests.push(
-          this.salesService.addSalesOrderDetail({
+          this.salesService.addSalesInvoiceDetail({
 
-            salesOrderId: order.id,
+            salesInvoiceId: order.id,
             itemId: detail.itemId,
             qty: detail.qty,
             unitPrice: detail.unitPrice,
             discount: detail.discount,
             subTotal: detail.subTotal,
             unitId: detail.unitId,
-            remarks: detail.remarks
+            remarks: detail.remarks,
+            drid: detail.drid,
+            drdetailId: detail.drdetailId,
+            drrefNo: detail.refNo,
+            closed: detail.closed
           })
         );
       });
