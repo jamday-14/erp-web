@@ -171,7 +171,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.loading = true;
     var records = [];
     this.orders = [];
-    this.salesService.queryDeliveryReceiptsByCustomer(customerId).subscribe((resp) => {
+    this.salesService.queryPendingDeliveryReceiptsByCustomer(customerId).subscribe((resp) => {
       records = resp;
       _.forEach(records, (record => {
         this.orders.push({
@@ -192,16 +192,16 @@ export class SalesInvoiceComponent implements OnInit {
   initializeOrderDetails(rowData): any {
     var records = [];
     if (rowData != null)
-      this.salesService.queryDeliveryReceiptDetails(rowData.id).subscribe((resp) => {
+      this.salesService.queryDeliveryReceiptDetailsPendingInvoice(rowData.id).subscribe((resp) => {
         records = resp;
         _.forEach(records, (record => {
           var item = this.findItem(record.itemId);
           var unit = this.findUnit(record.unitId);
 
           this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed, 
-            drid: record.deliveryReceiptId, drdetailId: record.id
+            itemId: item.value, itemCode: item.code, description: item.label, qty: (record.qty - (record.qtyReturn + record.qtyInvoice)),
+            unitId: unit.value, unitDescription: unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
+            refNo: rowData.systemNo, closed: record.closed, drid: record.deliveryReceiptId, drdetailId: record.id
           });
         }))
         this.loading = false;

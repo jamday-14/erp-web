@@ -259,7 +259,7 @@ export class SalesOrderComponent implements OnInit {
             itemId: detail.itemId,
             qty: detail.qty,
             unitPrice: detail.unitPrice,
-            discount: detail.discount,
+            discount: detail.discount || 0,
             subTotal: detail.subTotal,
             unitId: detail.unitId,
             remarks: detail.remarks

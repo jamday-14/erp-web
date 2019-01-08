@@ -11,11 +11,11 @@ import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
 
 @Component({
-  selector: 'app-delivery-receipt',
-  templateUrl: './delivery-receipt.component.html',
-  styleUrls: ['./delivery-receipt.component.css']
+  selector: 'app-sales-return',
+  templateUrl: './sales-return.component.html',
+  styleUrls: ['./sales-return.component.css']
 })
-export class DeliveryReceiptComponent implements OnInit {
+export class SalesReturnComponent implements OnInit {
 
   form: FormGroup;
   menuItems: MenuItem[];
@@ -23,11 +23,10 @@ export class DeliveryReceiptComponent implements OnInit {
   newItem: boolean;
   loading: boolean;
 
-  terms: Array<any>;
+  warehouses: Array<any>;
   customers: Array<any>;
   units: Array<any>;
   items: Array<any>;
-  warehouses: Array<any>;
   orderDetails: Array<any>;
   orders: Array<any>;
   searchedItems: any[];
@@ -44,23 +43,21 @@ export class DeliveryReceiptComponent implements OnInit {
     private app: AppComponent
   ) {
     this.customers = [];
-    this.terms = [];
+    this.warehouses = [];
     this.units = [];
     this.items = [];
-    this.warehouses = [];
     this.orderDetails = [];
     this.orders = [];
   }
 
   ngOnInit() {
-    this.app.title = "Delivery Receipt Entry";
+    this.app.title = "Sales Return Entry";
     this.initializeColumns();
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
     this.initializeOrderDetails(null);
   }
-
   initializeColumns(): any {
     this.cols = [
       { field: 'date', header: 'Date' },
@@ -76,15 +73,9 @@ export class DeliveryReceiptComponent implements OnInit {
     this.form = this.formBuilder.group({
       date: [item != null ? item.name : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
-      // systemNo: [item != null ? item.systemNo : '', Validators.required],
       customerId: [item != null ? item.customerId : null, Validators.required],
-      address: [item != null ? item.address : ''],
-      telNo: [item != null ? item.telNo : ''],
-      faxNo: [item != null ? item.faxNo : ''],
-      contactPerson: [item != null ? item.contactPerson : ''],
-      termId: [item != null ? item.termId : null],
-      comments: [item != null ? item.comments : ''],
-      mopid: [item != null ? item.mopid : null]
+      warehouseId: [item != null ? item.warehouseId : null, Validators.required],
+      remarks: [item != null ? item.remarks : '']
     });
   }
 
@@ -106,22 +97,20 @@ export class DeliveryReceiptComponent implements OnInit {
 
   getReferenceData(): any {
     this.loading = true;
-    var termsRequest = this.maintenanceService.queryTerms();
+    var warehouseRequest = this.maintenanceService.queryWarehouses();
     var customersRequest = this.maintenanceService.queryCustomers();
     var unitsRequest = this.maintenanceService.queryUnits();
     var itemsRequest = this.maintenanceService.queryItems();
-    var warehouseRequest = this.maintenanceService.queryWarehouses();
 
-    forkJoin([termsRequest, customersRequest, unitsRequest, itemsRequest, warehouseRequest])
+    forkJoin([warehouseRequest, customersRequest, unitsRequest, itemsRequest])
       .subscribe((response) => {
-        let termsResponse = response[0];
+        let warehousResponse = response[0];
         let customersReponse = response[1];
         let unitsResponse = response[2];
         let itemsResponse = response[3];
-        let warehousesResponse = response[4];
 
-        _.forEach(termsResponse, (element => {
-          this.terms.push({ value: element.id, label: element.name })
+        _.forEach(warehousResponse, (element => {
+          this.warehouses.push({ value: element.id, label: element.name })
         }));
 
         _.forEach(customersReponse, (el => {
@@ -130,10 +119,6 @@ export class DeliveryReceiptComponent implements OnInit {
 
         _.forEach(unitsResponse, (element => {
           this.units.push({ value: element.id, label: element.name })
-        }));
-
-        _.forEach(warehousesResponse, (element => {
-          this.warehouses.push({ value: element.id, label: element.name })
         }));
 
         _.forEach(itemsResponse, (element => {
@@ -163,14 +148,7 @@ export class DeliveryReceiptComponent implements OnInit {
 
   customerChanged(event) {
     if (event.value) {
-      let customer = this.findCustomer(event.value);
-
-      this.f.address.setValue(customer.address);
-      this.f.telNo.setValue(customer.telNo);
-      this.f.faxNo.setValue(customer.faxNo);
-      this.f.contactPerson.setValue(customer.contactPerson);
-      this.f.termId.setValue(customer.termId);
-
+      //let customer = this.findCustomer(event.value);
       this.orderDetails = [];
       this.initializeOrders(event.value);
     }
@@ -180,7 +158,7 @@ export class DeliveryReceiptComponent implements OnInit {
     this.loading = true;
     var records = [];
     this.orders = [];
-    this.salesService.querySalesOrdersByCustomer(customerId).subscribe((resp) => {
+    this.salesService.queryDeliveryReceiptsByCustomer(customerId).subscribe((resp) => {
       records = resp;
       _.forEach(records, (record => {
         this.orders.push({
@@ -200,40 +178,30 @@ export class DeliveryReceiptComponent implements OnInit {
 
   initializeOrderDetails(rowData): any {
     var records = [];
-    if (rowData != null) {
-      this.loading = true;
-      this.salesService.querySalesOrderDetails(rowData.id).subscribe((resp) => {
+    if (rowData != null)
+      this.salesService.queryDeliveryReceiptDetails(rowData.id).subscribe((resp) => {
         records = resp;
-        this.loading = false;
         _.forEach(records, (record => {
           var item = this.findItem(record.itemId);
           var unit = this.findUnit(record.unitId);
-          var whouse = this.findWarehouse(record.warehouseId);
 
           this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty - record.qtyDr, unitId: unit == null ? null : unit.value,
-            unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
-            refNo: rowData.systemNo, closed: record.closed, soid: record.salesOrderId, sodetailId: record.id,
-            warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty - record.qtyReturn, unitId: unit.value, unitDescription: unit.label,
+            unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed, 
+            drid: record.deliveryReceiptId, drdetailId: record.id
           });
         }))
+        this.loading = false;
       }, (err) => {
         this.loading = false;
       });
-    }
     else
       for (let a = 0; a < 8; a++) {
         this.orderDetails.push({
           itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, refNo: null, closed: false, soid: null, sodetailId: null,
-          warehouseId: null, warehouseDescription: null
+          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false, drid: null, drdetailId: null
         });
       }
-  }
-
-  loadDetail(rowData) {
-    rowData.isLoaded = true;
-    this.initializeOrderDetails(rowData);
   }
 
   findItem(itemId) {
@@ -242,10 +210,6 @@ export class DeliveryReceiptComponent implements OnInit {
 
   findUnit(unitId) {
     return this.units.find(x => x.value == unitId);
-  }
-
-  findWarehouse(unitId) {
-    return this.warehouses.find(x => x.value == unitId);
   }
 
   findCustomer(customerId) {
@@ -271,17 +235,13 @@ export class DeliveryReceiptComponent implements OnInit {
     }
   }
 
-  warehouseChanged(event, rowData) {
-    if (event.value) {
-      let warehouse = this.findWarehouse(event.value);
-
-      rowData.warehouseId = warehouse.value;
-      rowData.warehouseDescription = warehouse.label;
-    }
-  }
-
   getOrderDetails(): any {
     return this.orderDetails.filter(x => x.itemCode != null);
+  }
+
+  loadDetail(rowData) {
+    rowData.isLoaded = true;
+    this.initializeOrderDetails(rowData);
   }
 
   getTotalQty() {
@@ -320,27 +280,14 @@ export class DeliveryReceiptComponent implements OnInit {
       return;
     }
 
-    if (!_.every(this.getOrderDetails(), (x) => { return x.warehouseId != null })) {
-      this.messaging.warningMessage(this.messaging.WAREHOUSE_ITEMS);
-      return;
-    }
-
     this.loading = true;
 
-    this.salesService.addDeliveryReceipt({
+    this.salesService.addSalesReturn({
       date: this.f.date.value,
       refNo: this.f.refNo.value,
-      address: this.f.address.value,
-      comments: this.f.comments.value,
-      telNo: this.f.telNo.value,
-      faxNo: this.f.faxNo.value,
-      contactPerson: this.f.contactPerson.value,
-      // systemNo: this.f.systemNo.value,
+      remarks: this.f.remarks.value,
       customerId: this.f.customerId.value,
-      termId: this.f.termId.value,
-      mopid: this.f.mopid.value,
-      amount: this.getTotalSubTotal(),
-      totalAmount: 0
+      warehouseId: this.f.warehouseId.value
     }).subscribe((resp) => {
 
       let order: any;
@@ -350,9 +297,9 @@ export class DeliveryReceiptComponent implements OnInit {
       _.forEach(this.getOrderDetails(), (detail) => {
 
         detailsRequests.push(
-          this.salesService.addDeliveryReceiptDetail({
+          this.salesService.addSalesReturnDetail({
 
-            deliveryReceiptId: order.id,
+            salesReturnId: order.id,
             itemId: detail.itemId,
             qty: detail.qty,
             unitPrice: detail.unitPrice,
@@ -360,11 +307,10 @@ export class DeliveryReceiptComponent implements OnInit {
             subTotal: detail.subTotal,
             unitId: detail.unitId,
             remarks: detail.remarks,
-            soid: detail.soid,
-            sodetailId: detail.sodetailId,
-            sorefNo: detail.refNo,
-            warehouseId: detail.warehouseId,
-            closed: detail.closed
+            drid: detail.drid,
+            drdetailId: detail.drdetailId,
+            drrefNo: detail.refNo,
+            warehouseId: this.f.warehouseId.value
           })
         );
       });
@@ -372,7 +318,7 @@ export class DeliveryReceiptComponent implements OnInit {
         .subscribe((resp) => {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
-          this.router.navigate(['/delivery-receipts'])
+          //this.router.navigate(['/sales-orders'])
         }, (err) => {
           this.loading = false;
           this.messaging.errorMessage(this.messaging.ADD_ERROR);

@@ -15,9 +15,10 @@ export class MessagingService {
 
   ADD_ERROR: string = "Failed creating a record.";
   ADD_SUCCESS: string = "Successful creating a record."
-  REQUIRED: string= "Please complete all required fields mark with asterisk (*)"
-  ONE_LINE_ITEM: string= "Please provide at least one order line item."
-  QTY_AND_PRICE: string= "Please specify quantity and unit price for all order line items."
+  REQUIRED: string = "Please complete all required fields mark with asterisk (*)"
+  ONE_LINE_ITEM: string = "Please provide at least one order line item."
+  QTY_AND_PRICE: string = "Please specify quantity and unit price for all order line items."
+  WAREHOUSE_ITEMS: string = "Please select warehouse for all line items."
 
   constructor(private messageService: MessageService) { }
 

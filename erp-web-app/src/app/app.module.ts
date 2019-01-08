@@ -43,6 +43,7 @@ import { SalesInvoiceComponent } from './sales/sales-invoice/sales-invoice.compo
 import { RequestCacheWithMap } from './services/request-cache.service';
 import { CachingInterceptor } from './services/caching-interceptor.service';
 import { DeliveryReceiptComponent } from './sales/delivery-receipt/delivery-receipt.component';
+import { SalesReturnComponent } from './sales/sales-return/sales-return.component';
 
 const appRoutes: Routes = [
   { path: 'sales-orders', component: SalesOrdersComponent },
@@ -56,7 +57,9 @@ const appRoutes: Routes = [
   { path: 'sales-invoices', component: SalesInvoicesComponent },
   { path: 'sales-invoice', component: SalesInvoiceComponent },
   { path: 'delivery-receipts', component: DeliveryReceiptsComponent },
-  { path: 'delivery-receipt', component: DeliveryReceiptComponent }
+  { path: 'delivery-receipt', component: DeliveryReceiptComponent },
+  { path: 'sales-returns', component: SalesReturnsComponent },
+  { path: 'sales-return', component: SalesReturnComponent }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   //{ path: '**', component: PageNotFoundComponent }
 ];
@@ -76,7 +79,8 @@ const appRoutes: Routes = [
     SalesOrderComponent,
     SumFilterPipe,
     SalesInvoiceComponent,
-    DeliveryReceiptComponent
+    DeliveryReceiptComponent,
+    SalesReturnComponent
   ],
   imports: [
     BrowserModule,

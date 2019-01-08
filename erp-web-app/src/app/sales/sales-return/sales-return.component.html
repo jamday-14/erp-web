@@ -38,50 +38,18 @@
         </div>
         <div class="p-grid">
           <div class="p-col-1 text-right">
-            <label for="address">Address</label>
+            <label for="termId">Warehouse*</label>
           </div>
-          <div class="p-col-5">
-            <textarea pInputTextarea id="address" formControlName="address"></textarea>
-          </div>
-          <div class="p-col-1 text-right">
-            <label for="comments">Comments</label>
-          </div>
-          <div class="p-col-5">
-            <textarea pInputTextarea id="comments" formControlName="comments"></textarea>
+          <div class="p-col-2">
+            <p-dropdown [options]="warehouses" id="warehouseId" [style]="{width: '100%'}" formControlName="warehouseId" placeholder="Select warehouse"></p-dropdown>
           </div>
         </div>
         <div class="p-grid">
           <div class="p-col-1 text-right">
-            <label for="telNo">Telephone No</label>
+            <label for="comments">Remarks</label>
           </div>
-          <div class="p-col-2">
-            <p-inputMask mask="(999)999-9999" id="telNo" formControlName="telNo"></p-inputMask>
-          </div>
-          <div class="p-col-1 text-right">
-            <label for="faxNo">Fax No</label>
-          </div>
-          <div class="p-col-2">
-            <p-inputMask mask="(999)999-9999" id="faxNo" formControlName="faxNo"></p-inputMask>
-          </div>
-        </div>
-        <div class="p-grid">
-          <div class="p-col-1 text-right">
-            <label for="contactPerson">Contact Person</label>
-          </div>
-          <div class="p-col-2">
-            <input pInputText id="contactPerson" formControlName="contactPerson" />
-          </div>
-          <div class="p-col-1 text-right">
-            <label for="termId">Terms</label>
-          </div>
-          <div class="p-col-2">
-            <p-dropdown [options]="terms" id="termId" [style]="{width: '100%'}" formControlName="termId" placeholder="Select payment term"></p-dropdown>
-          </div>
-          <div class="p-col-1 text-right">
-            <label for="mopid">Mode of Payment</label>
-          </div>
-          <div class="p-col-2">
-            <p-dropdown [options]="terms" id="mopid" [style]="{width: '100%'}" formControlName="mopid" placeholder="Select mode of payment"></p-dropdown>
+          <div class="p-col-5">
+            <textarea pInputTextarea id="comments" formControlName="remarks"></textarea>
           </div>
         </div>
       </div>
@@ -159,8 +127,8 @@
         <td pEditableColumn>
           <p-cellEditor>
             <ng-template pTemplate="input">
-              <p-dropdown [options]="units" [(ngModel)]="rowData.unitId" [style]="{width: '100%'}" [appendTo]="searchItemLoc"
-                (onChange)="unitChanged($event, rowData)" placeholder="Select Unit" required></p-dropdown>
+              <p-dropdown [options]="units" [(ngModel)]="rowData.unitId" [style]="{width: '100%'}" [appendTo]="searchItemLoc" (onChange)="unitChanged($event, rowData)"
+                placeholder="Select Unit" required></p-dropdown>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.unitDescription}}
