@@ -2,7 +2,8 @@
   <p-toast></p-toast>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <p-menubar [model]="menuItems"></p-menubar>
-  <p-table #dt1 [columns]="cols" [value]="orders" dataKey="systemNo" *ngIf="orders.length > 0" [resizableColumns]="true" [paginator]="true" [rows]="15">
+  <p-table #dt1 [columns]="cols" [value]="orders" dataKey="systemNo" *ngIf="orders.length > 0" [resizableColumns]="true"
+    [paginator]="true" [rows]="15">
     <ng-template pTemplate="header" let-columns>
       <tr>
         <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
@@ -20,7 +21,7 @@
     <ng-template pTemplate="body" let-rowData>
       <tr [pSelectableRow]="rowData">
         <td>
-          {{rowData.systemNo}}
+          <a [routerLink]="['/sales-order', rowData.id]"> {{rowData.systemNo}} </a>
         </td>
         <td>
           {{rowData.date | date:'longDate'}}

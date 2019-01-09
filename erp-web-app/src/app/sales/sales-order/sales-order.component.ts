@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { Location } from '@angular/common';
 import { MenuItem } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import { SumFilterPipe } from 'src/app/sum-filter.pipe';
@@ -17,6 +18,7 @@ import { AppComponent } from 'src/app/app.component';
 })
 export class SalesOrderComponent implements OnInit {
 
+  id: number;
   form: FormGroup;
   menuItems: MenuItem[];
 
@@ -38,7 +40,9 @@ export class SalesOrderComponent implements OnInit {
     private formBuilder: FormBuilder,
     private sumPipe: SumFilterPipe,
     private messaging: MessagingService,
-    private app: AppComponent
+    private app: AppComponent,
+    private route: ActivatedRoute,
+    private location: Location
   ) {
     this.customers = [];
     this.terms = [];
@@ -48,28 +52,75 @@ export class SalesOrderComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    this.route.params.subscribe((params) => this.id = params.id);
+    this.newItem = this.id == 0 ? true : false;
+
     this.app.title = "Sales Order Entry";
+
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
-    this.initializeOrderDetails();
+
   }
 
-  initializeOrderDetails(): any {
-    this.orderDetails = [];
-    for (let a = 0; a < 10; a++) {
-      this.orderDetails.push({
-        itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-        unitPrice: null, discount: null, subTotal: null, remarks: ''
-      });
+  initializeMenu() {
+    this.menuItems = [
+      {
+        label: 'Back', icon: 'pi pi-arrow-left', command: () => {
+          this.location.back();
+        }
+      },
+      {
+        label: 'Save', icon: 'pi pi-save', command: () => {
+          this.save();
+        }
+      },
+    ];
+
+    if (this.newItem) {
+      this.menuItems.push({
+        label: 'Reset', icon: 'pi pi-circle-off', command: () => {
+          this.initializeForm(null);
+          this.initializeOrderDetails(null);
+        }
+      })
     }
   }
 
-  initializeForm(item: any): any {
-    this.newItem = item == null ? true : false;
+  private initializeHeader() {
+    if (!this.newItem) {
+      this.loading = true;
+      var salesOrderDetailsRequest = this.salesService.querySalesOrderDetails(this.id);
+      var salesOrdersRequest = this.salesService.getSalesOrder(this.id);
 
+      forkJoin([salesOrdersRequest, salesOrderDetailsRequest]).subscribe((response) => {
+        var soResponse = response[0];
+        var sodResponse = response[1];
+
+        this.form.patchValue({
+          date: new Date(soResponse.date),
+          customerId: soResponse.customerId,
+          systemNo: soResponse.systemNo,
+          refNo: soResponse.refNo,
+          address: soResponse.address,
+          telNo: soResponse.telNo,
+          faxNo: soResponse.faxNo,
+          contactPerson: soResponse.contactPerson,
+          termId: soResponse.termId
+        });
+
+        this.initializeOrderDetails(sodResponse);
+
+        this.loading = false;
+
+      }, (err) => { });
+    } else { this.initializeOrderDetails(null); }
+  }
+
+  initializeForm(item: any): any {
     this.form = this.formBuilder.group({
-      date: [item != null ? item.name : null, Validators.required],
+      date: [item != null ? item.date : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
       systemNo: [item != null ? item.systemNo : '', Validators.required],
       customerId: [item != null ? item.customerId : null, Validators.required],
@@ -81,20 +132,26 @@ export class SalesOrderComponent implements OnInit {
     });
   }
 
-  initializeMenu() {
-    this.menuItems = [
-      {
-        label: 'Save', icon: 'pi pi-save', command: () => {
-          this.save();
-        }
-      },
-      {
-        label: 'Reset', icon: 'pi pi-circle-off', command: () => {
-          this.initializeForm(null);
-          this.initializeOrderDetails();
-        }
+  initializeOrderDetails(arr: Array<any>): any {
+    this.orderDetails = [];
+
+    if (arr == null)
+      for (let a = 0; a < 10; a++) {
+        this.orderDetails.push({
+          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+          unitPrice: null, discount: null, subTotal: null, remarks: ''
+        });
       }
-    ];
+    else {
+      _.forEach(arr, (record => {
+        var item = this.findItem(record.itemId);
+
+        this.orderDetails.push({
+          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: record.unitId, unitDescription: null,
+          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
+        });
+      }));
+    }
   }
 
   getReferenceData(): any {
@@ -126,6 +183,8 @@ export class SalesOrderComponent implements OnInit {
         _.forEach(itemsResponse, (element => {
           this.items.push({ value: element.id, label: element.description, code: element.itemCode, unitPrice: element.unitPrice, unitId: element.unitId })
         }));
+
+        this.initializeHeader();
 
         this.loading = false;
       }, (err) => { this.loading = false; });

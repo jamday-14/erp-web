@@ -43,7 +43,7 @@ export class SalesOrdersComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/sales-order']);
+          this.router.navigate(['/sales-order', 0]);
         }
       },
       {

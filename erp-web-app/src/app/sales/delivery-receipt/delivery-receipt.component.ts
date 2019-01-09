@@ -202,7 +202,7 @@ export class DeliveryReceiptComponent implements OnInit {
     var records = [];
     if (rowData != null) {
       this.loading = true;
-      this.salesService.querySalesOrderDetails(rowData.id).subscribe((resp) => {
+      this.salesService.querySalesOrderDetailsPendingDR(rowData.id).subscribe((resp) => {
         records = resp;
         this.loading = false;
         _.forEach(records, (record => {

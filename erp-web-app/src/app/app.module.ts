@@ -46,14 +46,13 @@ import { DeliveryReceiptComponent } from './sales/delivery-receipt/delivery-rece
 import { SalesReturnComponent } from './sales/sales-return/sales-return.component';
 
 const appRoutes: Routes = [
-  { path: 'sales-orders', component: SalesOrdersComponent },
   { path: 'home', component: HomeComponent },
   { path: 'customers', component: CustomersComponent },
   { path: 'employees', component: EmployeesComponent },
   { path: 'items', component: ItemsComponent },
   { path: 'vendors', component: VendorsComponent },
-  { path: 'sales-order', component: SalesOrderComponent },
   { path: 'sales-orders', component: SalesOrdersComponent },
+  { path: 'sales-order/:id', component: SalesOrderComponent },
   { path: 'sales-invoices', component: SalesInvoicesComponent },
   { path: 'sales-invoice', component: SalesInvoiceComponent },
   { path: 'delivery-receipts', component: DeliveryReceiptsComponent },
