@@ -56,7 +56,7 @@ const appRoutes: Routes = [
   { path: 'sales-invoices', component: SalesInvoicesComponent },
   { path: 'sales-invoice', component: SalesInvoiceComponent },
   { path: 'delivery-receipts', component: DeliveryReceiptsComponent },
-  { path: 'delivery-receipt', component: DeliveryReceiptComponent },
+  { path: 'delivery-receipt/:id', component: DeliveryReceiptComponent },
   { path: 'sales-returns', component: SalesReturnsComponent },
   { path: 'sales-return', component: SalesReturnComponent }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },

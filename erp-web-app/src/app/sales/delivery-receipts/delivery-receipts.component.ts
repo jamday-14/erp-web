@@ -43,7 +43,7 @@ export class DeliveryReceiptsComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/delivery-receipt']);
+          this.router.navigate(['/delivery-receipt', 0]);
         }
       },
       {

@@ -185,8 +185,11 @@ export class SalesReturnComponent implements OnInit {
           var item = this.findItem(record.itemId);
           var unit = this.findUnit(record.unitId);
 
+          record.qty -= record.qtyReturn;
+          this.computeSubTotal(record);
+
           this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty - record.qtyReturn, unitId: unit.value, unitDescription: unit.label,
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
             unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed, 
             drid: record.deliveryReceiptId, drdetailId: record.id
           });

@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { Location } from '@angular/common';
 import { MenuItem } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
@@ -10,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-sales-order',
@@ -145,9 +145,10 @@ export class SalesOrderComponent implements OnInit {
     else {
       _.forEach(arr, (record => {
         var item = this.findItem(record.itemId);
+        var unit = this.findUnit(record.unitId);
 
         this.orderDetails.push({
-          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: record.unitId, unitDescription: null,
+          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
           unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
         });
       }));

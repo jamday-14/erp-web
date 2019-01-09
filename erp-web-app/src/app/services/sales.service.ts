@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class SalesService {
-
+  
   constructor(public api: ApiService) { }
 
   addSalesOrder(request: any) {
@@ -86,5 +86,9 @@ export class SalesService {
 
   getSalesOrder(id: number): any {
     return this.api.get(`sales/orders/${id}`, null, false);
+  }
+
+  getDeliveryReceipt(id: number): any {
+    return this.api.get(`sales/delivery-receipts/${id}`, null, false);
   }
 }
