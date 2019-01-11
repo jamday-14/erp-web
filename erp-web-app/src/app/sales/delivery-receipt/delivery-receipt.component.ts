@@ -111,10 +111,16 @@ export class DeliveryReceiptComponent implements OnInit {
       this.menuItems.push({
         label: 'Reset', icon: 'pi pi-circle-off', command: () => {
           this.initializeForm(null);
+          this.resetOrdersAndDetails();
           this.initializeOrderDetails(null);
         }
       })
     }
+  }
+
+  private resetOrdersAndDetails() {
+    this.orders = [];
+    this.orderDetails = [];
   }
 
   private initializeHeader() {
@@ -219,7 +225,7 @@ export class DeliveryReceiptComponent implements OnInit {
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
 
-      this.orderDetails = [];
+      this.resetOrdersAndDetails();
       this.initializeOrders(event.value);
     }
   }
@@ -227,7 +233,6 @@ export class DeliveryReceiptComponent implements OnInit {
   initializeOrders(customerId: number): any {
     this.loading = true;
     var records = [];
-    this.orders = [];
     this.salesService.querySalesOrdersByCustomer(customerId).subscribe((resp) => {
       records = resp;
       _.forEach(records, (record => {
@@ -236,9 +241,9 @@ export class DeliveryReceiptComponent implements OnInit {
         });
       }))
 
-      // if (_.size(this.orders) == 0) {
-      //   this.initializeOrderDetails(null);
-      // }
+      if (_.size(this.orders) == 0 && this.newItem) {
+        this.initializeOrderDetails(null);
+      }
 
       this.loading = false;
     }, (err) => {

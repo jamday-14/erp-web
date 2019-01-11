@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import { SumFilterPipe } from 'src/app/sum-filter.pipe';
@@ -9,6 +9,7 @@ import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-sales-invoice',
@@ -20,6 +21,7 @@ export class SalesInvoiceComponent implements OnInit {
   form: FormGroup;
   menuItems: MenuItem[];
 
+  id: number;
   newItem: boolean;
   loading: boolean;
 
@@ -40,7 +42,9 @@ export class SalesInvoiceComponent implements OnInit {
     private formBuilder: FormBuilder,
     private sumPipe: SumFilterPipe,
     private messaging: MessagingService,
-    private app: AppComponent
+    private app: AppComponent,
+    private route: ActivatedRoute,
+    private location: Location
   ) {
     this.customers = [];
     this.terms = [];
@@ -52,12 +56,17 @@ export class SalesInvoiceComponent implements OnInit {
 
   ngOnInit() {
     this.app.title = "Sales Invoice Entry";
+
+    this.route.params.subscribe((params) => this.id = params.id);
+    this.newItem = this.id == 0 ? true : false;
+
     this.initializeColumns();
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
-    this.initializeOrderDetails(null);
+    
   }
+
   initializeColumns(): any {
     this.cols = [
       { field: 'date', header: 'Date' },
@@ -68,12 +77,10 @@ export class SalesInvoiceComponent implements OnInit {
   }
 
   initializeForm(item: any): any {
-    this.newItem = item == null ? true : false;
-
     this.form = this.formBuilder.group({
       date: [item != null ? item.name : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
-      // systemNo: [item != null ? item.systemNo : '', Validators.required],
+      systemNo: [item != null ? item.systemNo : ''],
       customerId: [item != null ? item.customerId : null, Validators.required],
       address: [item != null ? item.address : ''],
       telNo: [item != null ? item.telNo : ''],
@@ -88,17 +95,63 @@ export class SalesInvoiceComponent implements OnInit {
   initializeMenu() {
     this.menuItems = [
       {
+        label: 'Back', icon: 'pi pi-arrow-left', command: () => {
+          this.location.back();
+        }
+      },
+      {
         label: 'Save', icon: 'pi pi-save', command: () => {
           this.save();
         }
       },
-      {
+    ];
+
+    if (this.newItem) {
+      this.menuItems.push({
         label: 'Reset', icon: 'pi pi-circle-off', command: () => {
           this.initializeForm(null);
+          this.resetOrdersAndDetails();
           this.initializeOrderDetails(null);
         }
-      }
-    ];
+      })
+    }
+  }
+
+  private resetOrdersAndDetails() {
+    this.orders = [];
+    this.orderDetails = [];
+  }
+
+  private initializeHeader() {
+    if (!this.newItem) {
+
+      this.loading = true;
+      var headerRequest = this.salesService.querySalesInvoiceDetails(this.id);
+      var detailRequest = this.salesService.getSalesInvoice(this.id);
+
+      forkJoin([detailRequest, headerRequest]).subscribe((response) => {
+        var headerResponse = response[0];
+        var detailResponse = response[1];
+
+        this.form.patchValue({
+          date: new Date(headerResponse.date),
+          customerId: headerResponse.customerId,
+          systemNo: headerResponse.systemNo,
+          refNo: headerResponse.refNo,
+          address: headerResponse.address,
+          telNo: headerResponse.telNo,
+          faxNo: headerResponse.faxNo,
+          contactPerson: headerResponse.contactPerson,
+          termId: headerResponse.termId
+        });
+
+        this.initializeOrders(headerResponse.customerId);
+        this.initializeSalesInvoiceDetails(detailResponse);
+
+        this.loading = false;
+
+      }, (err) => { });
+    } else { this.initializeOrderDetails(null); }
   }
 
   getReferenceData(): any {
@@ -132,6 +185,7 @@ export class SalesInvoiceComponent implements OnInit {
         }));
 
         this.loading = false;
+        this.initializeHeader();
       }, (err) => { this.loading = false; });
   }
 
@@ -162,7 +216,7 @@ export class SalesInvoiceComponent implements OnInit {
       this.f.contactPerson.setValue(customer.contactPerson);
       this.f.termId.setValue(customer.termId);
 
-      this.orderDetails = [];
+      this.resetOrdersAndDetails();
       this.initializeOrders(event.value);
     }
   }
@@ -170,7 +224,6 @@ export class SalesInvoiceComponent implements OnInit {
   initializeOrders(customerId: number): any {
     this.loading = true;
     var records = [];
-    this.orders = [];
     this.salesService.queryPendingDeliveryReceiptsByCustomer(customerId).subscribe((resp) => {
       records = resp;
       _.forEach(records, (record => {
@@ -179,7 +232,7 @@ export class SalesInvoiceComponent implements OnInit {
         });
       }))
 
-      if (_.size(this.orders) == 0) {
+      if (_.size(this.orders) == 0 && this.newItem) {
         this.initializeOrderDetails(null);
       }
 
@@ -218,6 +271,19 @@ export class SalesInvoiceComponent implements OnInit {
           unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false, drid: null, drdetailId: null
         });
       }
+  }
+
+  initializeSalesInvoiceDetails(arr: Array<any>): any {
+    _.forEach(arr, (record => {
+      var item = this.findItem(record.itemId);
+      var unit = this.findUnit(record.unitId);
+
+      this.orderDetails.push({
+        itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
+        unitDescription: unit == null ? null : unit.label, drid: record.deliveryReceiptId, drdetailId: record.id, refNo: record.drrefNo,
+        unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
+      });
+    }));
   }
 
   findItem(itemId) {

@@ -45,7 +45,7 @@ export class SalesReturnsComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/sales-return']);
+          this.router.navigate(['/sales-return', 0]);
         }
       },
       {
