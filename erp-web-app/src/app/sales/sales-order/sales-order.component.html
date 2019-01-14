@@ -15,7 +15,7 @@
               yearRange="1930:2030"></p-calendar>
           </div>
           <div class="p-col-1 text-right">
-            <label for="refNo">Reference No.*</label>
+            <label for="refNo">Reference No.</label>
           </div>
           <div class="p-col-1">
             <input pInputText id="refNo" formControlName="refNo" />
@@ -33,7 +33,7 @@
           </div>
           <div class="p-col-6">
             <p-dropdown [options]="customers" id="customerId" [style]="{width: '100%'}" formControlName="customerId"
-              placeholder="Select customer" filter="true" (onChange)="customerChanged($event)"></p-dropdown>
+              placeholder="Select customer" filter="true" (onChange)="customerChanged($event)" [readonly]="!newItem"></p-dropdown>
           </div>
         </div>
         <div class="p-grid">
@@ -75,21 +75,25 @@
       </div>
     </div>
   </form>
-  <p-table [value]="orderDetails" resizableColumns="true" #searchItemLoc>
+  <p-menubar [model]="detailMenuItems"></p-menubar>
+  <p-table [value]="orderDetails" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
     <ng-template pTemplate="header">
       <tr>
         <th pResizableColumn>Item Code</th>
         <th pResizableColumn style="width:450px">Description</th>
-        <th style="width:100px">Qty</th>
+        <th style="width:60px">Qty</th>
+        <th style="width:70px">Qty Dr</th>
         <th>Unit</th>
         <th style="width:100px">Unit Price</th>
         <th style="width:100px">Discount</th>
         <th style="width:150px">Sub Total</th>
-        <th style="width:300px" pResizableColumn>Remarks</th>
+        <th style="width:250px" pResizableColumn>Remarks</th>
+        <th style="width:60px">Closed</th>
       </tr>
     </ng-template>
-    <ng-template pTemplate="body" let-rowData>
-      <tr>
+    <ng-template pTemplate="body" let-rowData let-index="rowIndex">
+      <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)"
+        [pSelectableRow]="rowData">
         <td>
           {{rowData.itemCode}}
         </td>
@@ -115,6 +119,9 @@
               {{rowData.qty}}
             </ng-template>
           </p-cellEditor>
+        </td>
+        <td class="text-right">
+          {{rowData.qtyDr}}
         </td>
         <td pEditableColumn>
           <p-cellEditor>
@@ -161,19 +168,24 @@
             </ng-template>
           </p-cellEditor>
         </td>
+        <td class="text-center">
+          <p-checkbox [(ngModel)]="rowData.closed" binary="true" disabled></p-checkbox>
+        </td>
       </tr>
     </ng-template>
     <ng-template pTemplate="footer">
-        <tr>
-            <td>No. of Items : {{ getTotalItem() }}</td>
-            <td></td>
-            <td class="text-right">{{ getTotalQty() }}</td>
-            <td></td>
-            <td class="text-right">{{ getTotalUnitPrice() | currency:"&#8369;" }}</td>
-            <td class="text-right">{{  getTotalDiscount() | currency:"&#8369;" }}</td>
-            <td class="text-right">{{ getTotalSubTotal() | currency:"&#8369;"}}</td>
-            <td></td>
-          </tr>
+      <tr>
+        <td>No. of Items : {{ getTotalItem() }}</td>
+        <td></td>
+        <td class="text-right">{{ getTotalQty() }}</td>
+        <td class="text-right">{{ getTotalQtyDr() }}</td>
+        <td></td>
+        <td class="text-right">{{ getTotalUnitPrice() | currency:"&#8369;" }}</td>
+        <td class="text-right">{{ getTotalDiscount() | currency:"&#8369;" }}</td>
+        <td class="text-right">{{ getTotalSubTotal() | currency:"&#8369;"}}</td>
+        <td></td>
+        <td></td>
+      </tr>
     </ng-template>
   </p-table>
 </div>

@@ -21,9 +21,11 @@ export class SalesOrderComponent implements OnInit {
   id: number;
   form: FormGroup;
   menuItems: MenuItem[];
+  detailMenuItems: MenuItem[];
 
   newItem: boolean;
   loading: boolean;
+  allSelected: boolean;
 
   terms: Array<any>;
   customers: Array<any>;
@@ -32,6 +34,8 @@ export class SalesOrderComponent implements OnInit {
   orderDetails: Array<any>;
   searchedItems: any[];
   footerData: any;
+  selectedColumns: any[];
+  selectedRows: any;
 
   constructor(
     private maintenanceService: MaintenanceService,
@@ -49,6 +53,7 @@ export class SalesOrderComponent implements OnInit {
     this.units = [];
     this.items = [];
     this.orderDetails = [];
+    this.allSelected = false;
   }
 
   ngOnInit() {
@@ -86,6 +91,32 @@ export class SalesOrderComponent implements OnInit {
         }
       })
     }
+
+    this.detailMenuItems = [
+      {
+        label: 'Select All', icon: 'pi pi-list', command: () => {
+          this.allSelected = !this.allSelected;
+          this.detailMenuItems[0].label = this.allSelected ? 'De-select All' : 'Select All';
+          this.selectedRows = this.allSelected ? this.getOrderDetails() : [];
+        }
+      },
+      {
+        label: 'Delete', icon: 'pi pi-times', command: () => {
+          if (_.size(this.selectedRows) == 0) {
+            this.messaging.warningMessage("Please select item to remove");
+          }
+          else {
+            alert("Are you sure you want to remove these items?");
+          }
+        }
+      },
+    ];
+  }
+
+  isDeleteItemsEnabled(): boolean {
+    if (_.size(this.getOrderDetails()) == 0)
+      return false;
+    return _.size(this.getOrderDetails().filter(x => x.qtyDr == 0)) > 0;
   }
 
   private initializeHeader() {
@@ -122,7 +153,7 @@ export class SalesOrderComponent implements OnInit {
     this.form = this.formBuilder.group({
       date: [item != null ? item.date : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
-      systemNo: [item != null ? item.systemNo : '', Validators.required],
+      systemNo: [item != null ? item.systemNo : ''],
       customerId: [item != null ? item.customerId : null, Validators.required],
       address: [item != null ? item.address : ''],
       telNo: [item != null ? item.telNo : ''],
@@ -136,12 +167,7 @@ export class SalesOrderComponent implements OnInit {
     this.orderDetails = [];
 
     if (arr == null)
-      for (let a = 0; a < 10; a++) {
-        this.orderDetails.push({
-          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, remarks: ''
-        });
-      }
+      this.addTableRow();
     else {
       _.forEach(arr, (record => {
         var item = this.findItem(record.itemId);
@@ -149,10 +175,17 @@ export class SalesOrderComponent implements OnInit {
 
         this.orderDetails.push({
           itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
+          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed,
+          qtyDr: record.qtyDr
         });
+
+        this.ToggleDetailMenu();
       }));
     }
+  }
+
+  private ToggleDetailMenu() {
+    this.detailMenuItems[1].disabled = !this.isDeleteItemsEnabled();
   }
 
   getReferenceData(): any {
@@ -206,6 +239,8 @@ export class SalesOrderComponent implements OnInit {
       rowData.unitId = unit.value;
       rowData.unitDescription = unit.label;
     }
+
+    this.ToggleDetailMenu();
   }
 
   customerChanged(event) {
@@ -257,6 +292,10 @@ export class SalesOrderComponent implements OnInit {
 
   getTotalQty() {
     return this.sumPipe.transform(this.getOrderDetails(), 'qty');
+  }
+
+  getTotalQtyDr() {
+    return this.sumPipe.transform(this.getOrderDetails(), 'qtyDr');
   }
 
   getTotalDiscount() {
@@ -339,5 +378,19 @@ export class SalesOrderComponent implements OnInit {
       this.loading = false;
       this.messaging.errorMessage(this.messaging.ADD_ERROR);
     });
+  }
+
+  OnEnter(index, rowData) {
+    if (this.orderDetails.length == (index + 1) && rowData.itemCode != null)
+      this.addTableRow();
+    this.selectedRows.push(_.last(this.orderDetails));
+  }
+
+  addTableRow() {
+    this.orderDetails.push({
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+      unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyDr: 0
+    });
+    this.ToggleDetailMenu();
   }
 }

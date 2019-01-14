@@ -61,6 +61,25 @@ body .ui-table .ui-table-tfoot > tr > td {
     background-color: #005b9f;
 }
 
+body .ui-table .ui-table-tbody > tr.ui-state-highlight {
+    background-color: #DDF0FF;
+    color: black;
+    font-weight: bold;
+}
+
+body .ui-table .ui-table-tbody > tr:nth-child(even).ui-state-highlight {
+    background-color: #DDF0FF;
+    color: black;
+    font-weight: bold;
+}
+
+body .ui-table .ui-table-tbody > tr:nth-child(odd).ui-state-highlight {
+    background-color: #DDF0FF;
+    color: black;
+    font-weight: bold;
+} 
+
+
 .settings.ui-menubar {
     width: 210px;
     float: right;
