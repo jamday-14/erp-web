@@ -94,6 +94,11 @@ export class SalesOrderComponent implements OnInit {
 
     this.detailMenuItems = [
       {
+        label: 'New', icon: 'pi pi-file', command: () => {
+          this.addTableRow();
+        }
+      },
+      {
         label: 'Select All', icon: 'pi pi-list', command: () => {
           this.allSelected = !this.allSelected;
           this.detailMenuItems[0].label = this.allSelected ? 'De-select All' : 'Select All';
@@ -106,17 +111,51 @@ export class SalesOrderComponent implements OnInit {
             this.messaging.warningMessage("Please select item to remove");
           }
           else {
-            alert("Are you sure you want to remove these items?");
+            var nonApiCallsRequest = this.selectedRows.filter(x => x.salesOrderId == null)
+
+            if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+              _.forEach(nonApiCallsRequest, (row => {
+                _.remove(this.orderDetails, function (x) { return x.index == row.index });
+              }));
+            }
+
+            var apiCallsRequest = this.selectedRows.filter(x => x.salesOrderId != null)
+
+            if (apiCallsRequest != null && apiCallsRequest != []) {
+              var deleteRequests = [];
+              _.forEach(apiCallsRequest, (row => {
+                deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
+              }));
+
+              this.loading = true;
+
+              forkJoin(deleteRequests).subscribe(
+                (res) => {
+                  _.forEach(apiCallsRequest, (row => {
+                    _.remove(this.orderDetails, function (x) { return x.index == row.index });
+                  }));
+                  this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+                  this.loading = false;
+                },
+                (err) => {
+                  this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+                  this.loading = false;
+                })
+            }
           }
         }
       },
     ];
   }
 
-  isDeleteItemsEnabled(): boolean {
+  isDeleteDetailsEnabled(): boolean {
     if (_.size(this.getOrderDetails()) == 0)
       return false;
     return _.size(this.getOrderDetails().filter(x => x.qtyDr == 0)) > 0;
+  }
+
+  isDetailEditable(rowData) {
+    return rowData.qtyDr == 0;
   }
 
   private initializeHeader() {
@@ -174,6 +213,7 @@ export class SalesOrderComponent implements OnInit {
         var unit = this.findUnit(record.unitId);
 
         this.orderDetails.push({
+          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId,
           itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
           unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed,
           qtyDr: record.qtyDr
@@ -185,7 +225,7 @@ export class SalesOrderComponent implements OnInit {
   }
 
   private ToggleDetailMenu() {
-    this.detailMenuItems[1].disabled = !this.isDeleteItemsEnabled();
+    this.detailMenuItems[2].disabled = !this.isDeleteDetailsEnabled();
   }
 
   getReferenceData(): any {
@@ -332,18 +372,32 @@ export class SalesOrderComponent implements OnInit {
 
     this.loading = true;
 
-    this.salesService.addSalesOrder({
-      date: this.f.date.value,
-      refNo: this.f.refNo.value,
-      address: this.f.address.value,
-      telNo: this.f.telNo.value,
-      faxNo: this.f.faxNo.value,
-      contactPerson: this.f.contactPerson.value,
-      systemNo: this.f.systemNo.value,
-      customerId: this.f.customerId.value,
-      termId: this.f.termId.value,
-      amount: this.getTotalSubTotal()
-    }).subscribe((resp) => {
+    var headerRequest = this.newItem
+      ? this.salesService.addSalesOrder({
+        date: this.f.date.value,
+        refNo: this.f.refNo.value,
+        address: this.f.address.value,
+        telNo: this.f.telNo.value,
+        faxNo: this.f.faxNo.value,
+        contactPerson: this.f.contactPerson.value,
+        systemNo: this.f.systemNo.value,
+        customerId: this.f.customerId.value,
+        termId: this.f.termId.value,
+        amount: this.getTotalSubTotal()
+      })
+      : this.salesService.updateSalesOrder({
+        id: this.id,
+        date: this.f.date.value,
+        refNo: this.f.refNo.value,
+        address: this.f.address.value,
+        telNo: this.f.telNo.value,
+        faxNo: this.f.faxNo.value,
+        contactPerson: this.f.contactPerson.value,
+        termId: this.f.termId.value,
+        amount: this.getTotalSubTotal()
+      })
+
+    headerRequest.subscribe((resp) => {
 
       let order: any;
       let detailsRequests = [];
@@ -351,19 +405,35 @@ export class SalesOrderComponent implements OnInit {
 
       _.forEach(this.getOrderDetails(), (detail) => {
 
-        detailsRequests.push(
-          this.salesService.addSalesOrderDetail({
+        if (detail.id == null)
+          detailsRequests.push(
+            this.salesService.addSalesOrderDetail({
 
-            salesOrderId: order.id,
-            itemId: detail.itemId,
-            qty: detail.qty,
-            unitPrice: detail.unitPrice,
-            discount: detail.discount || 0,
-            subTotal: detail.subTotal,
-            unitId: detail.unitId,
-            remarks: detail.remarks
-          })
-        );
+              salesOrderId: order.id,
+              itemId: detail.itemId,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
+              discount: detail.discount || 0,
+              subTotal: detail.subTotal,
+              unitId: detail.unitId,
+              remarks: detail.remarks
+            })
+          );
+        else {
+          detailsRequests.push(
+            this.salesService.updateSalesOrderDetail({
+              id: detail.id,
+              salesOrderId: order.id,
+              itemId: detail.itemId,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
+              discount: detail.discount || 0,
+              subTotal: detail.subTotal,
+              unitId: detail.unitId,
+              remarks: detail.remarks
+            })
+          );
+        }
       });
       forkJoin(detailsRequests)
         .subscribe((resp) => {
@@ -383,14 +453,16 @@ export class SalesOrderComponent implements OnInit {
   OnEnter(index, rowData) {
     if (this.orderDetails.length == (index + 1) && rowData.itemCode != null)
       this.addTableRow();
-    this.selectedRows.push(_.last(this.orderDetails));
   }
 
   addTableRow() {
-    this.orderDetails.push({
+    this.orderDetails.unshift({
+      index: _.size(this.orderDetails), id: null, salesOrderId: null,
       itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
       unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyDr: 0
     });
     this.ToggleDetailMenu();
+    this.selectedRows = [];
+    this.selectedRows.push(_.last(this.orderDetails));
   }
 }

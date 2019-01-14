@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class SalesService {
-      
+
   constructor(public api: ApiService) { }
 
   addSalesOrder(request: any) {
@@ -107,6 +107,16 @@ export class SalesService {
   getSalesReturn(id: number): any {
     return this.api.get(`sales/returns/${id}`, null, false);
   }
-  
-  
+
+  deleteSalesOrderDetail(sodId: any, soId: any): any {
+    return this.api.delete(`sales/orders/${soId}/details/${sodId}`);
+  }
+
+  updateSalesOrderDetail(request: any) {
+    return this.api.patch(`sales/orders/${request.salesOrderId}/details/${request.id}`, request);
+  }
+
+  updateSalesOrder(request: any) {
+    return this.api.patch(`sales/orders/${request.id}`, request);
+  }
 }

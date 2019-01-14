@@ -19,6 +19,8 @@ export class MessagingService {
   ONE_LINE_ITEM: string = "Please provide at least one order line item."
   QTY_AND_PRICE: string = "Please specify quantity and unit price for all order line items."
   WAREHOUSE_ITEMS: string = "Please select warehouse for all line items."
+  DELETE_SUCCESS: string = "Successfully deleted selected record/s";
+  DELETE_ERROR: string = "Failed deleting record/s.";
 
   constructor(private messageService: MessageService) { }
 
