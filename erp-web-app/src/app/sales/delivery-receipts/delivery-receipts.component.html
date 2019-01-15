@@ -23,7 +23,7 @@
           <a [routerLink]="['/delivery-receipt', rowData.id]"> {{rowData.systemNo}} </a>
         </td>
         <td>
-          {{rowData.date | date:'longDate'}}
+          {{rowData.date | date:'longDate':'GMT+8'}}
         </td>
         <td>
           {{rowData.customer}}

@@ -10,6 +10,7 @@ import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
 import { Location } from '@angular/common';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-sales-order',
@@ -21,11 +22,9 @@ export class SalesOrderComponent implements OnInit {
   id: number;
   form: FormGroup;
   menuItems: MenuItem[];
-  detailMenuItems: MenuItem[];
-
+  
   newItem: boolean;
   loading: boolean;
-  allSelected: boolean;
 
   terms: Array<any>;
   customers: Array<any>;
@@ -34,8 +33,10 @@ export class SalesOrderComponent implements OnInit {
   orderDetails: Array<any>;
   searchedItems: any[];
   footerData: any;
-  selectedColumns: any[];
+  
   selectedRows: any;
+  detailMenuItems: MenuItem[];
+  allSelected: boolean;
 
   constructor(
     private maintenanceService: MaintenanceService,
@@ -43,6 +44,7 @@ export class SalesOrderComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private sumPipe: SumFilterPipe,
+    private common: CommonService,
     private messaging: MessagingService,
     private app: AppComponent,
     private route: ActivatedRoute,
@@ -101,7 +103,7 @@ export class SalesOrderComponent implements OnInit {
       {
         label: 'Select All', icon: 'pi pi-list', command: () => {
           this.allSelected = !this.allSelected;
-          this.detailMenuItems[0].label = this.allSelected ? 'De-select All' : 'Select All';
+          this.detailMenuItems[1].label = this.allSelected ? 'De-select All' : 'Select All';
           this.selectedRows = this.allSelected ? this.getOrderDetails() : [];
         }
       },
@@ -111,41 +113,38 @@ export class SalesOrderComponent implements OnInit {
             this.messaging.warningMessage("Please select item to remove");
           }
           else {
-            var nonApiCallsRequest = this.selectedRows.filter(x => x.salesOrderId == null)
-
-            if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
-              _.forEach(nonApiCallsRequest, (row => {
-                _.remove(this.orderDetails, function (x) { return x.index == row.index });
-              }));
-            }
-
-            var apiCallsRequest = this.selectedRows.filter(x => x.salesOrderId != null)
-
-            if (apiCallsRequest != null && apiCallsRequest != []) {
-              var deleteRequests = [];
-              _.forEach(apiCallsRequest, (row => {
-                deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
-              }));
-
-              this.loading = true;
-
-              forkJoin(deleteRequests).subscribe(
-                (res) => {
-                  _.forEach(apiCallsRequest, (row => {
-                    _.remove(this.orderDetails, function (x) { return x.index == row.index });
-                  }));
-                  this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
-                  this.loading = false;
-                },
-                (err) => {
-                  this.messaging.errorMessage(this.messaging.DELETE_ERROR);
-                  this.loading = false;
-                })
-            }
+            this.deleteDetails();
           }
         }
       },
     ];
+  }
+
+  private deleteDetails() {
+    var nonApiCallsRequest = this.selectedRows.filter(x => x.salesOrderId == null);
+    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+      _.forEach(nonApiCallsRequest, (row => {
+        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+      }));
+    }
+    var apiCallsRequest = this.selectedRows.filter(x => x.salesOrderId != null);
+    if (apiCallsRequest != null && apiCallsRequest != []) {
+      var deleteRequests = [];
+      _.forEach(apiCallsRequest, (row => {
+        deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
+      }));
+      this.loading = true;
+      forkJoin(deleteRequests).subscribe((res) => {
+        _.forEach(apiCallsRequest, (row => {
+          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+        }));
+        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+        this.loading = false;
+      }, (err) => {
+        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+        this.loading = false;
+      });
+    }
   }
 
   isDeleteDetailsEnabled(): boolean {
@@ -161,26 +160,26 @@ export class SalesOrderComponent implements OnInit {
   private initializeHeader() {
     if (!this.newItem) {
       this.loading = true;
-      var salesOrderDetailsRequest = this.salesService.querySalesOrderDetails(this.id);
-      var salesOrdersRequest = this.salesService.getSalesOrder(this.id);
+      var detailRequest = this.salesService.querySalesOrderDetails(this.id);
+      var headerRequest = this.salesService.getSalesOrder(this.id);
 
-      forkJoin([salesOrdersRequest, salesOrderDetailsRequest]).subscribe((response) => {
-        var soResponse = response[0];
-        var sodResponse = response[1];
+      forkJoin([headerRequest, detailRequest]).subscribe((response) => {
+        var headerResponse = response[0];
+        var detailResponse = response[1];
 
         this.form.patchValue({
-          date: new Date(soResponse.date),
-          customerId: soResponse.customerId,
-          systemNo: soResponse.systemNo,
-          refNo: soResponse.refNo,
-          address: soResponse.address,
-          telNo: soResponse.telNo,
-          faxNo: soResponse.faxNo,
-          contactPerson: soResponse.contactPerson,
-          termId: soResponse.termId
+          date: new Date(this.common.toLocaleDate(headerResponse.date)),
+          customerId: headerResponse.customerId,
+          systemNo: headerResponse.systemNo,
+          refNo: headerResponse.refNo,
+          address: headerResponse.address,
+          telNo: headerResponse.telNo,
+          faxNo: headerResponse.faxNo,
+          contactPerson: headerResponse.contactPerson,
+          termId: headerResponse.termId
         });
 
-        this.initializeOrderDetails(sodResponse);
+        this.initializeOrderDetails(detailResponse);
 
         this.loading = false;
 
@@ -213,10 +212,9 @@ export class SalesOrderComponent implements OnInit {
         var unit = this.findUnit(record.unitId);
 
         this.orderDetails.push({
-          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId,
+          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId, qtyDr: record.qtyDr,
           itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed,
-          qtyDr: record.qtyDr
+          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
         });
 
         this.ToggleDetailMenu();
@@ -330,24 +328,8 @@ export class SalesOrderComponent implements OnInit {
     return this.orderDetails.filter(x => x.itemCode != null);
   }
 
-  getTotalQty() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'qty');
-  }
-
-  getTotalQtyDr() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'qtyDr');
-  }
-
-  getTotalDiscount() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'discount');
-  }
-
-  getTotalUnitPrice() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'unitPrice');
-  }
-
-  getTotalSubTotal() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'subTotal');
+  getTotal(property: string) {
+    return this.sumPipe.transform(this.getOrderDetails(), property);
   }
 
   getTotalItem() {
@@ -383,7 +365,7 @@ export class SalesOrderComponent implements OnInit {
         systemNo: this.f.systemNo.value,
         customerId: this.f.customerId.value,
         termId: this.f.termId.value,
-        amount: this.getTotalSubTotal()
+        amount: this.getTotal('subTotal')
       })
       : this.salesService.updateSalesOrder({
         id: this.id,
@@ -394,7 +376,7 @@ export class SalesOrderComponent implements OnInit {
         faxNo: this.f.faxNo.value,
         contactPerson: this.f.contactPerson.value,
         termId: this.f.termId.value,
-        amount: this.getTotalSubTotal()
+        amount: this.getTotal('subTotal')
       })
 
     headerRequest.subscribe((resp) => {
@@ -439,7 +421,10 @@ export class SalesOrderComponent implements OnInit {
         .subscribe((resp) => {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
-          this.router.navigate(['/sales-orders'])
+          setTimeout(() => {
+            this.router.navigate(['/sales-orders']);
+          }, 1000)
+
         }, (err) => {
           this.loading = false;
           this.messaging.errorMessage(this.messaging.ADD_ERROR);
@@ -463,6 +448,6 @@ export class SalesOrderComponent implements OnInit {
     });
     this.ToggleDetailMenu();
     this.selectedRows = [];
-    this.selectedRows.push(_.last(this.orderDetails));
+    this.selectedRows.push(_.first(this.orderDetails));
   }
 }

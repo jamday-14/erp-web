@@ -10,6 +10,7 @@ import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
 import { Location } from '@angular/common';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-delivery-receipt',
@@ -36,12 +37,17 @@ export class DeliveryReceiptComponent implements OnInit {
   footerData: any;
   cols: any[];
 
+  selectedRows: any;
+  detailMenuItems: MenuItem[];
+  allSelected: boolean;
+
   constructor(
     private maintenanceService: MaintenanceService,
     private salesService: SalesService,
     private router: Router,
     private formBuilder: FormBuilder,
     private sumPipe: SumFilterPipe,
+    private common: CommonService,
     private messaging: MessagingService,
     private app: AppComponent,
     private route: ActivatedRoute,
@@ -54,6 +60,7 @@ export class DeliveryReceiptComponent implements OnInit {
     this.warehouses = [];
     this.orderDetails = [];
     this.orders = [];
+    this.allSelected = false;
   }
 
   ngOnInit() {
@@ -116,6 +123,72 @@ export class DeliveryReceiptComponent implements OnInit {
         }
       })
     }
+
+    this.detailMenuItems = [
+      {
+        label: 'New', icon: 'pi pi-file', command: () => {
+          this.addTableRow();
+        }
+      },
+      {
+        label: 'Select All', icon: 'pi pi-list', command: () => {
+          this.allSelected = !this.allSelected;
+          this.detailMenuItems[1].label = this.allSelected ? 'De-select All' : 'Select All';
+          this.selectedRows = this.allSelected ? this.getOrderDetails() : [];
+        }
+      },
+      {
+        label: 'Delete', icon: 'pi pi-times', command: () => {
+          if (_.size(this.selectedRows) == 0) {
+            this.messaging.warningMessage("Please select item to remove");
+          }
+          else {
+            this.deleteDetails();
+          }
+        }
+      },
+    ];
+  }
+
+  private deleteDetails() {
+    var nonApiCallsRequest = this.selectedRows.filter(x => x.deliveryReceiptId == null);
+    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+      _.forEach(nonApiCallsRequest, (row => {
+        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+      }));
+    }
+    var apiCallsRequest = this.selectedRows.filter(x => x.deliveryReceiptId != null);
+    if (apiCallsRequest != null && apiCallsRequest != []) {
+      var deleteRequests = [];
+      _.forEach(apiCallsRequest, (row => {
+        deleteRequests.push(this.salesService.deleteDeliveryReceiptDetail(row.id, row.deliveryReceiptId));
+      }));
+      this.loading = true;
+      forkJoin(deleteRequests).subscribe((res) => {
+        _.forEach(apiCallsRequest, (row => {
+          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+        }));
+        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+        this.loading = false;
+      }, (err) => {
+        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+        this.loading = false;
+      });
+    }
+  }
+
+  isDeleteDetailsEnabled(): boolean {
+    if (_.size(this.getOrderDetails()) == 0)
+      return false;
+    return _.size(this.getOrderDetails().filter(x => x.qtyInvoice == 0 && x.qtyReturn == 0)) > 0;
+  }
+
+  isDetailEditable(rowData) {
+    return rowData.qtyInvoice == 0 && rowData.qtyReturn == 0 && rowData.id == null;
+  }
+
+  isQuantityEditable(rowData) {
+    return rowData.qtyInvoice == 0 && rowData.qtyReturn == 0;
   }
 
   private resetOrdersAndDetails() {
@@ -127,27 +200,28 @@ export class DeliveryReceiptComponent implements OnInit {
     if (!this.newItem) {
 
       this.loading = true;
-      var salesOrderDetailsRequest = this.salesService.queryDeliveryReceiptDetails(this.id);
-      var salesOrdersRequest = this.salesService.getDeliveryReceipt(this.id);
+      var detailRequest = this.salesService.queryDeliveryReceiptDetails(this.id);
+      var headerRequest = this.salesService.getDeliveryReceipt(this.id);
 
-      forkJoin([salesOrdersRequest, salesOrderDetailsRequest]).subscribe((response) => {
-        var soResponse = response[0];
-        var sodResponse = response[1];
+      forkJoin([headerRequest, detailRequest]).subscribe((response) => {
+        var headerResponse = response[0];
+        var detailResponse = response[1];
 
         this.form.patchValue({
-          date: new Date(soResponse.date),
-          customerId: soResponse.customerId,
-          systemNo: soResponse.systemNo,
-          refNo: soResponse.refNo,
-          address: soResponse.address,
-          telNo: soResponse.telNo,
-          faxNo: soResponse.faxNo,
-          contactPerson: soResponse.contactPerson,
-          termId: soResponse.termId
+          date: new Date(this.common.toLocaleDate(headerResponse.date)),
+          customerId: headerResponse.customerId,
+          systemNo: headerResponse.systemNo,
+          refNo: headerResponse.refNo,
+          address: headerResponse.address,
+          telNo: headerResponse.telNo,
+          faxNo: headerResponse.faxNo,
+          contactPerson: headerResponse.contactPerson,
+          termId: headerResponse.termId,
+          comments: headerResponse.comments
         });
 
-        this.initializeOrders(soResponse.customerId);
-        this.initializeReceiptDetails(sodResponse);
+        this.initializeOrders(headerResponse.customerId);
+        this.initializeReceiptDetails(detailResponse);
 
         this.loading = false;
 
@@ -213,6 +287,8 @@ export class DeliveryReceiptComponent implements OnInit {
       rowData.unitId = unit.value;
       rowData.unitDescription = unit.label;
     }
+
+    this.ToggleDetailMenu();
   }
 
   customerChanged(event) {
@@ -255,60 +331,59 @@ export class DeliveryReceiptComponent implements OnInit {
     var records = [];
     if (rowData != null) {
       this.loading = true;
-      this.salesService.querySalesOrderDetailsPendingDR(rowData.id).subscribe((resp) => {
-        records = resp;
-        this.loading = false;
-        _.forEach(records, (record => {
-          var item = this.findItem(record.itemId);
-          var unit = this.findUnit(record.unitId);
-          var whouse = this.findWarehouse(record.warehouseId);
+      this.salesService.querySalesOrderDetailsPendingDR(rowData.id).subscribe(
+        (resp) => {
+          records = resp;
+          this.loading = false;
+          _.forEach(records, (record => {
+            var item = this.findItem(record.itemId);
+            var unit = this.findUnit(record.unitId);
+            var whouse = this.findWarehouse(record.warehouseId);
 
-          record.qty -= record.qtyDr;
-          this.computeSubTotal(record);
+            record.qty -= record.qtyDr;
+            this.computeSubTotal(record);
 
-          this.orderDetails.push({
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
-            unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, refNo: rowData.systemNo,
-            subTotal: record.subTotal, closed: record.closed, soid: record.salesOrderId, sodetailId: record.id,
-            warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label
-          });
-        }))
-      }, (err) => {
-        this.loading = false;
-      });
+            this.orderDetails.push({
+              index: _.size(this.orderDetails), id: null, deliveryReceiptId: null, qtyInvoice: 0, qtyReturn: 0, qtyOriginal: record.qty,
+              itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
+              unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, refNo: rowData.systemNo,
+              subTotal: record.subTotal, closed: record.closed, soid: record.salesOrderId, sodetailId: record.id,
+              warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label
+            });
+          }));
+
+          this.ToggleDetailMenu();
+        },
+        (err) => {
+          this.loading = false;
+        });
     }
     else
-      for (let a = 0; a < 8; a++) {
-        this.orderDetails.push({
-          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, refNo: null, closed: false, soid: null, sodetailId: null,
-          warehouseId: null, warehouseDescription: null
-        });
-      }
+      this.addTableRow();
+  }
+
+  private ToggleDetailMenu() {
+    var isDisabled = !this.isDeleteDetailsEnabled();
+    this.detailMenuItems[1].disabled = isDisabled;
+    this.detailMenuItems[2].disabled = isDisabled;
   }
 
   initializeReceiptDetails(arr: Array<any>): any {
-    if (arr == null)
-      for (let a = 0; a < 10; a++) {
-        this.orderDetails.push({
-          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, remarks: ''
-        });
-      }
-    else {
-      _.forEach(arr, (record => {
-        var item = this.findItem(record.itemId);
-        var unit = this.findUnit(record.unitId);
-        var whouse = this.findWarehouse(record.warehouseId);
+    _.forEach(arr, (record => {
+      var item = this.findItem(record.itemId);
+      var unit = this.findUnit(record.unitId);
+      var whouse = this.findWarehouse(record.warehouseId);
 
-        this.orderDetails.push({
-          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
-          unitDescription: unit == null ? null : unit.label, soid: record.salesOrderId, sodetailId: record.id, refNo: record.sorefNo,
-          warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label,
-          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
-        });
-      }));
-    }
+      this.orderDetails.push({
+        index: _.size(this.orderDetails), id: record.id, deliveryReceiptId: record.deliveryReceiptId, qtyInvoice: record.qtyInvoice,
+        qtyReturn: record.qtyReturn, qtyOriginal: record.qty,
+        itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
+        unitDescription: unit == null ? null : unit.label, soid: record.soid, sodetailId: record.sodetailId, refNo: record.sorefNo,
+        warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label,
+        unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, comments: record.comments
+      });
+    }));
+    this.ToggleDetailMenu();
   }
 
   loadDetail(rowData) {
@@ -364,20 +439,8 @@ export class DeliveryReceiptComponent implements OnInit {
     return this.orderDetails.filter(x => x.itemCode != null);
   }
 
-  getTotalQty() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'qty');
-  }
-
-  getTotalDiscount() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'discount');
-  }
-
-  getTotalUnitPrice() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'unitPrice');
-  }
-
-  getTotalSubTotal() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'subTotal');
+  getTotal(property: string) {
+    return this.sumPipe.transform(this.getOrderDetails(), property);
   }
 
   getTotalItem() {
@@ -407,21 +470,37 @@ export class DeliveryReceiptComponent implements OnInit {
 
     this.loading = true;
 
-    this.salesService.addDeliveryReceipt({
-      date: this.f.date.value,
-      refNo: this.f.refNo.value,
-      address: this.f.address.value,
-      comments: this.f.comments.value,
-      telNo: this.f.telNo.value,
-      faxNo: this.f.faxNo.value,
-      contactPerson: this.f.contactPerson.value,
-      // systemNo: this.f.systemNo.value,
-      customerId: this.f.customerId.value,
-      termId: this.f.termId.value,
-      mopid: this.f.mopid.value,
-      amount: this.getTotalSubTotal(),
-      totalAmount: 0
-    }).subscribe((resp) => {
+    var headerRequest = this.newItem ?
+      this.salesService.addDeliveryReceipt({
+        date: this.f.date.value,
+        refNo: this.f.refNo.value,
+        address: this.f.address.value,
+        comments: this.f.comments.value,
+        telNo: this.f.telNo.value,
+        faxNo: this.f.faxNo.value,
+        contactPerson: this.f.contactPerson.value,
+        customerId: this.f.customerId.value,
+        termId: this.f.termId.value,
+        mopid: this.f.mopid.value,
+        amount: this.getTotal('subTotal'),
+        totalAmount: 0
+      })
+      : this.salesService.updateDeliveryReceipt({
+        id: this.id,
+        date: this.f.date.value,
+        refNo: this.f.refNo.value,
+        address: this.f.address.value,
+        comments: this.f.comments.value,
+        telNo: this.f.telNo.value,
+        faxNo: this.f.faxNo.value,
+        contactPerson: this.f.contactPerson.value,
+        termId: this.f.termId.value,
+        mopid: this.f.mopid.value,
+        amount: this.getTotal('subTotal'),
+        totalAmount: 0
+      });
+
+    headerRequest.subscribe((resp) => {
 
       let order: any;
       let detailsRequests = [];
@@ -429,30 +508,53 @@ export class DeliveryReceiptComponent implements OnInit {
 
       _.forEach(this.getOrderDetails(), (detail) => {
 
-        detailsRequests.push(
-          this.salesService.addDeliveryReceiptDetail({
+        if (detail.id == null)
+          detailsRequests.push(
+            this.salesService.addDeliveryReceiptDetail({
 
-            deliveryReceiptId: order.id,
-            itemId: detail.itemId,
-            qty: detail.qty,
-            unitPrice: detail.unitPrice,
-            discount: detail.discount,
-            subTotal: detail.subTotal,
-            unitId: detail.unitId,
-            remarks: detail.remarks,
-            soid: detail.soid,
-            sodetailId: detail.sodetailId,
-            sorefNo: detail.refNo,
-            warehouseId: detail.warehouseId,
-            closed: detail.closed
-          })
-        );
+              deliveryReceiptId: order.id,
+              itemId: detail.itemId,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
+              discount: detail.discount,
+              subTotal: detail.subTotal,
+              unitId: detail.unitId,
+              remarks: detail.remarks,
+              soid: detail.soid,
+              sodetailId: detail.sodetailId,
+              sorefNo: detail.refNo,
+              warehouseId: detail.warehouseId,
+              closed: detail.closed
+            })
+          );
+        else
+          detailsRequests.push(
+            this.salesService.updateDeliveryReceiptDetail({
+              id: detail.id,
+              deliveryReceiptId: order.id,
+              itemId: detail.itemId,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
+              discount: detail.discount,
+              subTotal: detail.subTotal,
+              unitId: detail.unitId,
+              remarks: detail.remarks,
+              soid: detail.soid,
+              sodetailId: detail.sodetailId,
+              sorefNo: detail.refNo,
+              warehouseId: detail.warehouseId,
+              closed: detail.closed
+            })
+          );
       });
       forkJoin(detailsRequests)
         .subscribe((resp) => {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
-          this.router.navigate(['/delivery-receipts'])
+          setTimeout(() => {
+            this.router.navigate(['/delivery-receipts'])
+          }, 1000);
+          
         }, (err) => {
           this.loading = false;
           this.messaging.errorMessage(this.messaging.ADD_ERROR);
@@ -461,6 +563,23 @@ export class DeliveryReceiptComponent implements OnInit {
       this.loading = false;
       this.messaging.errorMessage(this.messaging.ADD_ERROR);
     });
+  }
+
+  OnEnter(index, rowData) {
+    if (this.orderDetails.length == (index + 1) && rowData.itemCode != null)
+      this.addTableRow();
+  }
+
+  addTableRow() {
+    this.orderDetails.unshift({
+      index: _.size(this.orderDetails), id: null, deliveryReceiptId: null, qtyInvoice: 0, qtyReturn: 0, qtyOriginal: null,
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+      unitPrice: null, discount: 0, subTotal: null, refNo: null, closed: false, soid: null, sodetailId: null,
+      warehouseId: null, warehouseDescription: null
+    });
+    this.ToggleDetailMenu();
+    this.selectedRows = [];
+    this.selectedRows.push(_.first(this.orderDetails));
   }
 
 }

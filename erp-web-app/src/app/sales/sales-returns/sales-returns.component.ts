@@ -6,6 +6,7 @@ import { SalesService } from 'src/app/services/sales.service';
 import { forkJoin } from 'rxjs';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import _ from "lodash";
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-sales-returns',
@@ -26,6 +27,7 @@ export class SalesReturnsComponent implements OnInit {
     private router: Router,
     private app: AppComponent,
     private salesService: SalesService,
+    private common: CommonService,
     private maintenanceService: MaintenanceService
   ) {
     this.orders = [];
@@ -93,7 +95,8 @@ export class SalesReturnsComponent implements OnInit {
           var warehouse = this.findWarehouse(record.warehouseId);
 
           this.orders.push({
-            id: record.id, date: record.date, customer: customer != null ? customer.name : '', systemNo: record.systemNo,
+            id: record.id, date:new Date(this.common.toLocaleDate(record.date)), 
+            customer: customer != null ? customer.name : '', systemNo: record.systemNo,
             refNo: record.refNo, warehouse: warehouse != null ? warehouse.name : '', closed: record.closed
           });
         }))

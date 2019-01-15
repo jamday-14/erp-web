@@ -24,7 +24,7 @@
             <label for="systemNo">System No.*</label>
           </div>
           <div class="p-col-2">
-            <input pInputText id="systemNo" formControlName="systemNo" readonly />
+            <input pInputText id="systemNo" formControlName="systemNo" readonly placeholder="system generated" />
           </div>
         </div>
         <div class="p-grid">
@@ -33,7 +33,7 @@
           </div>
           <div class="p-col-5">
             <p-dropdown [options]="customers" id="customerId" [style]="{width: '100%'}" formControlName="customerId"
-              placeholder="Select customer" filter="true" (onChange)="customerChanged($event)"></p-dropdown>
+              placeholder="Select customer" filter="true" (onChange)="customerChanged($event)" [readonly]="!newItem"></p-dropdown>
           </div>
         </div>
         <div class="p-grid">
@@ -113,23 +113,26 @@
       </tr>
     </ng-template>
   </p-table>
-  <p-table [value]="orderDetails" resizableColumns="true" #searchItemLoc >
+  <p-menubar [model]="detailMenuItems"></p-menubar>
+  <p-table [value]="orderDetails" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
     <ng-template pTemplate="header">
       <tr>
         <th pResizableColumn>Item Code</th>
         <th pResizableColumn style="width:450px">Description</th>
-        <th style="width:100px">Qty</th>
+        <th style="width:60px">Qty</th>
+        <th style="width:70px">Qty Invoice</th>
+        <th style="width:70px">Qty Return</th>
         <th>Warehouse</th>
         <th>Unit</th>
         <th style="width:100px">Unit Price</th>
         <th style="width:100px">Discount</th>
         <th style="width:150px">Sub Total</th>
-        <th style="width:100px" pResizableColumn>SO Ref No</th>
+        <th style="width:120px" pResizableColumn>SO Ref No</th>
         <th style="width:70px">Closed</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
-      <tr>
+      <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)" [pSelectableRow]="rowData">
         <td>
           {{rowData.itemCode}}
         </td>
@@ -138,8 +141,10 @@
             <ng-template pTemplate="input">
               <p-autoComplete [(ngModel)]="text" [suggestions]="searchedItems" (completeMethod)="searchItems($event)"
                 [appendTo]="searchItemLoc" minLength="3" field="label" (onSelect)="itemChanged($event, rowData)"
-                placeholder="Search item" emptyMessage="Item not found" autofocus="true" required></p-autoComplete>
-              <!-- <p-dropdown [options]="items" [(ngModel)]="rowData.itemId" [style]="{'width':'100%'}" (click)="itemChanged(rowData)"></p-dropdown> -->
+                placeholder="Search item" emptyMessage="Item not found" autofocus="true" required *ngIf="isDetailEditable(rowData)"></p-autoComplete>
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+                {{rowData.description}}
+              </span>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.description}}
@@ -149,29 +154,44 @@
         <td pEditableColumn class="text-right">
           <p-cellEditor>
             <ng-template pTemplate="input">
-              <input pInputText type="text" [(ngModel)]="rowData.qty" (input)="computeSubTotal(rowData)" required>
+              <input type="number" pInputText [(ngModel)]="rowData.qty" [max]="rowData.qtyOriginal" (input)="computeSubTotal(rowData)" required *ngIf="isQuantityEditable(rowData)">
+              <span class="pad5" *ngIf="!isQuantityEditable(rowData)">
+                {{rowData.qty}}
+              </span>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.qty}}
             </ng-template>
           </p-cellEditor>
         </td>
+        <td class="text-right">
+          {{rowData.qtyInvoice}}
+        </td>
+        <td class="text-right">
+          {{rowData.qtyReturn}}
+        </td>
         <td pEditableColumn>
-            <p-cellEditor>
-              <ng-template pTemplate="input">
-                <p-dropdown [options]="warehouses" [(ngModel)]="rowData.warehouseId" [appendTo]="searchItemLoc"
-                  (onChange)="warehouseChanged($event, rowData)" placeholder="Select Warehouse" required></p-dropdown>
-              </ng-template>
-              <ng-template pTemplate="output">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <p-dropdown [options]="warehouses" [(ngModel)]="rowData.warehouseId" [appendTo]="searchItemLoc"
+                (onChange)="warehouseChanged($event, rowData)" placeholder="Select Warehouse" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
                 {{rowData.warehouseDescription}}
-              </ng-template>
-            </p-cellEditor>
-          </td>
+              </span>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{rowData.warehouseDescription}}
+            </ng-template>
+          </p-cellEditor>
+        </td>
         <td pEditableColumn>
           <p-cellEditor>
             <ng-template pTemplate="input">
               <p-dropdown [options]="units" [(ngModel)]="rowData.unitId" [style]="{'width':'100%'}" [appendTo]="searchItemLoc"
-                (onChange)="unitChanged($event, rowData)" placeholder="Select Unit" required></p-dropdown>
+                (onChange)="unitChanged($event, rowData)" placeholder="Select Unit" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+                {{rowData.unitDescription}}
+              </span>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.unitDescription}}
@@ -182,7 +202,10 @@
           <p-cellEditor>
             <ng-template pTemplate="input">
               <input pInputText type="number" [(ngModel)]="rowData.unitPrice" (input)="computeSubTotal(rowData)"
-                required>
+                required *ngIf="isDetailEditable(rowData)">
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+                {{rowData.unitPrice | currency:"&#8369;"}}
+              </span>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.unitPrice | currency:"&#8369;"}}
@@ -193,6 +216,9 @@
           <p-cellEditor>
             <ng-template pTemplate="input">
               <input pInputText type="number" [(ngModel)]="rowData.discount" (input)="computeSubTotal(rowData)">
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+                {{rowData.discount | currency:"&#8369;"}}
+              </span>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.discount | currency:"&#8369;"}}
@@ -205,7 +231,10 @@
         <td pEditableColumn>
           <p-cellEditor>
             <ng-template pTemplate="input">
-              <input pInputText type="text" [(ngModel)]="rowData.refNo" required>
+              <input pInputText type="text" [(ngModel)]="rowData.refNo" required *ngIf="isDetailEditable(rowData)">
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+                {{rowData.refNo}}
+              </span>
             </ng-template>
             <ng-template pTemplate="output">
               {{rowData.refNo}}
@@ -221,12 +250,14 @@
       <tr>
         <td>No. of Items : {{ getTotalItem() }}</td>
         <td></td>
-        <td class="text-right">{{ getTotalQty() }}</td>
+        <td class="text-right">{{ getTotal('qty') }}</td>
+        <td class="text-right">{{ getTotal('qtyInvoice') }}</td>
+        <td class="text-right">{{ getTotal('qtyReturn') }}</td>
         <td></td>
         <td></td>
-        <td class="text-right">{{ getTotalUnitPrice() | currency:"&#8369;" }}</td>
-        <td class="text-right">{{ getTotalDiscount() | currency:"&#8369;" }}</td>
-        <td class="text-right">{{ getTotalSubTotal() | currency:"&#8369;"}}</td>
+        <td class="text-right">{{ getTotal('unitPrice') | currency:"&#8369;" }}</td>
+        <td class="text-right">{{ getTotal('discount') | currency:"&#8369;" }}</td>
+        <td class="text-right">{{ getTotal('subTotal') | currency:"&#8369;"}}</td>
         <td></td>
         <td></td>
       </tr>

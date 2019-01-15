@@ -44,6 +44,7 @@ import { RequestCacheWithMap } from './services/request-cache.service';
 import { CachingInterceptor } from './services/caching-interceptor.service';
 import { DeliveryReceiptComponent } from './sales/delivery-receipt/delivery-receipt.component';
 import { SalesReturnComponent } from './sales/sales-return/sales-return.component';
+import { DatePipe } from '@angular/common';
 
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -118,7 +119,8 @@ const appRoutes: Routes = [
     { provide: HTTP_INTERCEPTORS, useClass: CachingInterceptor, multi: true },
     RequestCacheWithMap,
     MessageService,
-    SumFilterPipe
+    SumFilterPipe,
+    DatePipe
   ],
   bootstrap: [AppComponent]
 })

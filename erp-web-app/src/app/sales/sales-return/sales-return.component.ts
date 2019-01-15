@@ -10,6 +10,7 @@ import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
 import { Location } from '@angular/common';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-sales-return',
@@ -41,6 +42,7 @@ export class SalesReturnComponent implements OnInit {
     private router: Router,
     private formBuilder: FormBuilder,
     private sumPipe: SumFilterPipe,
+    private common: CommonService,
     private messaging: MessagingService,
     private app: AppComponent,
     private route: ActivatedRoute,
@@ -128,7 +130,7 @@ export class SalesReturnComponent implements OnInit {
         var detailResponse = response[1];
 
         this.form.patchValue({
-          date: new Date(headerResponse.date),
+          date: new Date(this.common.toLocaleDate(headerResponse.date)),
           customerId: headerResponse.customerId,
           systemNo: headerResponse.systemNo,
           refNo: headerResponse.refNo,
