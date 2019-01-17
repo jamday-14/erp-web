@@ -36,6 +36,10 @@ export class SalesInvoiceComponent implements OnInit {
   footerData: any;
   cols: any[];
 
+  selectedRows: any;
+  detailMenuItems: MenuItem[];
+  allSelected: boolean;
+
   constructor(
     private maintenanceService: MaintenanceService,
     private salesService: SalesService,
@@ -54,6 +58,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.items = [];
     this.orderDetails = [];
     this.orders = [];
+    this.allSelected = false;
   }
 
   ngOnInit() {
@@ -66,7 +71,7 @@ export class SalesInvoiceComponent implements OnInit {
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
-    
+
   }
 
   initializeColumns(): any {
@@ -117,6 +122,72 @@ export class SalesInvoiceComponent implements OnInit {
         }
       })
     }
+
+    this.detailMenuItems = [
+      {
+        label: 'New', icon: 'pi pi-file', command: () => {
+          this.addTableRow();
+        }
+      },
+      {
+        label: 'Select All', icon: 'pi pi-list', command: () => {
+          this.allSelected = !this.allSelected;
+          this.detailMenuItems[1].label = this.allSelected ? 'De-select All' : 'Select All';
+          this.selectedRows = this.allSelected ? this.getOrderDetails() : [];
+        }
+      },
+      {
+        label: 'Delete', icon: 'pi pi-times', command: () => {
+          if (_.size(this.selectedRows) == 0) {
+            this.messaging.warningMessage("Please select item to remove");
+          }
+          else {
+            this.deleteDetails();
+          }
+        }
+      },
+    ];
+  }
+
+  private deleteDetails() {
+    var nonApiCallsRequest = this.selectedRows.filter(x => x.salesInvoiceId == null);
+    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+      _.forEach(nonApiCallsRequest, (row => {
+        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+      }));
+    }
+    var apiCallsRequest = this.selectedRows.filter(x => x.salesInvoiceId != null);
+    if (apiCallsRequest != null && apiCallsRequest != []) {
+      var deleteRequests = [];
+      _.forEach(apiCallsRequest, (row => {
+        deleteRequests.push(this.salesService.deleteSalesInvoiceDetail(row.id, row.salesInvoiceId));
+      }));
+      this.loading = true;
+      forkJoin(deleteRequests).subscribe((res) => {
+        _.forEach(apiCallsRequest, (row => {
+          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+        }));
+        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+        this.loading = false;
+      }, (err) => {
+        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+        this.loading = false;
+      });
+    }
+  }
+
+  isDeleteDetailsEnabled(): boolean {
+    if (_.size(this.getOrderDetails()) == 0)
+      return false;
+    return _.size(this.getOrderDetails().filter(x => x.drdetailId == null)) > 0;
+  }
+
+  isDetailEditable(rowData) {
+    return rowData.drdetailId == null;
+  }
+
+  isQuantityEditable(rowData) {
+    return !(rowData.drdetailId != null && rowData.id != null);
   }
 
   private resetOrdersAndDetails() {
@@ -188,6 +259,7 @@ export class SalesInvoiceComponent implements OnInit {
 
         this.loading = false;
         this.initializeHeader();
+
       }, (err) => { this.loading = false; });
   }
 
@@ -201,6 +273,8 @@ export class SalesInvoiceComponent implements OnInit {
     rowData.description = item.label;
     rowData.itemCode = item.code;
     rowData.unitPrice = item.unitPrice;
+
+    this.ToggleDetailMenu();
 
     if (unit) {
       rowData.unitId = unit.value;
@@ -230,7 +304,8 @@ export class SalesInvoiceComponent implements OnInit {
       records = resp;
       _.forEach(records, (record => {
         this.orders.push({
-          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
+          id: record.id, date: this.common.toLocaleDate(record.date),
+          systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
         });
       }))
 
@@ -257,22 +332,25 @@ export class SalesInvoiceComponent implements OnInit {
           this.computeSubTotal(record);
 
           this.orderDetails.push({
+            index: _.size(this.orderDetails), id: null, salesInvoiceId: null,
             itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty,
             unitId: unit.value, unitDescription: unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
             refNo: rowData.systemNo, closed: record.closed, drid: record.deliveryReceiptId, drdetailId: record.id
           });
         }))
+        this.ToggleDetailMenu();
         this.loading = false;
       }, (err) => {
         this.loading = false;
       });
     else
-      for (let a = 0; a < 8; a++) {
-        this.orderDetails.push({
-          itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-          unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false, drid: null, drdetailId: null
-        });
-      }
+      this.addTableRow();
+  }
+
+  private ToggleDetailMenu() {
+    var isDisabled = !this.isDeleteDetailsEnabled();
+    this.detailMenuItems[1].disabled = isDisabled;
+    this.detailMenuItems[2].disabled = isDisabled;
   }
 
   initializeSalesInvoiceDetails(arr: Array<any>): any {
@@ -281,12 +359,15 @@ export class SalesInvoiceComponent implements OnInit {
       var unit = this.findUnit(record.unitId);
 
       this.orderDetails.push({
+        index: _.size(this.orderDetails), id: record.id, salesInvoiceId: record.salesInvoiceId,
         itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
-        unitDescription: unit == null ? null : unit.label, drid: record.deliveryReceiptId, drdetailId: record.id, refNo: record.drrefNo,
+        unitDescription: unit == null ? null : unit.label, drid: record.drId, drdetailId: record.drdetailId, refNo: record.drrefNo,
         unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
       });
     }));
+    this.ToggleDetailMenu();
   }
+
 
   findItem(itemId) {
     return this.items.find(x => x.value == itemId);
@@ -328,20 +409,8 @@ export class SalesInvoiceComponent implements OnInit {
     this.initializeOrderDetails(rowData);
   }
 
-  getTotalQty() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'qty');
-  }
-
-  getTotalDiscount() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'discount');
-  }
-
-  getTotalUnitPrice() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'unitPrice');
-  }
-
-  getTotalSubTotal() {
-    return this.sumPipe.transform(this.getOrderDetails(), 'subTotal');
+  getTotal(property: string) {
+    return this.sumPipe.transform(this.getOrderDetails(), property);
   }
 
   getTotalItem() {
@@ -366,21 +435,38 @@ export class SalesInvoiceComponent implements OnInit {
 
     this.loading = true;
 
-    this.salesService.addSalesInvoice({
-      date: this.f.date.value,
-      refNo: this.f.refNo.value,
-      address: this.f.address.value,
-      comments: this.f.comments.value,
-      telNo: this.f.telNo.value,
-      faxNo: this.f.faxNo.value,
-      contactPerson: this.f.contactPerson.value,
-      // systemNo: this.f.systemNo.value,
-      customerId: this.f.customerId.value,
-      termId: this.f.termId.value,
-      mopid: this.f.mopid.value,
-      amount: this.getTotalSubTotal(),
-      totalAmount: 0
-    }).subscribe((resp) => {
+    var headerRequest = this.newItem
+      ? this.salesService.addSalesInvoice({
+        date: this.f.date.value,
+        refNo: this.f.refNo.value,
+        address: this.f.address.value,
+        comments: this.f.comments.value,
+        telNo: this.f.telNo.value,
+        faxNo: this.f.faxNo.value,
+        contactPerson: this.f.contactPerson.value,
+        customerId: this.f.customerId.value,
+        termId: this.f.termId.value,
+        mopid: this.f.mopid.value,
+        amount: this.getTotal('subTotal'),
+        totalAmount: 0
+      })
+      : this.salesService.updateSalesInvoice({
+        id: this.id,
+        date: this.f.date.value,
+        refNo: this.f.refNo.value,
+        address: this.f.address.value,
+        comments: this.f.comments.value,
+        telNo: this.f.telNo.value,
+        faxNo: this.f.faxNo.value,
+        contactPerson: this.f.contactPerson.value,
+        customerId: this.f.customerId.value,
+        termId: this.f.termId.value,
+        mopid: this.f.mopid.value,
+        amount: this.getTotal('subTotal'),
+        totalAmount: 0
+      })
+
+    headerRequest.subscribe((resp) => {
 
       let order: any;
       let detailsRequests = [];
@@ -388,23 +474,43 @@ export class SalesInvoiceComponent implements OnInit {
 
       _.forEach(this.getOrderDetails(), (detail) => {
 
-        detailsRequests.push(
-          this.salesService.addSalesInvoiceDetail({
+        if (detail.id == null)
+          detailsRequests.push(
+            this.salesService.addSalesInvoiceDetail({
 
-            salesInvoiceId: order.id,
-            itemId: detail.itemId,
-            qty: detail.qty,
-            unitPrice: detail.unitPrice,
-            discount: detail.discount,
-            subTotal: detail.subTotal,
-            unitId: detail.unitId,
-            remarks: detail.remarks,
-            drid: detail.drid,
-            drdetailId: detail.drdetailId,
-            drrefNo: detail.refNo,
-            closed: detail.closed
-          })
-        );
+              salesInvoiceId: order.id,
+              itemId: detail.itemId,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
+              discount: detail.discount,
+              subTotal: detail.subTotal,
+              unitId: detail.unitId,
+              remarks: detail.remarks,
+              drid: detail.drid,
+              drdetailId: detail.drdetailId,
+              drrefNo: detail.refNo,
+              closed: detail.closed
+            })
+          );
+
+        else
+          detailsRequests.push(
+            this.salesService.updateSalesInvoiceDetail({
+              id: detail.id,
+              salesInvoiceId: order.id,
+              itemId: detail.itemId,
+              qty: detail.qty,
+              unitPrice: detail.unitPrice,
+              discount: detail.discount,
+              subTotal: detail.subTotal,
+              unitId: detail.unitId,
+              remarks: detail.remarks,
+              drid: detail.drid,
+              drdetailId: detail.drdetailId,
+              drrefNo: detail.refNo,
+              closed: detail.closed
+            })
+          );
       });
       forkJoin(detailsRequests)
         .subscribe((resp) => {
@@ -423,4 +529,19 @@ export class SalesInvoiceComponent implements OnInit {
     });
   }
 
+  OnEnter(index, rowData) {
+    if (this.orderDetails.length == (index + 1) && rowData.itemCode != null)
+      this.addTableRow();
+  }
+
+  addTableRow() {
+    this.orderDetails.unshift({
+      index: _.size(this.orderDetails), id: null, salesInvoiceId: null,
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+      unitPrice: null, discount: 0, subTotal: null, refNo: '', closed: false, drid: null, drdetailId: null
+    });
+    this.ToggleDetailMenu();
+    this.selectedRows = [];
+    this.selectedRows.push(_.first(this.orderDetails));
+  }
 }

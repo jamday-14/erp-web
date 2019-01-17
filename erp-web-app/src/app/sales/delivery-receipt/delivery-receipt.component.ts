@@ -334,7 +334,6 @@ export class DeliveryReceiptComponent implements OnInit {
       this.salesService.querySalesOrderDetailsPendingDR(rowData.id).subscribe(
         (resp) => {
           records = resp;
-          this.loading = false;
           _.forEach(records, (record => {
             var item = this.findItem(record.itemId);
             var unit = this.findUnit(record.unitId);
@@ -353,6 +352,7 @@ export class DeliveryReceiptComponent implements OnInit {
           }));
 
           this.ToggleDetailMenu();
+          this.loading = false;
         },
         (err) => {
           this.loading = false;

@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class SalesService {
-  
+    
   constructor(public api: ApiService) { }
 
   addSalesOrder(request: any) {
@@ -116,6 +116,10 @@ export class SalesService {
     return this.api.delete(`sales/delivery-receipts/${drId}/details/${drdId}`);
   }
 
+  deleteSalesInvoiceDetail(sidId: any, siId: any): any {
+    return this.api.delete(`sales/invoices/${siId}/details/${sidId}`);
+  }
+
   updateSalesOrderDetail(request: any) {
     return this.api.patch(`sales/orders/${request.salesOrderId}/details/${request.id}`, request);
   }
@@ -130,5 +134,13 @@ export class SalesService {
 
   updateDeliveryReceipt(request: any) {
     return this.api.patch(`sales/delivery-receipts/${request.id}`, request);
+  }
+
+  updateSalesInvoiceDetail(request: any) {
+    return this.api.patch(`sales/invoices/${request.salesInvoiceId}/details/${request.id}`, request);
+  }
+
+  updateSalesInvoice(request: any) {
+    return this.api.patch(`sales/invoices/${request.id}`, request);
   }
 }

@@ -16,7 +16,7 @@ export class CommonService {
     return item;
   }
 
-  toLocaleDate(date) {
+  toLocaleDate(date: Date) {
     return this.datePipe.transform(new Date(date), 'longDate', 'GMT+16');
   }
 }
