@@ -42,7 +42,6 @@ export class AppComponent {
         label: 'Sales',
         icon: 'pi pi-chart-bar',
         items: [
-          { label: 'Sales Quotation' },
           { label: 'Sales Order', routerLink: ['/sales-orders']},
           { label: 'Delivery Receipt' , routerLink: ['/delivery-receipts']},
           { label: 'Sales Invoice' , routerLink: ['/sales-invoices']},

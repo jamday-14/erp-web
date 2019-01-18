@@ -120,6 +120,7 @@
         <th pResizableColumn>Item Code</th>
         <th pResizableColumn style="width:450px">Description</th>
         <th style="width:100px">Qty</th>
+        <th style="width:70px">Qty Return</th>
         <th>Unit</th>
         <th style="width:100px">Unit Price</th>
         <th style="width:100px">Discount</th>
@@ -160,6 +161,9 @@
               {{rowData.qty}}
             </ng-template>
           </p-cellEditor>
+        </td>
+        <td class="text-right">
+          {{rowData.qtyReturn}}
         </td>
         <td pEditableColumn>
           <p-cellEditor>
@@ -228,6 +232,7 @@
         <td>No. of Items : {{ getTotalItem() }}</td>
         <td></td>
         <td class="text-right">{{ getTotal('qty') }}</td>
+        <td class="text-right">{{ getTotal('qtyReturn') }}</td>
         <td></td>
         <td class="text-right">{{ getTotal('unitPrice') | currency:"&#8369;" }}</td>
         <td class="text-right">{{ getTotal('discount') | currency:"&#8369;" }}</td>

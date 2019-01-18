@@ -313,7 +313,8 @@ export class DeliveryReceiptComponent implements OnInit {
       records = resp;
       _.forEach(records, (record => {
         this.orders.push({
-          id: record.id, date: record.date, systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
+          id: record.id, date: this.common.toLocaleDate(record.date), 
+          systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
         });
       }))
 

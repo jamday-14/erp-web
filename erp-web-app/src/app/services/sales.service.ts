@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class SalesService {
-    
+     
   constructor(public api: ApiService) { }
 
   addSalesOrder(request: any) {
@@ -48,6 +48,10 @@ export class SalesService {
     return this.api.get(`sales/delivery-receipts/${customerId}/pending`, null, false);
   }
 
+  querySalesInvoicesByCustomer(customerId: number): any {
+    return this.api.get(`sales/customers/${customerId}/sales-invoices`, null, false);
+  }
+  
   queryDeliveryReceiptDetails(id: number): any {
     return this.api.get(`sales/delivery-receipts/${id}/details`, null, false);
   }
@@ -120,6 +124,10 @@ export class SalesService {
     return this.api.delete(`sales/invoices/${siId}/details/${sidId}`);
   }
 
+  deleteSalesReturnDetail(srdId: any, srId: any): any {
+    return this.api.delete(`sales/returns/${srId}/details/${srdId}`);
+  }
+
   updateSalesOrderDetail(request: any) {
     return this.api.patch(`sales/orders/${request.salesOrderId}/details/${request.id}`, request);
   }
@@ -142,5 +150,13 @@ export class SalesService {
 
   updateSalesInvoice(request: any) {
     return this.api.patch(`sales/invoices/${request.id}`, request);
+  }
+
+  updateSalesReturnDetail(request: any) {
+    return this.api.patch(`sales/returns/${request.salesReturnId}/details/${request.id}`, request);
+  }
+
+  updateSalesReturn(request: any) {
+    return this.api.patch(`sales/returns/${request.id}`, request);
   }
 }

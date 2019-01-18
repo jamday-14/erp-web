@@ -9,7 +9,7 @@ import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
-import { Location, DatePipe } from '@angular/common';
+import { Location } from '@angular/common';
 import { CommonService } from 'src/app/services/common.service';
 
 @Component({
@@ -333,7 +333,7 @@ export class SalesInvoiceComponent implements OnInit {
 
           this.orderDetails.push({
             index: _.size(this.orderDetails), id: null, salesInvoiceId: null,
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty,
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, qtyReturn: null,
             unitId: unit.value, unitDescription: unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
             refNo: rowData.systemNo, closed: record.closed, drid: record.deliveryReceiptId, drdetailId: record.id
           });
@@ -359,7 +359,7 @@ export class SalesInvoiceComponent implements OnInit {
       var unit = this.findUnit(record.unitId);
 
       this.orderDetails.push({
-        index: _.size(this.orderDetails), id: record.id, salesInvoiceId: record.salesInvoiceId,
+        index: _.size(this.orderDetails), id: record.id, salesInvoiceId: record.salesInvoiceId, qtyReturn: record.qtyReturn,
         itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
         unitDescription: unit == null ? null : unit.label, drid: record.drId, drdetailId: record.drdetailId, refNo: record.drrefNo,
         unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
@@ -537,7 +537,7 @@ export class SalesInvoiceComponent implements OnInit {
   addTableRow() {
     this.orderDetails.unshift({
       index: _.size(this.orderDetails), id: null, salesInvoiceId: null,
-      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null, qtyReturn: null,
       unitPrice: null, discount: 0, subTotal: null, refNo: '', closed: false, drid: null, drdetailId: null
     });
     this.ToggleDetailMenu();
