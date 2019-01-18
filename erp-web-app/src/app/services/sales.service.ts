@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class SalesService {
-     
+       
   constructor(public api: ApiService) { }
 
   addSalesOrder(request: any) {
@@ -94,6 +94,14 @@ export class SalesService {
 
   querySalesReturnDetails(id: number): any {
     return this.api.get(`sales/returns/${id}/details`, null, false);
+  }
+
+  queryAvailableSalesInvoicesByCustomer(customerId: number): any {
+    return this.api.get(`sales/customers/${customerId}/sales-invoices/available`, null, false);
+  }
+
+  queryAvailableSalesInvoiceDetails(id: any): any {
+    return this.api.get(`sales/invoices/${id}/details/available`, null, false);
   }
 
   getSalesOrder(id: number): any {

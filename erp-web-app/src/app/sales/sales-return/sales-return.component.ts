@@ -284,7 +284,7 @@ export class SalesReturnComponent implements OnInit {
     var responses = [];
     var requests = [];
     requests.push(this.salesService.queryPendingDeliveryReceiptsByCustomer(customerId));
-    requests.push(this.salesService.querySalesInvoicesByCustomer(customerId));
+    requests.push(this.salesService.queryAvailableSalesInvoicesByCustomer(customerId));
 
     forkJoin(requests).subscribe((resp) => {
       responses = resp;
@@ -318,7 +318,7 @@ export class SalesReturnComponent implements OnInit {
 
       var request = rowData.referenceTypeId == 3
         ? this.salesService.queryDeliveryReceiptDetailsPendingInvoice(rowData.id)
-        : this.salesService.querySalesInvoiceDetails(rowData.id);
+        : this.salesService.queryAvailableSalesInvoiceDetails(rowData.id);
 
       request.subscribe((resp) => {
         response = resp;
@@ -336,14 +336,14 @@ export class SalesReturnComponent implements OnInit {
             this.orderDetails.push({
               index: _.size(this.orderDetails), id: null, salesReturnId: null,
               itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-              unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed,
+              unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, remarks: null,
               referenceId: record.deliveryReceiptId, referenceDetailId: record.id, referenceTypeId: rowData.referenceTypeId
             });
           else
             this.orderDetails.push({
               index: _.size(this.orderDetails), id: null, salesReturnId: null,
               itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-              unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, closed: record.closed,
+              unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, refNo: rowData.systemNo, remarks: null,
               referenceId: record.salesInvoiceId, referenceDetailId: record.id, referenceTypeId: rowData.referenceTypeId
             });
         }))
@@ -370,10 +370,10 @@ export class SalesReturnComponent implements OnInit {
       var unit = this.findUnit(record.unitId);
 
       this.orderDetails.push({
-        index: _.size(this.orderDetails), record: record.id, salesReturnId: record.salesReturnId,
+        index: _.size(this.orderDetails), id: record.id, salesReturnId: record.salesReturnId,
         itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
-        unitDescription: unit == null ? null : unit.label, referenceId: record.referenceId, referenceDetailId: record.referenceDetailId, refNo: record.referenceNo,
-        unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
+        unitDescription: unit == null ? null : unit.label, referenceId: record.referenceId, referenceDetailId: record.referenceDetailId, 
+        refNo: record.referenceNo, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks
       });
     }));
     this.ToggleDetailMenu();
@@ -531,8 +531,8 @@ export class SalesReturnComponent implements OnInit {
   addTableRow() {
     this.orderDetails.push({
       index: _.size(this.orderDetails), id: null, salesReturnId: null,
-      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-      unitPrice: null, discount: null, subTotal: null, refNo: '', closed: false, referenceId: null, referenceDetailId: null, referenceTypeId: null
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null, remarks: null,
+      unitPrice: null, discount: 0, subTotal: null, refNo: '', closed: false, referenceId: null, referenceDetailId: null, referenceTypeId: null
     });
 
     this.ToggleDetailMenu();

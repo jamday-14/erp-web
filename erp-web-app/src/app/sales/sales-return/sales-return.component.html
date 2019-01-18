@@ -95,7 +95,7 @@
         <th style="width:100px">Discount</th>
         <th style="width:150px">Sub Total</th>
         <th style="width:200px" pResizableColumn>Reference No</th>
-        <th style="width:70px">Closed</th>
+        <th style="width:250px" pResizableColumn>Remarks</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-rowData>
@@ -188,8 +188,18 @@
             </ng-template>
           </p-cellEditor>
         </td>
-        <td class="text-center">
-          <p-checkbox binary="true" [(ngModel)]="rowData.closed"></p-checkbox>
+        <td pEditableColumn>
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input pInputText type="text" [(ngModel)]="rowData.remarks" required *ngIf="isDetailEditable(rowData)">
+              <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+                {{rowData.remarks}}
+              </span>
+            </ng-template>
+            <ng-template pTemplate="output">
+              {{rowData.remarks}}
+            </ng-template>
+          </p-cellEditor>
         </td>
       </tr>
     </ng-template>
