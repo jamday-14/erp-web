@@ -33,7 +33,7 @@ export class AppComponent {
       ]
     },
     { label: 'Log out', icon: 'pi pi-fw pi-sign-out' }
-  ];
+    ];
   }
   private initializeNavigationMenu() {
     this.items = [
@@ -42,22 +42,20 @@ export class AppComponent {
         label: 'Sales',
         icon: 'pi pi-chart-bar',
         items: [
-          { label: 'Sales Order', routerLink: ['/sales-orders']},
-          { label: 'Delivery Receipt' , routerLink: ['/delivery-receipts']},
-          { label: 'Sales Invoice' , routerLink: ['/sales-invoices']},
-          { label: 'Sales Return'  , routerLink: ['/sales-returns']}
+          { label: 'Sales Order', routerLink: ['/sales-orders'] },
+          { label: 'Delivery Receipt', routerLink: ['/delivery-receipts'] },
+          { label: 'Sales Invoice', routerLink: ['/sales-invoices'] },
+          { label: 'Sales Return', routerLink: ['/sales-returns'] }
         ]
       },
       {
         label: 'Purchasing',
         icon: 'pi pi-shopping-cart',
         items: [
-          { label: 'Purchase Request' },
-          { label: 'Purchase Order' },
-          { label: 'Goods Receipt' },
-          { label: 'Goods Return' },
-          { label: 'Bills' },
-          { label: 'Bills Payment' }
+          { label: 'Purchase Order', routerLink: ['/purchase-orders'] },
+          { label: 'Receiving Report', routerLink: ['/receiving-reports'] },
+          { label: 'Purchase Invoices', routerLink: ['/purchase-invoices'] },
+          { label: 'Purchase Return', routerLink: ['/purchase-returns'] }
         ]
       },
       {
@@ -65,7 +63,7 @@ export class AppComponent {
         icon: 'pi pi-bars',
         items: [
           { label: 'Inventory Adjustment' },
-          { label: 'Relocate Goods'},
+          { label: 'Relocate Goods' },
           { label: 'Physical Inventory' }
         ]
       },
@@ -74,10 +72,10 @@ export class AppComponent {
         icon: 'pi pi-money-bill',
         items: [
           { label: 'Chart of Accounts' },
-          { label: 'Subsidiary'},
+          { label: 'Subsidiary' },
           { label: 'Journal Voucher' },
           { label: 'Check Voucher' },
-          { label: 'Cash Receipt Voucher'}
+          { label: 'Cash Receipt Voucher' }
         ]
       },
       {
@@ -85,10 +83,10 @@ export class AppComponent {
         icon: 'pi pi-file',
         items: [
           { label: 'Inventory Balance' },
-          { label: 'Inventory Ledger'},
+          { label: 'Inventory Ledger' },
           { label: 'Trial Balance' },
           { label: 'General Ledger' },
-          { label: 'Subsidiary Ledger'},
+          { label: 'Subsidiary Ledger' },
           { label: 'Balance Sheet' },
           { label: 'Income Statement' }
         ]

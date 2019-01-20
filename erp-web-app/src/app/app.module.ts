@@ -45,6 +45,14 @@ import { CachingInterceptor } from './services/caching-interceptor.service';
 import { DeliveryReceiptComponent } from './sales/delivery-receipt/delivery-receipt.component';
 import { SalesReturnComponent } from './sales/sales-return/sales-return.component';
 import { DatePipe } from '@angular/common';
+import { PurchaseOrdersComponent } from './purchasing/purchase-orders/purchase-orders.component';
+import { PurchaseOrderComponent } from './purchasing/purchase-order/purchase-order.component';
+import { ReceivingReportsComponent } from './purchasing/receiving-reports/receiving-reports.component';
+import { ReceivingReportComponent } from './purchasing/receiving-report/receiving-report.component';
+import { PurchaseInvoicesComponent } from './purchasing/purchase-invoices/purchase-invoices.component';
+import { PurchaseInvoiceComponent } from './purchasing/purchase-invoice/purchase-invoice.component';
+import { PurchaseReturnsComponent } from './purchasing/purchase-returns/purchase-returns.component';
+import { PurchaseReturnComponent } from './purchasing/purchase-return/purchase-return.component';
 
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -59,7 +67,15 @@ const appRoutes: Routes = [
   { path: 'delivery-receipts', component: DeliveryReceiptsComponent },
   { path: 'delivery-receipt/:id', component: DeliveryReceiptComponent },
   { path: 'sales-returns', component: SalesReturnsComponent },
-  { path: 'sales-return/:id', component: SalesReturnComponent }
+  { path: 'sales-return/:id', component: SalesReturnComponent },
+  { path: 'purchase-orders', component: PurchaseOrdersComponent },
+  { path: 'purchase-order/:id', component: PurchaseOrderComponent },
+  { path: 'purchase-invoices', component: PurchaseInvoicesComponent },
+  { path: 'purchase-invoice/:id', component: PurchaseInvoiceComponent },
+  { path: 'receiving-reports', component: ReceivingReportsComponent },
+  { path: 'receiving-report/:id', component: ReceivingReportComponent },
+  { path: 'purchase-returns', component: PurchaseReturnsComponent },
+  { path: 'purchase-return/:id', component: PurchaseReturnComponent }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   //{ path: '**', component: PageNotFoundComponent }
 ];
@@ -80,7 +96,15 @@ const appRoutes: Routes = [
     SumFilterPipe,
     SalesInvoiceComponent,
     DeliveryReceiptComponent,
-    SalesReturnComponent
+    SalesReturnComponent,
+    PurchaseOrdersComponent,
+    PurchaseOrderComponent,
+    ReceivingReportsComponent,
+    ReceivingReportComponent,
+    PurchaseInvoicesComponent,
+    PurchaseInvoiceComponent,
+    PurchaseReturnsComponent,
+    PurchaseReturnComponent
   ],
   imports: [
     BrowserModule,
