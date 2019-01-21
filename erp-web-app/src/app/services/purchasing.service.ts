@@ -42,7 +42,7 @@ export class PurchasingService {
   }
 
   queryReceivingReportsByVendor(vendorId: number): any {
-    return this.api.get(`purchasing/customers/${vendorId}/receiving-reports`, null, false);
+    return this.api.get(`purchasing/vendors/${vendorId}/receiving-reports`, null, false);
   }
 
   queryPendingReceivingReportsByVendor(vendorId: number): any {
@@ -50,7 +50,7 @@ export class PurchasingService {
   }
 
   queryPurchasingInvoicesByVendor(vendorId: number): any {
-    return this.api.get(`purchasing/customers/${vendorId}/bills`, null, false);
+    return this.api.get(`purchasing/vendors/${vendorId}/bills`, null, false);
   }
   
   queryReceivingReportDetails(id: number): any {
@@ -98,7 +98,7 @@ export class PurchasingService {
   }
 
   queryAvailablePurchasingInvoicesByVendor(vendorId: number): any {
-    return this.api.get(`purchasing/customers/${vendorId}/bills/available`, null, false);
+    return this.api.get(`purchasing/vendors/${vendorId}/bills/available`, null, false);
   }
 
   queryAvailablePurchasingInvoiceDetails(id: any): any {
