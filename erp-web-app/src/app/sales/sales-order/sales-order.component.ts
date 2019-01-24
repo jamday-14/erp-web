@@ -1,9 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
 import { MenuItem } from 'primeng/api';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
-import { SumFilterPipe } from 'src/app/sum-filter.pipe';
 import _ from "lodash";
 import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
@@ -11,18 +10,23 @@ import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
 import { Location } from '@angular/common';
 import { CommonService } from 'src/app/services/common.service';
+import { ListItemComponent } from 'src/app/components/list-item/list-item.component';
+
 
 @Component({
   selector: 'app-sales-order',
   templateUrl: './sales-order.component.html',
   styleUrls: ['./sales-order.component.css']
 })
-export class SalesOrderComponent implements OnInit {
+export class SalesOrderComponent implements AfterViewInit {
+
+  @ViewChild(ListItemComponent)
+  private listItemComponent: ListItemComponent;
 
   id: number;
   form: FormGroup;
   menuItems: MenuItem[];
-  
+
   newItem: boolean;
   loading: boolean;
 
@@ -31,35 +35,26 @@ export class SalesOrderComponent implements OnInit {
   units: Array<any>;
   items: Array<any>;
   orderDetails: Array<any>;
-  searchedItems: any[];
-  footerData: any;
-  
-  selectedRows: any;
-  detailMenuItems: MenuItem[];
-  allSelected: boolean;
 
   constructor(
     private maintenanceService: MaintenanceService,
     private salesService: SalesService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private sumPipe: SumFilterPipe,
     private common: CommonService,
     private messaging: MessagingService,
     private app: AppComponent,
     private route: ActivatedRoute,
     private location: Location
   ) {
-    this.customers = [];
-    this.terms = [];
     this.units = [];
     this.items = [];
+    this.customers = [];
+    this.terms = [];
     this.orderDetails = [];
-    this.allSelected = false;
   }
 
   ngOnInit() {
-
     this.route.params.subscribe((params) => this.id = params.id);
     this.newItem = this.id == 0 ? true : false;
 
@@ -68,10 +63,13 @@ export class SalesOrderComponent implements OnInit {
     this.initializeMenu();
     this.initializeForm(null);
     this.getReferenceData();
+  }
+
+  ngAfterViewInit() {
 
   }
 
-  initializeMenu() {
+  private initializeMenu() {
     this.menuItems = [
       {
         label: 'Back', icon: 'pi pi-arrow-left', command: () => {
@@ -93,68 +91,6 @@ export class SalesOrderComponent implements OnInit {
         }
       })
     }
-
-    this.detailMenuItems = [
-      {
-        label: 'New', icon: 'pi pi-file', command: () => {
-          this.addTableRow();
-        }
-      },
-      {
-        label: 'Select All', icon: 'pi pi-list', command: () => {
-          this.allSelected = !this.allSelected;
-          this.detailMenuItems[1].label = this.allSelected ? 'De-select All' : 'Select All';
-          this.selectedRows = this.allSelected ? this.getOrderDetails() : [];
-        }
-      },
-      {
-        label: 'Delete', icon: 'pi pi-times', command: () => {
-          if (_.size(this.selectedRows) == 0) {
-            this.messaging.warningMessage("Please select item to remove");
-          }
-          else {
-            this.deleteDetails();
-          }
-        }
-      },
-    ];
-  }
-
-  private deleteDetails() {
-    var nonApiCallsRequest = this.selectedRows.filter(x => x.salesOrderId == null);
-    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
-      _.forEach(nonApiCallsRequest, (row => {
-        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
-      }));
-    }
-    var apiCallsRequest = this.selectedRows.filter(x => x.salesOrderId != null);
-    if (apiCallsRequest != null && apiCallsRequest != []) {
-      var deleteRequests = [];
-      _.forEach(apiCallsRequest, (row => {
-        deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
-      }));
-      this.loading = true;
-      forkJoin(deleteRequests).subscribe((res) => {
-        _.forEach(apiCallsRequest, (row => {
-          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
-        }));
-        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
-        this.loading = false;
-      }, (err) => {
-        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
-        this.loading = false;
-      });
-    }
-  }
-
-  isDeleteDetailsEnabled(): boolean {
-    if (_.size(this.getOrderDetails()) == 0)
-      return false;
-    return _.size(this.getOrderDetails().filter(x => x.qtyDr == 0)) > 0;
-  }
-
-  isDetailEditable(rowData) {
-    return rowData.qtyDr == 0;
   }
 
   private initializeHeader() {
@@ -184,10 +120,12 @@ export class SalesOrderComponent implements OnInit {
         this.loading = false;
 
       }, (err) => { });
-    } else { this.initializeOrderDetails(null); }
+    } else {
+      this.initializeOrderDetails(null);
+    }
   }
 
-  initializeForm(item: any): any {
+  private initializeForm(item: any): any {
     this.form = this.formBuilder.group({
       date: [item != null ? item.date : null, Validators.required],
       refNo: [item != null ? item.refNo : ''],
@@ -201,32 +139,7 @@ export class SalesOrderComponent implements OnInit {
     });
   }
 
-  initializeOrderDetails(arr: Array<any>): any {
-    this.orderDetails = [];
-
-    if (arr == null)
-      this.addTableRow();
-    else {
-      _.forEach(arr, (record => {
-        var item = this.findItem(record.itemId);
-        var unit = this.findUnit(record.unitId);
-
-        this.orderDetails.push({
-          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId, qtyDr: record.qtyDr,
-          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
-        });
-
-        this.ToggleDetailMenu();
-      }));
-    }
-  }
-
-  private ToggleDetailMenu() {
-    this.detailMenuItems[2].disabled = !this.isDeleteDetailsEnabled();
-  }
-
-  getReferenceData(): any {
+  private getReferenceData(): any {
     this.loading = true;
     var termsRequest = this.maintenanceService.queryTerms();
     var customersRequest = this.maintenanceService.queryCustomers();
@@ -262,92 +175,22 @@ export class SalesOrderComponent implements OnInit {
       }, (err) => { this.loading = false; });
   }
 
-  get f() { return this.form.controls; }
-
-  itemChanged(event, rowData) {
-    let item = this.findItem(event.value);
-    let unit = this.findUnit(item.unitId);
-
-    rowData.itemId = item.value;
-    rowData.description = item.label;
-    rowData.itemCode = item.code;
-    rowData.unitPrice = item.unitPrice;
-
-    if (unit) {
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
-    }
-
-    this.ToggleDetailMenu();
-  }
-
-  customerChanged(event) {
-    if (event.value) {
-      let customer = this.findCustomer(event.value);
-
-      this.f.address.setValue(customer.address);
-      this.f.telNo.setValue(customer.telNo);
-      this.f.faxNo.setValue(customer.faxNo);
-      this.f.contactPerson.setValue(customer.contactPerson);
-      this.f.termId.setValue(customer.termId);
-    }
-  }
-
-  findItem(itemId) {
-    return this.items.find(x => x.value == itemId);
-  }
-
-  findUnit(unitId) {
-    return this.units.find(x => x.value == unitId);
-  }
-
-  findCustomer(customerId) {
+  private findCustomer(customerId) {
     return this.customers.find(x => x.value == customerId);
   }
 
-  searchItems(event) {
-    this.searchedItems = this.items.filter((item) => {
-      return (item.label.toLowerCase().indexOf(event.query.toLowerCase()) > -1);
-    })
-  }
-
-  computeSubTotal(rowData) {
-    rowData.subTotal = (rowData.qty * rowData.unitPrice) - rowData.discount;
-  }
-
-  unitChanged(event, rowData) {
-    if (event.value) {
-      let unit = this.findUnit(event.value);
-
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
-    }
-  }
-
-  getOrderDetails(): any {
-    return this.orderDetails.filter(x => x.itemCode != null);
-  }
-
-  getTotal(property: string) {
-    return this.sumPipe.transform(this.getOrderDetails(), property);
-  }
-
-  getTotalItem() {
-    return _.size(this.getOrderDetails());
-  }
-
-  save(): any {
+  private save(): any {
     if (!this.form.valid) {
       this.messaging.warningMessage(this.messaging.REQUIRED);
       return;
     }
 
-    if (_.size(this.getOrderDetails()) == 0) {
+    if (_.size(this.listItemComponent.getOrderDetails()) == 0) {
       this.messaging.warningMessage(this.messaging.ONE_LINE_ITEM);
       return;
     }
 
-    if (!_.every(this.getOrderDetails(), (x) => { return x.qty > 0 && x.subTotal > 0 })) {
+    if (!_.every(this.listItemComponent.getOrderDetails(), (x) => { return x.qty > 0 && x.subTotal > 0 })) {
       this.messaging.warningMessage(this.messaging.QTY_AND_PRICE);
       return;
     }
@@ -365,7 +208,7 @@ export class SalesOrderComponent implements OnInit {
         systemNo: this.f.systemNo.value,
         customerId: this.f.customerId.value,
         termId: this.f.termId.value,
-        amount: this.getTotal('subTotal')
+        amount: this.listItemComponent.getTotal('subTotal')
       })
       : this.salesService.updateSalesOrder({
         id: this.id,
@@ -376,7 +219,7 @@ export class SalesOrderComponent implements OnInit {
         faxNo: this.f.faxNo.value,
         contactPerson: this.f.contactPerson.value,
         termId: this.f.termId.value,
-        amount: this.getTotal('subTotal')
+        amount: this.listItemComponent.getTotal('subTotal')
       })
 
     headerRequest.subscribe((resp) => {
@@ -385,7 +228,7 @@ export class SalesOrderComponent implements OnInit {
       let detailsRequests = [];
       order = resp;
 
-      _.forEach(this.getOrderDetails(), (detail) => {
+      _.forEach(this.listItemComponent.getOrderDetails(), (detail) => {
 
         if (detail.id == null)
           detailsRequests.push(
@@ -435,19 +278,98 @@ export class SalesOrderComponent implements OnInit {
     });
   }
 
-  OnEnter(index, rowData) {
-    if (this.orderDetails.length == (index + 1) && rowData.itemCode != null)
+  private initializeOrderDetails(arr: Array<any>): any {
+    this.orderDetails = [];
+
+    if (arr == null)
       this.addTableRow();
+    else {
+      _.forEach(arr, (record => {
+        var item = this.listItemComponent.findItem(record.itemId);
+        var unit = this.listItemComponent.findUnit(record.unitId);
+
+        this.orderDetails.push({
+          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId, qtyDr: record.qtyDr,
+          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
+        });
+
+        this.listItemComponent.ToggleDetailMenu();
+      }));
+    }
   }
 
-  addTableRow() {
+  private addTableRow() {
     this.orderDetails.unshift({
       index: _.size(this.orderDetails), id: null, salesOrderId: null,
       itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
       unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyDr: 0
     });
-    this.ToggleDetailMenu();
-    this.selectedRows = [];
-    this.selectedRows.push(_.first(this.orderDetails));
+    this.listItemComponent.ToggleDetailMenu();
+    this.listItemComponent.selectedRows = [];
+    this.listItemComponent.selectedRows.push(_.first(this.orderDetails));
+  }
+
+  get f() { return this.form.controls; }
+
+  customerChanged(event) {
+    if (event.value) {
+      let customer = this.findCustomer(event.value);
+
+      this.f.address.setValue(customer.address);
+      this.f.telNo.setValue(customer.telNo);
+      this.f.faxNo.setValue(customer.faxNo);
+      this.f.contactPerson.setValue(customer.contactPerson);
+      this.f.termId.setValue(customer.termId);
+    }
+  }
+
+  onAddRow(orderDetails: Array<any>) {
+    this.orderDetails = orderDetails;
+    this.addTableRow();
+  }
+
+  onDeleteRow(selectedRows: Array<any>) {
+
+    if (_.size(selectedRows) == 0) {
+      this.messaging.warningMessage("Please select item to remove");
+      return;
+    }
+
+    var nonApiCallsRequest = selectedRows.filter(x => x.salesOrderId == null);
+    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+      _.forEach(nonApiCallsRequest, (row => {
+        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+      }));
+    }
+    var apiCallsRequest = selectedRows.filter(x => x.salesOrderId != null);
+    if (apiCallsRequest != null && apiCallsRequest != []) {
+      var deleteRequests = [];
+      _.forEach(apiCallsRequest, (row => {
+        deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
+      }));
+      this.loading = true;
+      forkJoin(deleteRequests).subscribe((res) => {
+        _.forEach(apiCallsRequest, (row => {
+          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+        }));
+        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+        this.loading = false;
+      }, (err) => {
+        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+        this.loading = false;
+      });
+    }
+  }
+
+  isRowDataEditable(rowData: any): boolean {
+    return rowData.qtyDr == 0;
+  }
+
+  isDeleteRowsEnabled(orderDetails: Array<any>): boolean {
+    if (_.size(orderDetails) == 0)
+      return false;
+
+    return _.size(orderDetails.filter(x => x.qtyDr == 0)) > 0;
   }
 }

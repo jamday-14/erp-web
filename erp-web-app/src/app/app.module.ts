@@ -53,6 +53,7 @@ import { PurchaseInvoicesComponent } from './purchasing/purchase-invoices/purcha
 import { PurchaseInvoiceComponent } from './purchasing/purchase-invoice/purchase-invoice.component';
 import { PurchaseReturnsComponent } from './purchasing/purchase-returns/purchase-returns.component';
 import { PurchaseReturnComponent } from './purchasing/purchase-return/purchase-return.component';
+import { ListItemComponent } from './components/list-item/list-item.component';
 
 const appRoutes: Routes = [
   { path: 'home', component: HomeComponent },
@@ -104,7 +105,8 @@ const appRoutes: Routes = [
     PurchaseInvoicesComponent,
     PurchaseInvoiceComponent,
     PurchaseReturnsComponent,
-    PurchaseReturnComponent
+    PurchaseReturnComponent,
+    ListItemComponent
   ],
   imports: [
     BrowserModule,

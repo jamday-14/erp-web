@@ -1,0 +1,129 @@
+<p-menubar [model]="detailMenuItems"></p-menubar>
+<p-table [value]="orderDetails" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pResizableColumn>Item Code</th>
+      <th pResizableColumn style="width:450px">Description</th>
+      <th style="width:60px">Qty</th>
+      <th style="width:70px">Qty Dr</th>
+      <th>Unit</th>
+      <th style="width:100px">Unit Price</th>
+      <th style="width:100px">Discount</th>
+      <th style="width:150px">Sub Total</th>
+      <th style="width:250px" pResizableColumn>Remarks</th>
+      <th style="width:60px">Closed</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-index="rowIndex">
+    <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)" [pSelectableRow]="rowData">
+      <td>
+        {{rowData.itemCode}}
+      </td>
+      <td pEditableColumn class="ui-fluid">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-autoComplete [(ngModel)]="text" [suggestions]="searchedItems" (completeMethod)="searchItems($event)"
+              [appendTo]="searchItemLoc" minLength="3" field="label" (onSelect)="itemChanged($event, rowData)"
+              placeholder="Search item" emptyMessage="Item not found" autofocus="true" required *ngIf="isDetailEditable(rowData)"></p-autoComplete>
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.description}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.description}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn class="text-right">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="text" [(ngModel)]="rowData.qty" (input)="computeSubTotal(rowData)" required *ngIf="isDetailEditable(rowData)">
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.qty}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.qty}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td class="text-right">
+        {{rowData.qtyDr}}
+      </td>
+      <td pEditableColumn>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown [options]="units" [(ngModel)]="rowData.unitId" [style]="{'width':'100%'}" [appendTo]="searchItemLoc"
+              (onChange)="unitChanged($event, rowData)" placeholder="Select Unit" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.unitDescription}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.unitDescription}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn class="text-right">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="number" [(ngModel)]="rowData.unitPrice" (input)="computeSubTotal(rowData)" required
+              *ngIf="isDetailEditable(rowData)">
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.unitPrice | currency:"&#8369;"}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.unitPrice | currency:"&#8369;"}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn class="text-right">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="number" [(ngModel)]="rowData.discount" (input)="computeSubTotal(rowData)" *ngIf="isDetailEditable(rowData)">
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.discount | currency:"&#8369;"}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.discount | currency:"&#8369;"}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td class="text-right">
+        {{rowData.subTotal | currency:"&#8369;"}}
+      </td>
+      <td pEditableColumn>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="text" [(ngModel)]="rowData.remarks" required *ngIf="isDetailEditable(rowData)">
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.remarks}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.remarks}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td class="text-center">
+        <p-checkbox [(ngModel)]="rowData.closed" binary="true" disabled></p-checkbox>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <tr>
+      <td>No. of Items : {{ getTotalItem() }}</td>
+      <td></td>
+      <td class="text-right">{{ getTotal('qty') }}</td>
+      <td class="text-right">{{ getTotal('qtyDr') }}</td>
+      <td></td>
+      <td class="text-right">{{ getTotal('unitPrice') | currency:"&#8369;" }}</td>
+      <td class="text-right">{{ getTotal('discount') | currency:"&#8369;" }}</td>
+      <td class="text-right">{{ getTotal('subTotal') | currency:"&#8369;"}}</td>
+      <td></td>
+      <td></td>
+    </tr>
+  </ng-template>
+</p-table>
