@@ -1,0 +1,14 @@
+.entry-header{
+    margin-top: 10px;
+}
+
+tr:focus-within {
+    background-color: #DDF0FF !important;
+    color: black !important;
+    font-weight: bold !important;
+}
+
+.pad5 {
+    padding-left: 10px;
+    padding-right: 10px;
+}
