@@ -1,16 +1,13 @@
-import { Component, OnInit, ViewChild, AfterViewInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import _ from "lodash";
 import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
-import { Location } from '@angular/common';
-import { CommonService } from 'src/app/services/common.service';
 import { ListItemComponent } from 'src/app/components/list-item/list-item.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 
 
 @Component({
@@ -23,9 +20,11 @@ export class SalesOrderComponent implements AfterViewInit {
   @ViewChild(ListItemComponent)
   private listItemComponent: ListItemComponent;
 
+  @ViewChild(HeaderComponent)
+  private headerComponent: HeaderComponent;
+
   id: number;
-  form: FormGroup;
-  menuItems: MenuItem[];
+  transactionType: string;
 
   newItem: boolean;
   loading: boolean;
@@ -40,12 +39,9 @@ export class SalesOrderComponent implements AfterViewInit {
     private maintenanceService: MaintenanceService,
     private salesService: SalesService,
     private router: Router,
-    private formBuilder: FormBuilder,
-    private common: CommonService,
     private messaging: MessagingService,
     private app: AppComponent,
-    private route: ActivatedRoute,
-    private location: Location
+    private route: ActivatedRoute
   ) {
     this.units = [];
     this.items = [];
@@ -57,40 +53,15 @@ export class SalesOrderComponent implements AfterViewInit {
   ngOnInit() {
     this.route.params.subscribe((params) => this.id = params.id);
     this.newItem = this.id == 0 ? true : false;
-
+    this.transactionType = "SO";
     this.app.title = "Sales Order Entry";
-
-    this.initializeMenu();
-    this.initializeForm(null);
-    this.getReferenceData();
   }
 
   ngAfterViewInit() {
+    setTimeout(() => {
+      this.getReferenceData();
+    });
 
-  }
-
-  private initializeMenu() {
-    this.menuItems = [
-      {
-        label: 'Back', icon: 'pi pi-arrow-left', command: () => {
-          this.location.back();
-        }
-      },
-      {
-        label: 'Save', icon: 'pi pi-save', command: () => {
-          this.save();
-        }
-      },
-    ];
-
-    if (this.newItem) {
-      this.menuItems.push({
-        label: 'Reset', icon: 'pi pi-circle-off', command: () => {
-          this.initializeForm(null);
-          this.initializeOrderDetails(null);
-        }
-      })
-    }
   }
 
   private initializeHeader() {
@@ -103,17 +74,7 @@ export class SalesOrderComponent implements AfterViewInit {
         var headerResponse = response[0];
         var detailResponse = response[1];
 
-        this.form.patchValue({
-          date: new Date(this.common.toLocaleDate(headerResponse.date)),
-          customerId: headerResponse.customerId,
-          systemNo: headerResponse.systemNo,
-          refNo: headerResponse.refNo,
-          address: headerResponse.address,
-          telNo: headerResponse.telNo,
-          faxNo: headerResponse.faxNo,
-          contactPerson: headerResponse.contactPerson,
-          termId: headerResponse.termId
-        });
+        this.headerComponent.updateForm(headerResponse);
 
         this.initializeOrderDetails(detailResponse);
 
@@ -123,20 +84,6 @@ export class SalesOrderComponent implements AfterViewInit {
     } else {
       this.initializeOrderDetails(null);
     }
-  }
-
-  private initializeForm(item: any): any {
-    this.form = this.formBuilder.group({
-      date: [item != null ? item.date : null, Validators.required],
-      refNo: [item != null ? item.refNo : ''],
-      systemNo: [item != null ? item.systemNo : ''],
-      customerId: [item != null ? item.customerId : null, Validators.required],
-      address: [item != null ? item.address : ''],
-      telNo: [item != null ? item.telNo : ''],
-      faxNo: [item != null ? item.faxNo : ''],
-      contactPerson: [item != null ? item.contactPerson : ''],
-      termId: [item != null ? item.termId : null]
-    });
   }
 
   private getReferenceData(): any {
@@ -175,12 +122,91 @@ export class SalesOrderComponent implements AfterViewInit {
       }, (err) => { this.loading = false; });
   }
 
-  private findCustomer(customerId) {
-    return this.customers.find(x => x.value == customerId);
+  initializeOrderDetails(arr: Array<any>): any {
+    this.orderDetails = [];
+
+    if (arr == null)
+      this.addTableRow();
+    else {
+      _.forEach(arr, (record => {
+        var item = this.listItemComponent.findItem(record.itemId);
+        var unit = this.listItemComponent.findUnit(record.unitId);
+
+        this.orderDetails.push({
+          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId, qtyDr: record.qtyDr,
+          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
+        });
+
+        this.listItemComponent.ToggleDetailMenu();
+      }));
+    }
   }
 
-  private save(): any {
-    if (!this.form.valid) {
+  private addTableRow() {
+    this.orderDetails.unshift({
+      index: _.size(this.orderDetails), id: null, salesOrderId: null,
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+      unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyDr: 0
+    });
+    this.listItemComponent.ToggleDetailMenu();
+    this.listItemComponent.selectedRows = [];
+    this.listItemComponent.selectedRows.push(_.first(this.orderDetails));
+  }
+
+  onAddRow(orderDetails: Array<any>) {
+    this.orderDetails = orderDetails;
+    this.addTableRow();
+  }
+
+  onDeleteRow(selectedRows: Array<any>) {
+
+    if (_.size(selectedRows) == 0) {
+      this.messaging.warningMessage("Please select item to remove");
+      return;
+    }
+
+    var nonApiCallsRequest = selectedRows.filter(x => x.salesOrderId == null);
+    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+      _.forEach(nonApiCallsRequest, (row => {
+        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+      }));
+    }
+    var apiCallsRequest = selectedRows.filter(x => x.salesOrderId != null);
+    if (apiCallsRequest != null && apiCallsRequest != []) {
+      var deleteRequests = [];
+      _.forEach(apiCallsRequest, (row => {
+        deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
+      }));
+      this.loading = true;
+      forkJoin(deleteRequests).subscribe((res) => {
+        _.forEach(apiCallsRequest, (row => {
+          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+        }));
+        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+        this.loading = false;
+      }, (err) => {
+        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+        this.loading = false;
+      });
+    }
+  }
+
+  isRowDataEditable(rowData: any): boolean {
+    return rowData.qtyDr == 0;
+  }
+
+  isDeleteRowsEnabled(orderDetails: Array<any>): boolean {
+    if (_.size(orderDetails) == 0)
+      return false;
+
+    return _.size(orderDetails.filter(x => x.qtyDr == 0)) > 0;
+  }
+
+  submit() {
+    var controls = this.headerComponent.f;
+
+    if (!this.headerComponent.form.valid) {
       this.messaging.warningMessage(this.messaging.REQUIRED);
       return;
     }
@@ -199,26 +225,26 @@ export class SalesOrderComponent implements AfterViewInit {
 
     var headerRequest = this.newItem
       ? this.salesService.addSalesOrder({
-        date: this.f.date.value,
-        refNo: this.f.refNo.value,
-        address: this.f.address.value,
-        telNo: this.f.telNo.value,
-        faxNo: this.f.faxNo.value,
-        contactPerson: this.f.contactPerson.value,
-        systemNo: this.f.systemNo.value,
-        customerId: this.f.customerId.value,
-        termId: this.f.termId.value,
+        date: controls.date.value,
+        refNo: controls.refNo.value,
+        address: controls.address.value,
+        telNo: controls.telNo.value,
+        faxNo: controls.faxNo.value,
+        contactPerson: controls.contactPerson.value,
+        systemNo: controls.systemNo.value,
+        customerId: controls.customerId.value,
+        termId: controls.termId.value,
         amount: this.listItemComponent.getTotal('subTotal')
       })
       : this.salesService.updateSalesOrder({
         id: this.id,
-        date: this.f.date.value,
-        refNo: this.f.refNo.value,
-        address: this.f.address.value,
-        telNo: this.f.telNo.value,
-        faxNo: this.f.faxNo.value,
-        contactPerson: this.f.contactPerson.value,
-        termId: this.f.termId.value,
+        date: controls.date.value,
+        refNo: controls.refNo.value,
+        address: controls.address.value,
+        telNo: controls.telNo.value,
+        faxNo: controls.faxNo.value,
+        contactPerson: controls.contactPerson.value,
+        termId: controls.termId.value,
         amount: this.listItemComponent.getTotal('subTotal')
       })
 
@@ -276,100 +302,5 @@ export class SalesOrderComponent implements AfterViewInit {
       this.loading = false;
       this.messaging.errorMessage(this.messaging.ADD_ERROR);
     });
-  }
-
-  private initializeOrderDetails(arr: Array<any>): any {
-    this.orderDetails = [];
-
-    if (arr == null)
-      this.addTableRow();
-    else {
-      _.forEach(arr, (record => {
-        var item = this.listItemComponent.findItem(record.itemId);
-        var unit = this.listItemComponent.findUnit(record.unitId);
-
-        this.orderDetails.push({
-          index: _.size(this.orderDetails), id: record.id, salesOrderId: record.salesOrderId, qtyDr: record.qtyDr,
-          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
-        });
-
-        this.listItemComponent.ToggleDetailMenu();
-      }));
-    }
-  }
-
-  private addTableRow() {
-    this.orderDetails.unshift({
-      index: _.size(this.orderDetails), id: null, salesOrderId: null,
-      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-      unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyDr: 0
-    });
-    this.listItemComponent.ToggleDetailMenu();
-    this.listItemComponent.selectedRows = [];
-    this.listItemComponent.selectedRows.push(_.first(this.orderDetails));
-  }
-
-  get f() { return this.form.controls; }
-
-  customerChanged(event) {
-    if (event.value) {
-      let customer = this.findCustomer(event.value);
-
-      this.f.address.setValue(customer.address);
-      this.f.telNo.setValue(customer.telNo);
-      this.f.faxNo.setValue(customer.faxNo);
-      this.f.contactPerson.setValue(customer.contactPerson);
-      this.f.termId.setValue(customer.termId);
-    }
-  }
-
-  onAddRow(orderDetails: Array<any>) {
-    this.orderDetails = orderDetails;
-    this.addTableRow();
-  }
-
-  onDeleteRow(selectedRows: Array<any>) {
-
-    if (_.size(selectedRows) == 0) {
-      this.messaging.warningMessage("Please select item to remove");
-      return;
-    }
-
-    var nonApiCallsRequest = selectedRows.filter(x => x.salesOrderId == null);
-    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
-      _.forEach(nonApiCallsRequest, (row => {
-        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
-      }));
-    }
-    var apiCallsRequest = selectedRows.filter(x => x.salesOrderId != null);
-    if (apiCallsRequest != null && apiCallsRequest != []) {
-      var deleteRequests = [];
-      _.forEach(apiCallsRequest, (row => {
-        deleteRequests.push(this.salesService.deleteSalesOrderDetail(row.id, row.salesOrderId));
-      }));
-      this.loading = true;
-      forkJoin(deleteRequests).subscribe((res) => {
-        _.forEach(apiCallsRequest, (row => {
-          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
-        }));
-        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
-        this.loading = false;
-      }, (err) => {
-        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
-        this.loading = false;
-      });
-    }
-  }
-
-  isRowDataEditable(rowData: any): boolean {
-    return rowData.qtyDr == 0;
-  }
-
-  isDeleteRowsEnabled(orderDetails: Array<any>): boolean {
-    if (_.size(orderDetails) == 0)
-      return false;
-
-    return _.size(orderDetails.filter(x => x.qtyDr == 0)) > 0;
   }
 }

@@ -1,0 +1,84 @@
+<p-menubar [model]="menuItems"></p-menubar>
+<form *ngIf="form" [formGroup]="form">
+  <div class="p-grid ui-fluid entry-header">
+    <div class="p-col-12 p-md-6 p-lg-12">
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="date">Date*</label>
+        </div>
+        <div class="p-col-2">
+          <p-calendar formControlName="date" [showIcon]="true" [monthNavigator]="true" [yearNavigator]="true" yearRange="1930:2030"></p-calendar>
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="refNo">Reference No.</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="refNo" formControlName="refNo" />
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="systemNo">System No.*</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="systemNo" formControlName="systemNo" readonly placeholder="system generated" />
+        </div>
+      </div>
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="customerId">Customer*</label>
+        </div>
+        <div class="p-col-5">
+          <p-dropdown [options]="customers" id="customerId" [style]="{width: '100%'}" formControlName="customerId"
+            placeholder="Select customer" filter="true" (onChange)="customerChanged($event)" [readonly]="!newItem"></p-dropdown>
+        </div>
+      </div>
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="address">Address</label>
+        </div>
+        <div class="p-col-5">
+          <textarea pInputTextarea id="address" formControlName="address"></textarea>
+        </div>
+        <div class="p-col-1 text-right" *ngIf="isCommentsVisible()">
+          <label for="comments">Comments</label>
+        </div>
+        <div class="p-col-5" *ngIf="isCommentsVisible()">
+          <textarea pInputTextarea id="comments" formControlName="comments"></textarea>
+        </div>
+      </div>
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="telNo">Telephone No</label>
+        </div>
+        <div class="p-col-2">
+          <p-inputMask mask="(999)999-9999" id="telNo" formControlName="telNo"></p-inputMask>
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="faxNo">Fax No</label>
+        </div>
+        <div class="p-col-2">
+          <p-inputMask mask="(999)999-9999" id="faxNo" formControlName="faxNo"></p-inputMask>
+        </div>
+      </div>
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="contactPerson">Contact Person</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="contactPerson" formControlName="contactPerson" />
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="termId">Terms</label>
+        </div>
+        <div class="p-col-2">
+          <p-dropdown [options]="terms" id="termId" [style]="{width: '100%'}" formControlName="termId" placeholder="Select payment term"></p-dropdown>
+        </div>
+        <div class="p-col-1 text-right" *ngIf="isMOPVisible()">
+          <label for="mopid">Mode of Payment</label>
+        </div>
+        <div class="p-col-2" *ngIf="isMOPVisible()">
+          <p-dropdown [options]="terms" id="mopid" [style]="{width: '100%'}" formControlName="mopid" placeholder="Select mode of payment"></p-dropdown>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

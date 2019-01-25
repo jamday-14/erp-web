@@ -13,10 +13,12 @@ export class ListItemComponent implements OnInit {
   @Input() orderDetails: Array<any>;
   @Input() units: Array<any>;
   @Input() items: Array<any>;
+  @Input() transactionType: string;
   @Output() addRow = new EventEmitter<Array<any>>();
   @Output() deleteRow = new EventEmitter<Array<any>>();
   @Input() isRowDataEditable: (value: any) => boolean;
   @Input() isDeleteRowsEnabled: (value: any) => boolean;
+  @Input() isRowQuantityEditable: (value: any) => boolean;
 
   searchedItems: any[];
   footerData: any;
@@ -27,6 +29,7 @@ export class ListItemComponent implements OnInit {
   constructor(
     private sumPipe: SumFilterPipe
   ) {
+    this.detailMenuItems = [];
     this.items = [];
     this.units = [];
     this.orderDetails = [];
@@ -130,6 +133,22 @@ export class ListItemComponent implements OnInit {
 
   isDeleteDetailsEnabled(): boolean {
     return this.isDeleteRowsEnabled(this.getOrderDetails());
+  }
+
+  isQuantityEditable(rowData): boolean {
+    return this.isRowQuantityEditable(rowData)
+  }
+
+  isQtyReturnVisible(): boolean {
+    return this.transactionType == "SI" || this.transactionType == "DR";
+  }
+
+  isQtyDrVisible():boolean{
+    return this.transactionType =="DR";
+  }
+
+  isRefNoVisible(): boolean{
+    return this.transactionType != "SO";
   }
 
 }
