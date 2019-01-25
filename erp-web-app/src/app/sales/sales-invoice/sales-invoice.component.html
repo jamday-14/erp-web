@@ -10,32 +10,9 @@
     (submit)="submit($event)"
     (resetOrderDetails)="resetOrderDetails($event)"
     (onCustomerChanged)="onCustomerChanged($event)"></app-header>
-  <p-table [columns]="cols" [value]="orders" *ngIf="orders.length > 0" styleClass="midTable" [scrollable]="true"
-    scrollHeight="150px">
-    <ng-template pTemplate="header" let-columns>
-      <tr>
-        <th *ngFor="let col of columns">
-          {{col.header}}
-        </th>
-      </tr>
-    </ng-template>
-    <ng-template pTemplate="body" let-rowData>
-      <tr [pSelectableRow]="rowData">
-        <td>
-          {{rowData.date | date:'longDate'}}
-        </td>
-        <td>
-          {{rowData.refNo}}
-        </td>
-        <td>
-          {{rowData.systemNo}}
-        </td>
-        <td class="text-center">
-          <button pButton type="button" label="Load" class="ui-button-raised" (click)="loadDetail(rowData)" [disabled]="rowData.isLoaded"></button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <app-reference-header
+    [orders]="orders"
+    (initializeOrderDetails)="initializeOrderDetails($event)"></app-reference-header>
   <app-list-item
     [transactionType]="transactionType"
     [units]="units"

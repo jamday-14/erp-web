@@ -24,9 +24,6 @@ export class SalesInvoiceComponent implements AfterViewInit {
   @ViewChild(HeaderComponent)
   private headerComponent: HeaderComponent;
 
-  orders: Array<any>;
-  cols: any[];
-
   id: number;
   transactionType: string;
 
@@ -38,6 +35,7 @@ export class SalesInvoiceComponent implements AfterViewInit {
   units: Array<any>;
   items: Array<any>;
   orderDetails: Array<any>;
+  orders: Array<any>;
 
   constructor(
     private maintenanceService: MaintenanceService,
@@ -62,9 +60,6 @@ export class SalesInvoiceComponent implements AfterViewInit {
 
     this.route.params.subscribe((params) => this.id = params.id);
     this.newItem = this.id == 0 ? true : false;
-
-    this.initializeColumns();
-
   }
 
   ngAfterViewInit() {
@@ -129,11 +124,6 @@ export class SalesInvoiceComponent implements AfterViewInit {
   onCustomerChanged(customerId) {
     this.resetOrdersAndDetails();
     this.initializeOrders(customerId);
-  }
-
-  loadDetail(rowData) {
-    rowData.isLoaded = true;
-    this.initializeOrderDetails(rowData);
   }
 
   submit() {
@@ -255,9 +245,32 @@ export class SalesInvoiceComponent implements AfterViewInit {
       this.addTableRow();
   }
 
-  private resetOrdersAndDetails() {
-    this.orders = [];
-    this.orderDetails = [];
+  initializeOrderDetails(rowData): any {
+    var records = [];
+    if (rowData != null)
+      this.salesService.queryDeliveryReceiptDetailsPendingInvoice(rowData.id).subscribe((resp) => {
+        records = resp;
+        _.forEach(records, (record => {
+          var item = this.listItemComponent.findItem(record.itemId);
+          var unit = this.listItemComponent.findUnit(record.unitId);
+
+          record.qty -= (record.qtyReturn + record.qtyInvoice)
+          this.listItemComponent.computeSubTotal(record);
+
+          this.orderDetails.push({
+            index: _.size(this.orderDetails), id: null, salesInvoiceId: null,
+            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, qtyReturn: null,
+            unitId: unit.value, unitDescription: unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
+            refNo: rowData.systemNo, closed: record.closed, drid: record.deliveryReceiptId, drdetailId: record.id
+          });
+        }))
+        this.listItemComponent.ToggleDetailMenu();
+        this.loading = false;
+      }, (err) => {
+        this.loading = false;
+      });
+    else
+      this.addTableRow();
   }
 
   resetOrderDetails() {
@@ -265,13 +278,9 @@ export class SalesInvoiceComponent implements AfterViewInit {
     this.initializeOrderDetails(null);
   }
 
-  private initializeColumns(): any {
-    this.cols = [
-      { field: 'date', header: 'Date' },
-      { field: 'refNo', header: 'Reference No' },
-      { field: 'systemNo', header: 'System No.' },
-      { field: 'action', header: '' },
-    ];
+  private resetOrdersAndDetails() {
+    this.orders = [];
+    this.orderDetails = [];
   }
 
   private initializeHeader() {
@@ -337,6 +346,7 @@ export class SalesInvoiceComponent implements AfterViewInit {
     var records = [];
     this.salesService.queryPendingDeliveryReceiptsByCustomer(customerId).subscribe((resp) => {
       records = resp;
+
       _.forEach(records, (record => {
         this.orders.push({
           id: record.id, date: this.common.toLocaleDate(record.date),
@@ -352,34 +362,6 @@ export class SalesInvoiceComponent implements AfterViewInit {
     }, (err) => {
       this.loading = false;
     });
-  }
-
-  private initializeOrderDetails(rowData): any {
-    var records = [];
-    if (rowData != null)
-      this.salesService.queryDeliveryReceiptDetailsPendingInvoice(rowData.id).subscribe((resp) => {
-        records = resp;
-        _.forEach(records, (record => {
-          var item = this.listItemComponent.findItem(record.itemId);
-          var unit = this.listItemComponent.findUnit(record.unitId);
-
-          record.qty -= (record.qtyReturn + record.qtyInvoice)
-          this.listItemComponent.computeSubTotal(record);
-
-          this.orderDetails.push({
-            index: _.size(this.orderDetails), id: null, salesInvoiceId: null,
-            itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, qtyReturn: null,
-            unitId: unit.value, unitDescription: unit.label, unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal,
-            refNo: rowData.systemNo, closed: record.closed, drid: record.deliveryReceiptId, drdetailId: record.id
-          });
-        }))
-        this.listItemComponent.ToggleDetailMenu();
-        this.loading = false;
-      }, (err) => {
-        this.loading = false;
-      });
-    else
-      this.addTableRow();
   }
 
   private initializeSalesInvoiceDetails(arr: Array<any>): any {
