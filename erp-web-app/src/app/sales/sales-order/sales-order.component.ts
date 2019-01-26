@@ -203,6 +203,10 @@ export class SalesOrderComponent implements AfterViewInit {
     return _.size(orderDetails.filter(x => x.qtyDr == 0)) > 0;
   }
 
+  isRowQuantityEditable(rowData) {
+    return rowData.qtyDr == 0;
+  }
+
   submit() {
     var controls = this.headerComponent.f;
 

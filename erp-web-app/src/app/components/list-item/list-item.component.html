@@ -41,8 +41,8 @@
       <td pEditableColumn class="text-right">
         <p-cellEditor>
           <ng-template pTemplate="input">
-            <input pInputText type="text" [(ngModel)]="rowData.qty" (input)="computeSubTotal(rowData)" required *ngIf="isDetailEditable(rowData)">
-            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+            <input pInputText type="text" [(ngModel)]="rowData.qty" (input)="computeSubTotal(rowData)" required *ngIf="isQuantityEditable(rowData)">
+            <span class="pad5" *ngIf="!isQuantityEditable(rowData)">
               {{rowData.qty}}
             </span>
           </ng-template>
@@ -55,7 +55,7 @@
         {{rowData.qtyDr}}
       </td>
       <td class="text-right" *ngIf="isQtyInvoiceVisible()">
-        {{rowData.qtyReturn}}
+        {{rowData.qtyInvoice}}
       </td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">
         {{rowData.qtyReturn}}
