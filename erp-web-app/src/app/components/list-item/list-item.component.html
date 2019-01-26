@@ -6,6 +6,7 @@
       <th pResizableColumn style="width:450px">Description</th>
       <th style="width:60px">Qty</th>
       <th style="width:70px" *ngIf="isQtyDrVisible()">Qty Dr</th>
+      <th style="width:70px" *ngIf="isQtyInvoiceVisible()">Qty Invoice</th>
       <th style="width:70px" *ngIf="isQtyReturnVisible()">Qty Return</th>
       <th style="width:120px" *ngIf="isWarehouseVisible()">Warehouse</th>
       <th style="width:120px">Unit</th>
@@ -52,6 +53,9 @@
       </td>
       <td class="text-right" *ngIf="isQtyDrVisible()">
         {{rowData.qtyDr}}
+      </td>
+      <td class="text-right" *ngIf="isQtyInvoiceVisible()">
+        {{rowData.qtyReturn}}
       </td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">
         {{rowData.qtyReturn}}
@@ -141,6 +145,7 @@
       <td></td>
       <td class="text-right">{{ getTotal('qty') }}</td>
       <td class="text-right" *ngIf="isQtyDrVisible()">{{ getTotal('qtyDr') }}</td>
+      <td class="text-right" *ngIf="isQtyInvoiceVisible()">{{ getTotal('qtyInvoice') }}</td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">{{ getTotal('qtyReturn') }}</td>
       <td *ngIf="isWarehouseVisible()"></td>
       <td></td>

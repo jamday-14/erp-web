@@ -159,6 +159,10 @@ export class ListItemComponent implements OnInit {
   }
 
   isQtyDrVisible():boolean{
+    return this.transactionType =="SO";
+  }
+
+  isQtyInvoiceVisible(){
     return this.transactionType =="DR";
   }
 

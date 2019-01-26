@@ -9,6 +9,7 @@
     (submit)="submit($event)"
     (resetOrderDetails)="initializeOrderDetails($event)"></app-header>
   <app-list-item
+    [transactionType]="transactionType"
     [units]="units"
     [items]="items"
     [orderDetails]="orderDetails" 
