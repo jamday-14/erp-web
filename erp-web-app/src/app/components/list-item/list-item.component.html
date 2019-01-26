@@ -7,6 +7,7 @@
       <th style="width:60px">Qty</th>
       <th style="width:70px" *ngIf="isQtyDrVisible()">Qty Dr</th>
       <th style="width:70px" *ngIf="isQtyReturnVisible()">Qty Return</th>
+      <th style="width:120px" *ngIf="isWarehouseVisible()">Warehouse</th>
       <th style="width:120px">Unit</th>
       <th style="width:100px">Unit Price</th>
       <th style="width:100px">Discount</th>
@@ -54,6 +55,20 @@
       </td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">
         {{rowData.qtyReturn}}
+      </td>
+      <td pEditableColumn  *ngIf="isWarehouseVisible()">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown [options]="warehouses" [(ngModel)]="rowData.warehouseId" [appendTo]="searchItemLoc"
+              (onChange)="warehouseChanged($event, rowData)" placeholder="Select Warehouse" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.warehouseDescription}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.warehouseDescription}}
+          </ng-template>
+        </p-cellEditor>
       </td>
       <td pEditableColumn>
         <p-cellEditor>
@@ -127,6 +142,7 @@
       <td class="text-right">{{ getTotal('qty') }}</td>
       <td class="text-right" *ngIf="isQtyDrVisible()">{{ getTotal('qtyDr') }}</td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">{{ getTotal('qtyReturn') }}</td>
+      <td *ngIf="isWarehouseVisible()"></td>
       <td></td>
       <td class="text-right">{{ getTotal('unitPrice') | currency:"&#8369;" }}</td>
       <td class="text-right">{{ getTotal('discount') | currency:"&#8369;" }}</td>

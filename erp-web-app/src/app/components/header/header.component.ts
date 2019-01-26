@@ -3,6 +3,7 @@ import { FormGroup, Validators, FormBuilder, AbstractControl, FormControl } from
 import { MenuItem } from 'primeng/api';
 import { Location } from '@angular/common';
 import { CommonService } from 'src/app/services/common.service';
+import _ from "lodash";
 
 @Component({
   selector: 'app-header',
@@ -72,7 +73,7 @@ export class HeaderComponent implements OnInit {
       termId: [null]
     });
 
-    if (this.transactionType == "SI") {
+    if (_.indexOf(["SI", "DR"], this.transactionType) != -1) {
       this.form.addControl("comments", new FormControl(""))
       this.form.addControl("mopid", new FormControl(null))
     }
@@ -112,11 +113,11 @@ export class HeaderComponent implements OnInit {
   }
 
   isCommentsVisible(): boolean {
-    return this.transactionType == "SI";
+    return _.indexOf(["SI", "DR"], this.transactionType) != -1;
   }
 
   isMOPVisible(): boolean {
-    return this.transactionType == "SI";
+    return _.indexOf(["SI", "DR"], this.transactionType) != -1;
   }
 
 }

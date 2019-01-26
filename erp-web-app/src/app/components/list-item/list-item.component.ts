@@ -13,6 +13,7 @@ export class ListItemComponent implements OnInit {
   @Input() orderDetails: Array<any>;
   @Input() units: Array<any>;
   @Input() items: Array<any>;
+  @Input() warehouses: Array<any>;
   @Input() transactionType: string;
   @Output() addRow = new EventEmitter<Array<any>>();
   @Output() deleteRow = new EventEmitter<Array<any>>();
@@ -32,6 +33,7 @@ export class ListItemComponent implements OnInit {
     this.detailMenuItems = [];
     this.items = [];
     this.units = [];
+    this.warehouses = [];
     this.orderDetails = [];
     this.allSelected = false;
   }
@@ -83,12 +85,25 @@ export class ListItemComponent implements OnInit {
     this.ToggleDetailMenu();
   }
 
+  warehouseChanged(event, rowData) {
+    if (event.value) {
+      let warehouse = this.findWarehouse(event.value);
+
+      rowData.warehouseId = warehouse.value;
+      rowData.warehouseDescription = warehouse.label;
+    }
+  }
+
   findItem(itemId) {
     return this.items.find(x => x.value == itemId);
   }
 
   findUnit(unitId) {
     return this.units.find(x => x.value == unitId);
+  }
+
+  findWarehouse(unitId) {
+    return this.warehouses.find(x => x.value == unitId);
   }
 
   searchItems(event) {
@@ -140,7 +155,7 @@ export class ListItemComponent implements OnInit {
   }
 
   isQtyReturnVisible(): boolean {
-    return this.transactionType == "SI" || this.transactionType == "DR";
+    return _.indexOf(["SI", "DR"], this.transactionType) != -1;
   }
 
   isQtyDrVisible():boolean{
@@ -149,6 +164,10 @@ export class ListItemComponent implements OnInit {
 
   isRefNoVisible(): boolean{
     return this.transactionType != "SO";
+  }
+
+  isWarehouseVisible():boolean{
+    return this.transactionType =="DR";
   }
 
 }
