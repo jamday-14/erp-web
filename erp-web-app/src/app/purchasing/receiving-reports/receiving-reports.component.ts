@@ -45,7 +45,7 @@ export class ReceivingReportsComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/receiving-report', 0]);
+          this.router.navigate(['/purchasing/receiving-report', 0]);
         }
       },
       {

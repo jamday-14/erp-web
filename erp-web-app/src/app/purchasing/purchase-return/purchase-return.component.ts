@@ -212,7 +212,7 @@ export class PurchaseReturnComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/purchase-returns']);
+            this.router.navigate(['/purchasing/purchase-returns']);
           }, 1000);
         }, (err) => {
           this.loading = false;

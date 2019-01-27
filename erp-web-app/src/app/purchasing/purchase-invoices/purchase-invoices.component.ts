@@ -45,7 +45,7 @@ export class PurchaseInvoicesComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/purchase-invoice', 0]);
+          this.router.navigate(['/purchasing/purchase-invoice', 0]);
         }
       },
       {

@@ -234,7 +234,7 @@ export class ReceivingReportComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/receiving-reports'])
+            this.router.navigate(['/purchasing/receiving-reports'])
           }, 1000);
           
         }, (err) => {

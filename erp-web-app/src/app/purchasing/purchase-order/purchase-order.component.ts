@@ -295,7 +295,7 @@ export class PurchaseOrderComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/purchase-orders']);
+            this.router.navigate(['/purchasing/purchase-orders']);
           }, 1000)
 
         }, (err) => {

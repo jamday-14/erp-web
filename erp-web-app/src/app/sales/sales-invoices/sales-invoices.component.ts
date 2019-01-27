@@ -45,7 +45,7 @@ export class SalesInvoicesComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/sales-invoice', 0]);
+          this.router.navigate(['/sales/sales-invoice', 0]);
         }
       },
       {

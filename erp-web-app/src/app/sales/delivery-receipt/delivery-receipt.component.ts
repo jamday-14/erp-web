@@ -234,7 +234,7 @@ export class DeliveryReceiptComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/delivery-receipts'])
+            this.router.navigate(['/sales/delivery-receipts'])
           }, 1000);
 
         }, (err) => {

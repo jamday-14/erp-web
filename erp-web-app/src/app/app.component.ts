@@ -40,22 +40,24 @@ export class AppComponent {
       { label: 'Home', icon: 'pi pi-home', routerLink: ['/home'] },
       {
         label: 'Sales',
+        routerLink: ['/sales'],
         icon: 'pi pi-chart-bar',
         items: [
-          { label: 'Sales Order', routerLink: ['/sales-orders'] },
-          { label: 'Delivery Receipt', routerLink: ['/delivery-receipts'] },
-          { label: 'Sales Invoice', routerLink: ['/sales-invoices'] },
-          { label: 'Sales Return', routerLink: ['/sales-returns'] }
+          { label: 'Sales Order', routerLink: ['/sales/sales-orders'] },
+          { label: 'Delivery Receipt', routerLink: ['/sales/delivery-receipts'] },
+          { label: 'Sales Invoice', routerLink: ['/sales/sales-invoices'] },
+          { label: 'Sales Return', routerLink: ['/sales/sales-returns'] }
         ]
       },
       {
         label: 'Purchasing',
+        routerLink: ['/purchasing'],
         icon: 'pi pi-shopping-cart',
         items: [
-          { label: 'Purchase Order', routerLink: ['/purchase-orders'] },
-          { label: 'Receiving Report', routerLink: ['/receiving-reports'] },
-          { label: 'Purchase Invoices', routerLink: ['/purchase-invoices'] },
-          { label: 'Purchase Return', routerLink: ['/purchase-returns'] }
+          { label: 'Purchase Order', routerLink: ['/purchasing/purchase-orders'] },
+          { label: 'Receiving Report', routerLink: ['/purchasing/receiving-reports'] },
+          { label: 'Purchase Invoices', routerLink: ['/purchasing/purchase-invoices'] },
+          { label: 'Purchase Return', routerLink: ['/purchasing/purchase-returns'] }
         ]
       },
       {

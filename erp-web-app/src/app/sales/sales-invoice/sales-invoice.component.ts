@@ -228,7 +228,7 @@ export class SalesInvoiceComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/sales-invoices']);
+            this.router.navigate(['/sales/sales-invoices']);
           }, 1000);
         }, (err) => {
           this.loading = false;

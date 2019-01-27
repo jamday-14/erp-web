@@ -47,7 +47,7 @@ export class PurchaseReturnsComponent implements OnInit {
     this.menuItems = [
       {
         label: 'New', icon: 'pi pi-file', command: () => {
-          this.router.navigate(['/purchase-return', 0]);
+          this.router.navigate(['/purchasing/purchase-return', 0]);
         }
       },
       {

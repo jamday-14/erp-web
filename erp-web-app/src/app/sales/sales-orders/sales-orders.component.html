@@ -21,7 +21,7 @@
     <ng-template pTemplate="body" let-rowData>
       <tr [pSelectableRow]="rowData">
         <td>
-          <a [routerLink]="['/sales-order', rowData.id]"> {{rowData.systemNo}} </a>
+          <a [routerLink]="['/sales/sales-order', rowData.id]"> {{rowData.systemNo}} </a>
         </td>
         <td>
           {{rowData.date | date:'longDate'}}

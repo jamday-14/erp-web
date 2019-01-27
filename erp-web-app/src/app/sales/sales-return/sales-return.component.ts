@@ -211,7 +211,7 @@ export class SalesReturnComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/sales-returns']);
+            this.router.navigate(['/sales/sales-returns']);
           }, 1000);
         }, (err) => {
           this.loading = false;

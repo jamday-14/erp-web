@@ -227,7 +227,7 @@ export class PurchaseInvoiceComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/purchase-invoices']);
+            this.router.navigate(['/purchasing/purchase-invoices']);
           }, 1000);
         }, (err) => {
           this.loading = false;

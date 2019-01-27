@@ -295,7 +295,7 @@ export class SalesOrderComponent implements AfterViewInit {
           this.loading = false;
           this.messaging.successMessage(this.messaging.ADD_SUCCESS);
           setTimeout(() => {
-            this.router.navigate(['/sales-orders']);
+            this.router.navigate(['/sales/sales-orders']);
           }, 1000)
 
         }, (err) => {
