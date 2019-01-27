@@ -97,12 +97,13 @@ export class AppComponent {
       },
       {
         label: 'Maintenance',
+        routerLink: ['/maintenance'],
         icon: 'pi pi-cog',
         items: [
-          { label: 'Customer', icon: 'pi pi-fw pi-users', routerLink: ['/customers'] },
-          { label: 'Employee ', icon: 'pi pi-fw pi-users', routerLink: ['/employees'] },
-          { label: 'Item', icon: 'pi pi-fw pi-list', routerLink: ['/items'] },
-          { label: 'Vendor', icon: 'pi pi-fw pi-users', routerLink: ['/vendors'] },
+          { label: 'Customer', icon: 'pi pi-fw pi-users', routerLink: ['/maintenance/customers'] },
+          { label: 'Employee ', icon: 'pi pi-fw pi-users', routerLink: ['/maintenance/employees'] },
+          { label: 'Item', icon: 'pi pi-fw pi-list', routerLink: ['/maintenance/items'] },
+          { label: 'Vendor', icon: 'pi pi-fw pi-users', routerLink: ['/maintenance/vendors'] },
         ]
       },
     ];
