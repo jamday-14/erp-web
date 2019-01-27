@@ -59,6 +59,7 @@ import { ReferenceHeaderComponent } from './components/reference-header/referenc
 import { HeaderReturnComponent } from './components/header-return/header-return.component';
 
 const appRoutes: Routes = [
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'customers', component: CustomersComponent },
   { path: 'employees', component: EmployeesComponent },
@@ -79,7 +80,10 @@ const appRoutes: Routes = [
   { path: 'receiving-reports', component: ReceivingReportsComponent },
   { path: 'receiving-report/:id', component: ReceivingReportComponent },
   { path: 'purchase-returns', component: PurchaseReturnsComponent },
-  { path: 'purchase-return/:id', component: PurchaseReturnComponent }
+  { path: 'purchase-return/:id', component: PurchaseReturnComponent },
+  { path: 'inventory', loadChildren:'./inventory/inventory.module#InventoryModule' },
+  // { path: 'inventory/item-entries', loadChildren:'./inventory/inventory.module#InventoryModule' },
+  // { path: 'item-releases', loadChildren:'./inventory/inventory.module#InventoryModule' }
   //{ path: '',   redirectTo: '/heroes', pathMatch: 'full' },
   //{ path: '**', component: PageNotFoundComponent }
 ];

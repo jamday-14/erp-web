@@ -60,11 +60,13 @@ export class AppComponent {
       },
       {
         label: 'Inventory',
+        routerLink: ['/inventory'],
         icon: 'pi pi-bars',
         items: [
-          { label: 'Inventory Adjustment' },
-          { label: 'Relocate Goods' },
-          { label: 'Physical Inventory' }
+          { label: 'Item Entries', routerLink: ['/inventory/item-entries'] },
+          { label: 'Item Releases', routerLink: ['/inventory/item-releases'] },
+          { label: 'Goods Transfer', routerLink: ['/inventory/goods-transfer'] },
+          { label: 'Goods Transfer Received', routerLink: ['/inventory/goods-transfer-received'] }
         ]
       },
       {
