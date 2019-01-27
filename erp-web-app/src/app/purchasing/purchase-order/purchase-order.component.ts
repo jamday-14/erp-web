@@ -1,16 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { MenuItem } from 'primeng/api';
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
-import { SumFilterPipe } from 'src/app/sum-filter.pipe';
 import _ from "lodash";
 import { forkJoin } from 'rxjs';
 import { SalesService } from 'src/app/services/sales.service';
 import { MessagingService } from 'src/app/services/messaging.service';
 import { AppComponent } from 'src/app/app.component';
-import { Location } from '@angular/common';
-import { CommonService } from 'src/app/services/common.service';
+import { ListItemComponent } from 'src/app/components/list-item/list-item.component';
+import { HeaderComponent } from 'src/app/components/header/header.component';
 import { PurchasingService } from 'src/app/services/purchasing.service';
 
 @Component({
@@ -18,12 +15,17 @@ import { PurchasingService } from 'src/app/services/purchasing.service';
   templateUrl: './purchase-order.component.html',
   styleUrls: ['./purchase-order.component.css']
 })
-export class PurchaseOrderComponent implements OnInit {
+export class PurchaseOrderComponent implements AfterViewInit {
+
+  @ViewChild(ListItemComponent)
+  private listItemComponent: ListItemComponent;
+
+  @ViewChild(HeaderComponent)
+  private headerComponent: HeaderComponent;
 
   id: number;
-  form: FormGroup;
-  menuItems: MenuItem[];
-  
+  transactionType: string;
+
   newItem: boolean;
   loading: boolean;
 
@@ -32,130 +34,34 @@ export class PurchaseOrderComponent implements OnInit {
   units: Array<any>;
   items: Array<any>;
   orderDetails: Array<any>;
-  searchedItems: any[];
-  footerData: any;
-  
-  selectedRows: any;
-  detailMenuItems: MenuItem[];
-  allSelected: boolean;
 
   constructor(
     private maintenanceService: MaintenanceService,
     private purchasingService: PurchasingService,
     private router: Router,
-    private formBuilder: FormBuilder,
-    private sumPipe: SumFilterPipe,
-    private common: CommonService,
     private messaging: MessagingService,
     private app: AppComponent,
-    private route: ActivatedRoute,
-    private location: Location
+    private route: ActivatedRoute
   ) {
-    this.vendors = [];
-    this.terms = [];
     this.units = [];
     this.items = [];
+    this.vendors = [];
+    this.terms = [];
     this.orderDetails = [];
-    this.allSelected = false;
   }
 
   ngOnInit() {
-
     this.route.params.subscribe((params) => this.id = params.id);
     this.newItem = this.id == 0 ? true : false;
-
+    this.transactionType = "PO";
     this.app.title = "Purchase Order Entry";
-
-    this.initializeMenu();
-    this.initializeForm(null);
-    this.getReferenceData();
-
   }
 
-  initializeMenu() {
-    this.menuItems = [
-      {
-        label: 'Back', icon: 'pi pi-arrow-left', command: () => {
-          this.location.back();
-        }
-      },
-      {
-        label: 'Save', icon: 'pi pi-save', command: () => {
-          this.save();
-        }
-      },
-    ];
+  ngAfterViewInit() {
+    setTimeout(() => {
+      this.getReferenceData();
+    });
 
-    if (this.newItem) {
-      this.menuItems.push({
-        label: 'Reset', icon: 'pi pi-circle-off', command: () => {
-          this.initializeForm(null);
-          this.initializeOrderDetails(null);
-        }
-      })
-    }
-
-    this.detailMenuItems = [
-      {
-        label: 'New', icon: 'pi pi-file', command: () => {
-          this.addTableRow();
-        }
-      },
-      {
-        label: 'Select All', icon: 'pi pi-list', command: () => {
-          this.allSelected = !this.allSelected;
-          this.detailMenuItems[1].label = this.allSelected ? 'De-select All' : 'Select All';
-          this.selectedRows = this.allSelected ? this.getOrderDetails() : [];
-        }
-      },
-      {
-        label: 'Delete', icon: 'pi pi-times', command: () => {
-          if (_.size(this.selectedRows) == 0) {
-            this.messaging.warningMessage("Please select item to remove");
-          }
-          else {
-            this.deleteDetails();
-          }
-        }
-      },
-    ];
-  }
-
-  private deleteDetails() {
-    var nonApiCallsRequest = this.selectedRows.filter(x => x.purchaseOrderId == null);
-    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
-      _.forEach(nonApiCallsRequest, (row => {
-        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
-      }));
-    }
-    var apiCallsRequest = this.selectedRows.filter(x => x.purchaseOrderId != null);
-    if (apiCallsRequest != null && apiCallsRequest != []) {
-      var deleteRequests = [];
-      _.forEach(apiCallsRequest, (row => {
-        deleteRequests.push(this.purchasingService.deletePurchasingOrderDetail(row.id, row.purchaseOrderId));
-      }));
-      this.loading = true;
-      forkJoin(deleteRequests).subscribe((res) => {
-        _.forEach(apiCallsRequest, (row => {
-          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
-        }));
-        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
-        this.loading = false;
-      }, (err) => {
-        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
-        this.loading = false;
-      });
-    }
-  }
-
-  isDeleteDetailsEnabled(): boolean {
-    if (_.size(this.getOrderDetails()) == 0)
-      return false;
-    return _.size(this.getOrderDetails().filter(x => x.qtyReceived == 0)) > 0;
-  }
-
-  isDetailEditable(rowData) {
-    return rowData.qtyReceived == 0;
   }
 
   private initializeHeader() {
@@ -168,66 +74,19 @@ export class PurchaseOrderComponent implements OnInit {
         var headerResponse = response[0];
         var detailResponse = response[1];
 
-        this.form.patchValue({
-          date: new Date(this.common.toLocaleDate(headerResponse.date)),
-          vendorId: headerResponse.vendorId,
-          systemNo: headerResponse.systemNo,
-          refNo: headerResponse.refNo,
-          address: headerResponse.address,
-          telNo: headerResponse.telNo,
-          faxNo: headerResponse.faxNo,
-          contactPerson: headerResponse.contactPerson,
-          termId: headerResponse.termId
-        });
+        this.headerComponent.updateForm(headerResponse);
 
         this.initializeOrderDetails(detailResponse);
 
         this.loading = false;
 
       }, (err) => { });
-    } else { this.initializeOrderDetails(null); }
-  }
-
-  initializeForm(item: any): any {
-    this.form = this.formBuilder.group({
-      date: [item != null ? item.date : null, Validators.required],
-      refNo: [item != null ? item.refNo : ''],
-      systemNo: [item != null ? item.systemNo : ''],
-      vendorId: [item != null ? item.vendorId : null, Validators.required],
-      address: [item != null ? item.address : ''],
-      telNo: [item != null ? item.telNo : ''],
-      faxNo: [item != null ? item.faxNo : ''],
-      contactPerson: [item != null ? item.contactPerson : ''],
-      termId: [item != null ? item.termId : null]
-    });
-  }
-
-  initializeOrderDetails(arr: Array<any>): any {
-    this.orderDetails = [];
-
-    if (arr == null)
-      this.addTableRow();
-    else {
-      _.forEach(arr, (record => {
-        var item = this.findItem(record.itemId);
-        var unit = this.findUnit(record.unitId);
-
-        this.orderDetails.push({
-          index: _.size(this.orderDetails), id: record.id, purchaseOrderId: record.purchaseOrderId, qtyReceived: record.qtyReceived,
-          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
-        });
-
-        this.ToggleDetailMenu();
-      }));
+    } else {
+      this.initializeOrderDetails(null);
     }
   }
 
-  private ToggleDetailMenu() {
-    this.detailMenuItems[2].disabled = !this.isDeleteDetailsEnabled();
-  }
-
-  getReferenceData(): any {
+  private getReferenceData(): any {
     this.loading = true;
     var termsRequest = this.maintenanceService.queryTerms();
     var vendorsRequest = this.maintenanceService.queryVendors();
@@ -263,92 +122,105 @@ export class PurchaseOrderComponent implements OnInit {
       }, (err) => { this.loading = false; });
   }
 
-  get f() { return this.form.controls; }
+  initializeOrderDetails(arr: Array<any>): any {
+    this.orderDetails = [];
 
-  itemChanged(event, rowData) {
-    let item = this.findItem(event.value);
-    let unit = this.findUnit(item.unitId);
+    if (arr == null)
+      this.addTableRow();
+    else {
+      _.forEach(arr, (record => {
+        var item = this.listItemComponent.findItem(record.itemId);
+        var unit = this.listItemComponent.findUnit(record.unitId);
 
-    rowData.itemId = item.value;
-    rowData.description = item.label;
-    rowData.itemCode = item.code;
-    rowData.unitPrice = item.unitPrice;
+        this.orderDetails.push({
+          index: _.size(this.orderDetails), id: record.id, purchaseOrderId: record.purchaseOrderId, qtyReceived: record.qtyReceived,
+          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+          unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, remarks: record.remarks, closed: record.closed
+        });
 
-    if (unit) {
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
-    }
-
-    this.ToggleDetailMenu();
-  }
-
-  vendorChanged(event) {
-    if (event.value) {
-      let vendor = this.findVendor(event.value);
-
-      this.f.address.setValue(vendor.address);
-      this.f.telNo.setValue(vendor.telNo);
-      this.f.faxNo.setValue(vendor.faxNo);
-      this.f.contactPerson.setValue(vendor.contactPerson);
-      this.f.termId.setValue(vendor.termId);
+        this.listItemComponent.ToggleDetailMenu();
+      }));
     }
   }
 
-  findItem(itemId) {
-    return this.items.find(x => x.value == itemId);
+  private addTableRow() {
+    this.orderDetails.unshift({
+      index: _.size(this.orderDetails), id: null, purchaseOrderId: null,
+      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
+      unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyReceived: 0
+    });
+    this.listItemComponent.ToggleDetailMenu();
+    this.listItemComponent.selectedRows = [];
+    this.listItemComponent.selectedRows.push(_.first(this.orderDetails));
   }
 
-  findUnit(unitId) {
-    return this.units.find(x => x.value == unitId);
+  onAddRow(orderDetails: Array<any>) {
+    this.orderDetails = orderDetails;
+    this.addTableRow();
   }
 
-  findVendor(vendorId) {
-    return this.vendors.find(x => x.value == vendorId);
-  }
+  onDeleteRow(selectedRows: Array<any>) {
 
-  searchItems(event) {
-    this.searchedItems = this.items.filter((item) => {
-      return (item.label.toLowerCase().indexOf(event.query.toLowerCase()) > -1);
-    })
-  }
+    if (_.size(selectedRows) == 0) {
+      this.messaging.warningMessage("Please select item to remove");
+      return;
+    }
 
-  computeSubTotal(rowData) {
-    rowData.subTotal = (rowData.qty * rowData.unitPrice) - rowData.discount;
-  }
-
-  unitChanged(event, rowData) {
-    if (event.value) {
-      let unit = this.findUnit(event.value);
-
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
+    var nonApiCallsRequest = selectedRows.filter(x => x.purchaseOrderId == null);
+    if (nonApiCallsRequest != null && nonApiCallsRequest != []) {
+      _.forEach(nonApiCallsRequest, (row => {
+        _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+      }));
+    }
+    var apiCallsRequest = selectedRows.filter(x => x.purchaseOrderId != null);
+    if (apiCallsRequest != null && apiCallsRequest != []) {
+      var deleteRequests = [];
+      _.forEach(apiCallsRequest, (row => {
+        deleteRequests.push(this.purchasingService.deletePurchasingOrderDetail(row.id, row.purchaseOrderId));
+      }));
+      this.loading = true;
+      forkJoin(deleteRequests).subscribe((res) => {
+        _.forEach(apiCallsRequest, (row => {
+          _.remove(this.orderDetails, function (x) { return x.index == row.index; });
+        }));
+        this.messaging.successMessage(this.messaging.DELETE_SUCCESS);
+        this.loading = false;
+      }, (err) => {
+        this.messaging.errorMessage(this.messaging.DELETE_ERROR);
+        this.loading = false;
+      });
     }
   }
 
-  getOrderDetails(): any {
-    return this.orderDetails.filter(x => x.itemCode != null);
+  isRowDataEditable(rowData: any): boolean {
+    return rowData.qtyReceived == 0;
   }
 
-  getTotal(property: string) {
-    return this.sumPipe.transform(this.getOrderDetails(), property);
+  isDeleteRowsEnabled(orderDetails: Array<any>): boolean {
+    if (_.size(orderDetails) == 0)
+      return false;
+
+    return _.size(orderDetails.filter(x => x.qtyReceived == 0)) > 0;
   }
 
-  getTotalItem() {
-    return _.size(this.getOrderDetails());
+  isRowQuantityEditable(rowData) {
+    return rowData.qtyReceived == 0;
   }
 
-  save(): any {
-    if (!this.form.valid) {
+  submit() {
+    var controls = this.headerComponent.f;
+
+    if (!this.headerComponent.form.valid) {
       this.messaging.warningMessage(this.messaging.REQUIRED);
       return;
     }
 
-    if (_.size(this.getOrderDetails()) == 0) {
+    if (_.size(this.listItemComponent.getOrderDetails()) == 0) {
       this.messaging.warningMessage(this.messaging.ONE_LINE_ITEM);
       return;
     }
 
-    if (!_.every(this.getOrderDetails(), (x) => { return x.qty > 0 && x.subTotal > 0 })) {
+    if (!_.every(this.listItemComponent.getOrderDetails(), (x) => { return x.qty > 0 && x.subTotal > 0 })) {
       this.messaging.warningMessage(this.messaging.QTY_AND_PRICE);
       return;
     }
@@ -357,27 +229,27 @@ export class PurchaseOrderComponent implements OnInit {
 
     var headerRequest = this.newItem
       ? this.purchasingService.addPurchasingOrder({
-        date: this.f.date.value,
-        refNo: this.f.refNo.value,
-        address: this.f.address.value,
-        telNo: this.f.telNo.value,
-        faxNo: this.f.faxNo.value,
-        contactPerson: this.f.contactPerson.value,
-        systemNo: this.f.systemNo.value,
-        vendorId: this.f.vendorId.value,
-        termId: this.f.termId.value,
-        amount: this.getTotal('subTotal')
+        date: controls.date.value,
+        refNo: controls.refNo.value,
+        address: controls.address.value,
+        telNo: controls.telNo.value,
+        faxNo: controls.faxNo.value,
+        contactPerson: controls.contactPerson.value,
+        systemNo: controls.systemNo.value,
+        vendorId: controls.vendorId.value,
+        termId: controls.termId.value,
+        amount: this.listItemComponent.getTotal('subTotal')
       })
       : this.purchasingService.updatePurchasingOrder({
         id: this.id,
-        date: this.f.date.value,
-        refNo: this.f.refNo.value,
-        address: this.f.address.value,
-        telNo: this.f.telNo.value,
-        faxNo: this.f.faxNo.value,
-        contactPerson: this.f.contactPerson.value,
-        termId: this.f.termId.value,
-        amount: this.getTotal('subTotal')
+        date: controls.date.value,
+        refNo: controls.refNo.value,
+        address: controls.address.value,
+        telNo: controls.telNo.value,
+        faxNo: controls.faxNo.value,
+        contactPerson: controls.contactPerson.value,
+        termId: controls.termId.value,
+        amount: this.listItemComponent.getTotal('subTotal')
       })
 
     headerRequest.subscribe((resp) => {
@@ -386,7 +258,7 @@ export class PurchaseOrderComponent implements OnInit {
       let detailsRequests = [];
       order = resp;
 
-      _.forEach(this.getOrderDetails(), (detail) => {
+      _.forEach(this.listItemComponent.getOrderDetails(), (detail) => {
 
         if (detail.id == null)
           detailsRequests.push(
@@ -435,21 +307,4 @@ export class PurchaseOrderComponent implements OnInit {
       this.messaging.errorMessage(this.messaging.ADD_ERROR);
     });
   }
-
-  OnEnter(index, rowData) {
-    if (this.orderDetails.length == (index + 1) && rowData.itemCode != null)
-      this.addTableRow();
-  }
-
-  addTableRow() {
-    this.orderDetails.unshift({
-      index: _.size(this.orderDetails), id: null, purchaseOrderId: null,
-      itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-      unitPrice: null, discount: null, subTotal: null, remarks: '', closed: false, qtyReceived: 0
-    });
-    this.ToggleDetailMenu();
-    this.selectedRows = [];
-    this.selectedRows.push(_.first(this.orderDetails));
-  }
-
 }

@@ -289,10 +289,10 @@ export class SalesReturnComponent implements AfterViewInit {
     if (!this.newItem) {
 
       this.loading = true;
-      var headerRequest = this.salesService.querySalesReturnDetails(this.id);
-      var detailRequest = this.salesService.getSalesReturn(this.id);
+      var headerRequest = this.salesService.getSalesReturn(this.id);
+      var detailRequest = this.salesService.querySalesReturnDetails(this.id);
 
-      forkJoin([detailRequest, headerRequest]).subscribe((response) => {
+      forkJoin([headerRequest, detailRequest]).subscribe((response) => {
         var headerResponse = response[0];
         var detailResponse = response[1];
 

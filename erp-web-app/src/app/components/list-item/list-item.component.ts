@@ -95,15 +95,24 @@ export class ListItemComponent implements OnInit {
   }
 
   findItem(itemId) {
-    return this.items.find(x => x.value == itemId);
+    var item = this.items.find(x => x.value == itemId);
+    if (item == null)
+      item = { value: null, label: '' };
+    return item;
   }
 
-  findUnit(unitId) {
-    return this.units.find(x => x.value == unitId);
+  findUnit(id) {
+    var unit = this.units.find(x => x.value == id);
+    if (unit == null)
+      unit = { value: null, label: '' };
+    return unit;
   }
 
-  findWarehouse(unitId) {
-    return this.warehouses.find(x => x.value == unitId);
+  findWarehouse(id) {
+    var warehouse = this.warehouses.find(x => x.value == id);
+    if (warehouse == null)
+      warehouse = { value: null, label: '' };
+    return warehouse;
   }
 
   searchItems(event) {
@@ -155,23 +164,35 @@ export class ListItemComponent implements OnInit {
   }
 
   isQtyReturnVisible(): boolean {
-    return _.indexOf(["SI", "DR"], this.transactionType) != -1;
+    return _.indexOf(["SI", "DR", "PI", "RR"], this.transactionType) != -1;
   }
 
-  isQtyDrVisible():boolean{
-    return this.transactionType =="SO";
+  isQtyDrVisible(): boolean {
+    return this.transactionType == "SO";
   }
 
-  isQtyInvoiceVisible(){
-    return this.transactionType =="DR";
+  isQtyReceivedVisible(): boolean {
+    return this.transactionType == "PO";
   }
 
-  isRefNoVisible(): boolean{
+  isQtyBilledVisible(): boolean {
+    return this.transactionType == "RR";
+  }
+
+  isQtyInvoiceVisible() {
+    return this.transactionType == "DR";
+  }
+
+  isRefNoVisible(): boolean {
     return this.transactionType != "SO";
   }
 
-  isWarehouseVisible():boolean{
-    return this.transactionType =="DR";
+  isPeopleACustomer() {
+    return _.indexOf(["SO", "SI", "DR", "SR"], this.transactionType) != -1;
+  }
+
+  isWarehouseVisible(): boolean {
+    return _.indexOf(["DR", "RR"], this.transactionType) != -1;
   }
 
 }

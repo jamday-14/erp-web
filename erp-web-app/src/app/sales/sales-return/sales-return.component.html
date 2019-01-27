@@ -4,12 +4,12 @@
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <app-header-return
     [transactionType]="transactionType"
-    [customers]="customers"
+    [people]="customers"
     [warehouses]="warehouses"
     [newItem]="newItem"
     (submit)="submit($event)"
     (resetOrderDetails)="resetOrderDetails($event)"
-    (onCustomerChanged)="onCustomerChanged($event)"></app-header-return>
+    (onPeopleChanged)="onCustomerChanged($event)"></app-header-return>
   <app-reference-header
     [orders]="orders"
     (initializeOrderDetails)="initializeOrderDetails($event)"></app-reference-header>

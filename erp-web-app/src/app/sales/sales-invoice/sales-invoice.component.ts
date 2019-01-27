@@ -287,10 +287,10 @@ export class SalesInvoiceComponent implements AfterViewInit {
     if (!this.newItem) {
 
       this.loading = true;
-      var headerRequest = this.salesService.querySalesInvoiceDetails(this.id);
-      var detailRequest = this.salesService.getSalesInvoice(this.id);
+      var headerRequest = this.salesService.getSalesInvoice(this.id);
+      var detailRequest = this.salesService.querySalesInvoiceDetails(this.id);
 
-      forkJoin([detailRequest, headerRequest]).subscribe((response) => {
+      forkJoin([headerRequest, detailRequest]).subscribe((response) => {
         var headerResponse = response[0];
         var detailResponse = response[1];
 

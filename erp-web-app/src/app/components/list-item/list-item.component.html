@@ -6,11 +6,13 @@
       <th pResizableColumn style="width:450px">Description</th>
       <th style="width:60px">Qty</th>
       <th style="width:70px" *ngIf="isQtyDrVisible()">Qty Dr</th>
+      <th style="width:70px" *ngIf="isQtyReceivedVisible()">Qty Received</th>
       <th style="width:70px" *ngIf="isQtyInvoiceVisible()">Qty Invoice</th>
+      <th style="width:70px" *ngIf="isQtyBilledVisible()">Qty Billed</th>
       <th style="width:70px" *ngIf="isQtyReturnVisible()">Qty Return</th>
       <th style="width:120px" *ngIf="isWarehouseVisible()">Warehouse</th>
       <th style="width:120px">Unit</th>
-      <th style="width:100px">Unit Price</th>
+      <th style="width:100px">{{isPeopleACustomer()? 'Unit Price': 'Cost Price'}}</th>
       <th style="width:100px">Discount</th>
       <th style="width:150px">Sub Total</th>
       <th style="width:150px" pResizableColumn *ngIf="isRefNoVisible()">Reference No</th>
@@ -54,17 +56,23 @@
       <td class="text-right" *ngIf="isQtyDrVisible()">
         {{rowData.qtyDr}}
       </td>
+      <td class="text-right" *ngIf="isQtyReceivedVisible()">
+        {{rowData.qtyReceived}}
+      </td>
       <td class="text-right" *ngIf="isQtyInvoiceVisible()">
         {{rowData.qtyInvoice}}
       </td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">
         {{rowData.qtyReturn}}
       </td>
-      <td pEditableColumn  *ngIf="isWarehouseVisible()">
+      <td class="text-right" *ngIf="isQtyBilledVisible()">
+        {{rowData.qtyBill}}
+      </td>
+      <td pEditableColumn *ngIf="isWarehouseVisible()">
         <p-cellEditor>
           <ng-template pTemplate="input">
-            <p-dropdown [options]="warehouses" [(ngModel)]="rowData.warehouseId" [appendTo]="searchItemLoc"
-              (onChange)="warehouseChanged($event, rowData)" placeholder="Select Warehouse" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+            <p-dropdown [options]="warehouses" [(ngModel)]="rowData.warehouseId" [appendTo]="searchItemLoc" (onChange)="warehouseChanged($event, rowData)"
+              placeholder="Select Warehouse" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
             <span class="pad5" *ngIf="!isDetailEditable(rowData)">
               {{rowData.warehouseDescription}}
             </span>
@@ -145,7 +153,9 @@
       <td></td>
       <td class="text-right">{{ getTotal('qty') }}</td>
       <td class="text-right" *ngIf="isQtyDrVisible()">{{ getTotal('qtyDr') }}</td>
+      <td class="text-right" *ngIf="isQtyReceivedVisible()">{{ getTotal('qtyReceived') }}</td>
       <td class="text-right" *ngIf="isQtyInvoiceVisible()">{{ getTotal('qtyInvoice') }}</td>
+      <td class="text-right" *ngIf="isQtyBilledVisible()">{{ getTotal('qtyBill') }}</td>
       <td class="text-right" *ngIf="isQtyReturnVisible()">{{ getTotal('qtyReturn') }}</td>
       <td *ngIf="isWarehouseVisible()"></td>
       <td></td>

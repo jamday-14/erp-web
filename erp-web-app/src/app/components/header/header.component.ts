@@ -13,12 +13,12 @@ import _ from "lodash";
 export class HeaderComponent implements OnInit {
 
   @Input() transactionType: string;
-  @Input() customers: Array<any>;
+  @Input() people: Array<any>;
   @Input() terms: Array<any>;
   @Input() newItem: boolean;
   @Output() submit = new EventEmitter<Array<any>>();
   @Output() resetOrderDetails = new EventEmitter<Array<any>>();
-  @Output() onCustomerChanged = new EventEmitter<Array<any>>();
+  @Output() onPeopleChanged = new EventEmitter<Array<any>>();
 
   form: FormGroup;
   menuItems: MenuItem[];
@@ -62,10 +62,9 @@ export class HeaderComponent implements OnInit {
 
   private initializeForm() {
     this.form = this.formBuilder.group({
-      date: [null, Validators.required],
+      date: [new Date(), Validators.required],
       refNo: [''],
       systemNo: [''],
-      customerId: [null, Validators.required],
       address: [''],
       telNo: [''],
       faxNo: [''],
@@ -73,20 +72,28 @@ export class HeaderComponent implements OnInit {
       termId: [null]
     });
 
-    if (_.indexOf(["SI", "DR"], this.transactionType) != -1) {
-      this.form.addControl("comments", new FormControl(""))
+    if (this.isPeopleACustomer()) {
+      this.form.addControl("customerId", new FormControl(null, Validators.required))
+    } else {
+      this.form.addControl("vendorId", new FormControl(null, Validators.required))
+    }
+
+    if (this.isMOPVisible) {
       this.form.addControl("mopid", new FormControl(null))
+    }
+
+    if (this.isCommentsVisible) {
+      this.form.addControl("comments", new FormControl(""))
     }
   }
 
-  private findCustomer(customerId) {
-    return this.customers.find(x => x.value == customerId);
+  private findPeople(id) {
+    return this.people.find(x => x.value == id);
   }
 
   updateForm(headerResponse: any) {
     this.form.patchValue({
       date: new Date(this.common.toLocaleDate(headerResponse.date)),
-      customerId: headerResponse.customerId,
       systemNo: headerResponse.systemNo,
       refNo: headerResponse.refNo,
       address: headerResponse.address,
@@ -95,29 +102,43 @@ export class HeaderComponent implements OnInit {
       contactPerson: headerResponse.contactPerson,
       termId: headerResponse.termId
     });
+
+    if (this.isPeopleACustomer())
+      this.form.patchValue({
+        customerId: headerResponse.customerId,
+      });
+    else {
+      this.form.patchValue({
+        vendorId: headerResponse.vendorId,
+      });
+    }
+
   }
 
-  customerChanged(event) {
+  peopleChanged(event) {
     if (event.value) {
       var control = this.f;
-      let customer = this.findCustomer(event.value);
+      let people = this.findPeople(event.value);
 
-      control.address.setValue(customer.address);
-      control.telNo.setValue(customer.telNo);
-      control.faxNo.setValue(customer.faxNo);
-      control.contactPerson.setValue(customer.contactPerson);
-      control.termId.setValue(customer.termId);
+      control.address.setValue(people.address);
+      control.telNo.setValue(people.telNo);
+      control.faxNo.setValue(people.faxNo);
+      control.contactPerson.setValue(people.contactPerson);
+      control.termId.setValue(people.termId);
 
-      this.onCustomerChanged.emit(event.value);
+      this.onPeopleChanged.emit(event.value);
     }
   }
 
   isCommentsVisible(): boolean {
-    return _.indexOf(["SI", "DR"], this.transactionType) != -1;
+    return _.indexOf(["SI", "DR", "RR", "PI"], this.transactionType) != -1;
   }
 
   isMOPVisible(): boolean {
-    return _.indexOf(["SI", "DR"], this.transactionType) != -1;
+    return _.indexOf(["SI", "DR", "RR", "PI"], this.transactionType) != -1;
   }
 
+  isPeopleACustomer() {
+    return _.indexOf(["SO", "SI", "DR", "SR"], this.transactionType) != -1;
+  }
 }

@@ -3,7 +3,8 @@
   <p-blockUI [blocked]="loading"></p-blockUI>
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <app-header
-    [customers]="customers"
+    [transactionType]="transactionType"
+    [people]="customers"
     [terms]="terms"
     [newItem]="newItem"
     (submit)="submit($event)"

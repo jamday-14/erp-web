@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormGroup, Validators, FormBuilder } from '@angular/forms';
+import { FormGroup, Validators, FormBuilder, FormControl } from '@angular/forms';
 import { MenuItem } from 'primeng/api';
 import { Location } from '@angular/common';
 import { CommonService } from 'src/app/services/common.service';
@@ -13,12 +13,12 @@ import _ from "lodash";
 export class HeaderReturnComponent implements OnInit {
 
   @Input() transactionType: string;
-  @Input() customers: Array<any>;
+  @Input() people: Array<any>;
   @Input() warehouses: Array<any>;
   @Input() newItem: boolean;
   @Output() submit = new EventEmitter<Array<any>>();
   @Output() resetOrderDetails = new EventEmitter<Array<any>>();
-  @Output() onCustomerChanged = new EventEmitter<Array<any>>();
+  @Output() onPeopleChanged = new EventEmitter<Array<any>>();
 
   form: FormGroup;
   menuItems: MenuItem[];
@@ -65,26 +65,44 @@ export class HeaderReturnComponent implements OnInit {
       date: [null, Validators.required],
       refNo: [''],
       systemNo: [''],
-      customerId: [null, Validators.required],
       remarks: [''],
       warehouseId: [null, Validators.required]
     });
+
+    if (this.isPeopleACustomer()) {
+      this.form.addControl("customerId", new FormControl(null, Validators.required))
+    } else {
+      this.form.addControl("vendorId", new FormControl(null, Validators.required))
+    }
   }
 
   updateForm(headerResponse: any) {
     this.form.patchValue({
       date: new Date(this.common.toLocaleDate(headerResponse.date)),
-      customerId: headerResponse.customerId,
       systemNo: headerResponse.systemNo,
       refNo: headerResponse.refNo,
       remarks: headerResponse.remarks,
       warehouseId: headerResponse.warehouseId
     });
+
+    if (this.isPeopleACustomer())
+      this.form.patchValue({
+        customerId: headerResponse.customerId,
+      });
+    else {
+      this.form.patchValue({
+        vendorId: headerResponse.vendorId,
+      });
+    }
   }
 
-  customerChanged(event) {
+  peopleChanged(event) {
     if (event.value) {
-      this.onCustomerChanged.emit(event.value);
+      this.onPeopleChanged.emit(event.value);
     }
+  }
+
+  isPeopleACustomer() {
+    return _.indexOf(["SO", "SI", "DR", "SR"], this.transactionType) != -1;
   }
 }
