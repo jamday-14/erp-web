@@ -1,0 +1,114 @@
+<p-menubar [model]="detailMenuItems"></p-menubar>
+<p-table [value]="details" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pResizableColumn style="width:120px">Item Code</th>
+      <th pResizableColumn style="width:450px">Description</th>
+      <th style="width:60px">Qty</th>
+      <th style="width:70px" *ngIf="isQtyOnHandVisible()">Qty On Hand</th>
+      <th style="width:70px" *ngIf="isQtyReceivedVisible()">Qty Received</th>
+      <th style="width:70px" *ngIf="isQtyLeftVisible()">Qty Left</th>
+      <th style="width:120px">Unit</th>
+      <th style="width:200px">Reason</th>
+      <th style="width:250px" pResizableColumn>Remarks</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-index="rowIndex">
+    <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)" [pSelectableRow]="rowData">
+      <td>
+        {{rowData.itemCode}}
+      </td>
+      <td pEditableColumn class="ui-fluid">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-autoComplete [(ngModel)]="text" [suggestions]="searchedItems" (completeMethod)="searchItems($event)"
+              [appendTo]="searchItemLoc" minLength="3" field="label" (onSelect)="itemChanged($event, rowData)"
+              placeholder="Search item" emptyMessage="Item not found" autofocus="true" required *ngIf="isDetailEditable(rowData)"></p-autoComplete>
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.description}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.description}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn class="text-right">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="text" [(ngModel)]="rowData.qty" (input)="computeSubTotal(rowData)" required *ngIf="isQuantityEditable(rowData)">
+            <span class="pad5" *ngIf="!isQuantityEditable(rowData)">
+              {{rowData.qty}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.qty}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td class="text-right" *ngIf="isQtyOnHandVisible()">
+        {{rowData.qtyOnHand}}
+      </td>
+      <td class="text-right" *ngIf="isQtyReceivedVisible()">
+        {{rowData.qtyReceived}}
+      </td>
+      <td class="text-right" *ngIf="isQtyLeftVisible()">
+        {{rowData.qtyLeft}}
+      </td>
+      <td pEditableColumn>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown [options]="units" [(ngModel)]="rowData.unitId" [style]="{'width':'100%'}" [appendTo]="searchItemLoc"
+              (onChange)="unitChanged($event, rowData)" placeholder="Select Unit" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.unitDescription}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.unitDescription}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown [options]="reasons" [(ngModel)]="rowData.reasonId" [style]="{'width':'100%'}" [appendTo]="searchItemLoc"
+              (onChange)="reasonChanged($event, rowData)" placeholder="Select Reason" required *ngIf="isDetailEditable(rowData)"></p-dropdown>
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.reasonDescription}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.reasonDescription}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="text" [(ngModel)]="rowData.remarks" required *ngIf="isDetailEditable(rowData)">
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.remarks}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.remarks}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <tr>
+      <td>No. of Items : {{ getTotalItem() }}</td>
+      <td></td>
+      <td class="text-right">{{ getTotal('qty') }}</td>
+      <td class="text-right" *ngIf="isQtyOnHandVisible()">{{ getTotal('qtyOnHand') }}</td>
+      <td class="text-right" *ngIf="isQtyReceivedVisible()">{{ getTotal('qtyReceived') }}</td>
+      <td class="text-right" *ngIf="isQtyLeftVisible()">{{ getTotal('qtyLeft') }}</td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </ng-template>
+</p-table>

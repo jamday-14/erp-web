@@ -29,6 +29,8 @@ import { ListItemComponent } from './list-item/list-item.component';
 import { HeaderComponent } from './header/header.component';
 import { ReferenceHeaderComponent } from './reference-header/reference-header.component';
 import { HeaderReturnComponent } from './header-return/header-return.component';
+import { InventoryHeaderComponent } from './inventory-header/inventory-header.component';
+import { InventoryDetailComponent } from './inventory-detail/inventory-detail.component';
 
 @NgModule({
   imports: [
@@ -62,7 +64,9 @@ import { HeaderReturnComponent } from './header-return/header-return.component';
     ListItemComponent,
     HeaderComponent,
     ReferenceHeaderComponent,
-    HeaderReturnComponent
+    HeaderReturnComponent,
+    InventoryHeaderComponent,
+    InventoryDetailComponent
   ],
   exports:[
     ListItemComponent,
@@ -92,7 +96,9 @@ import { HeaderReturnComponent } from './header-return/header-return.component';
     CheckboxModule,
     CalendarModule,
     AutoCompleteModule,
-    BlockUIModule
+    BlockUIModule,
+    InventoryHeaderComponent,
+    InventoryDetailComponent
   ]
 })
 export class ComponentsModule { }

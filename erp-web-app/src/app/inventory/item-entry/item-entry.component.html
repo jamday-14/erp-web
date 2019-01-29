@@ -1,3 +1,22 @@
-<p>
-  item-entry works!
-</p>
+<div>
+  <p-toast></p-toast>
+  <p-blockUI [blocked]="loading"></p-blockUI>
+  <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
+  <app-inventory-header
+    [transactionType]="transactionType"
+    [warehouses]="warehouses"
+    [newItem]="newItem"
+    (submit)="submit($event)"
+    (resetDetails)="initializeDetails($event)"></app-inventory-header>
+  <app-inventory-detail
+    [transactionType]="transactionType"
+    [units]="units"
+    [items]="items"
+    [reasons]="reasons"
+    [details]="details" 
+    [isRowDataEditable]="isRowDataEditable" 
+    [isDeleteRowsEnabled]="isDeleteRowsEnabled"
+    [isRowQuantityEditable]="isRowQuantityEditable"
+    (addRow)="onAddRow($event)" 
+    (deleteRow)="onDeleteRow($event)"></app-inventory-detail>
+</div>

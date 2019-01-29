@@ -1,3 +1,38 @@
-<p>
-  item-entries works!
-</p>
+<div>
+  <p-toast></p-toast>
+  <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
+  <p-menubar [model]="menuItems"></p-menubar>
+  <p-table #dt1 [columns]="cols" [value]="entries" dataKey="systemNo" *ngIf="entries.length > 0" [resizableColumns]="true"
+    [paginator]="true" [rows]="15">
+    <ng-template pTemplate="header" let-columns>
+      <tr>
+        <th *ngFor="let col of columns" [pSortableColumn]="col.field" pResizableColumn>
+          {{col.header}}
+          <p-sortIcon [field]="col.field"></p-sortIcon>
+        </th>
+      </tr>
+      <tr *ngIf="enableFilter">
+        <th *ngFor="let col of columns" [ngSwitch]="col.field" class="ui-fluid">
+          <input pInputText type="text" (input)="dt1.filter($event.target.value, col.field, col.filterMatchMode)"
+            [value]="dt1.filters[col.field]?.value">
+        </th>
+      </tr>
+    </ng-template>
+    <ng-template pTemplate="body" let-rowData>
+      <tr [pSelectableRow]="rowData">
+        <td>
+          <a [routerLink]="['/inventory/item-entry', rowData.id]"> {{rowData.systemNo}} </a>
+        </td>
+        <td>
+          {{rowData.date | date:'longDate'}}
+        </td>
+        <td>
+          {{rowData.warehouse}}
+        </td>
+        <td>
+          {{rowData.refNo}}
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
