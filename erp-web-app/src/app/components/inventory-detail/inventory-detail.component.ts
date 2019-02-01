@@ -164,7 +164,7 @@ export class InventoryDetailComponent implements OnInit {
   }
 
   isQtyOnHandVisible(): boolean {
-    return _.indexOf(["IE", "IR"], this.transactionType) != -1;
+    return _.indexOf(["IE", "IR", "GT"], this.transactionType) != -1;
   }
 
   isQtyReceivedVisible(): boolean {
@@ -172,6 +172,6 @@ export class InventoryDetailComponent implements OnInit {
   }
 
   isQtyLeftVisible() {
-    return _.indexOf(["IE", "IR"], this.transactionType) == -1;
+    return this.transactionType == "GT";
   }
 }

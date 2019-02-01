@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class InventoryService {
-     
+       
   constructor(public api: ApiService) { }
 
   updateItemEntryDetail(request :any) {
@@ -20,7 +20,7 @@ export class InventoryService {
   addItemEntry(request: any) {
     return this.api.post(`inventory/item-entries`, request);
   }
-  deleteItemEntryDetail(id: any, salesOrderId: any): any {
+  deleteItemEntryDetail(id: any, itemEntryId: any): any {
     
   }
   
@@ -60,7 +60,39 @@ export class InventoryService {
   addItemRelease(request: any) {
     return this.api.post(`inventory/item-releases`, request);
   }
-  deleteItemReleaseDetail(id: any, salesOrderId: any): any {
+  deleteItemReleaseDetail(id: any, itemReleaseId: any): any {
+    
+  }
+
+  queryGoodsTransfers(): any {
+    return this.api.get(`inventory/goods-transfers`, null, false);
+  }
+
+  getGoodsTransfer(id: number): any {
+    return this.api.get(`inventory/goods-transfers/${id}`, null, false);
+  }
+
+  queryGoodsTransferDetails(id: number): any {
+    return this.api.get(`inventory/goods-transfers/${id}/details`, null, false);
+  }
+
+  updateGoodsTransferDetail(request :any) {
+    return this.api.post(`inventory/goods-transfers/${request.id}/details/`, request);
+  }
+
+  addGoodsTransferDetail(request: any) {
+    return this.api.post(`inventory/goods-transfers/${request.goodsTransferId}/details`, request);
+  }
+
+  updateGoodsTransfer(request:any){
+    return this.api.post(`inventory/goods-transfers/${request.id}`, request);
+  }
+
+  addGoodsTransfer(request: any) {
+    return this.api.post(`inventory/goods-transfers`, request);
+  }
+
+  deleteGoodsTransferDetail(id: any, goodsTransferId: any): any {
     
   }
 }

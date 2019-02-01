@@ -63,9 +63,15 @@ export class InventoryHeaderComponent implements OnInit {
       date: [new Date(), Validators.required],
       refNo: [''],
       systemNo: [''],
-      description: [''],
-      warehouseId: [null, Validators.required]
+      description: ['']
     });
+
+    if (this.isWarehouseVisible()) {
+      this.form.addControl("warehouseId", new FormControl(null, Validators.required))
+    } else if (this.isWarehousesFromAndToVisible()) {
+      this.form.addControl("fromWarehouseId", new FormControl(null, Validators.required))
+      this.form.addControl("toWarehouseId", new FormControl(null, Validators.required))
+    }
   }
 
   updateForm(headerResponse: any) {
@@ -76,5 +82,24 @@ export class InventoryHeaderComponent implements OnInit {
       description: headerResponse.description,
       warehouseId: headerResponse.warehouseId
     });
+
+    if (this.isWarehouseVisible())
+      this.form.patchValue({
+        warehouseId: headerResponse.warehouseId,
+      });
+    else if (this.isWarehousesFromAndToVisible()) {
+      this.form.patchValue({
+        fromWarehouseId: headerResponse.fromWarehouseId,
+        toWarehouseId: headerResponse.toWarehouseId
+      });
+    }
+  }
+
+  isWarehousesFromAndToVisible(): boolean {
+    return _.indexOf(["GT"], this.transactionType) != -1;
+  }
+
+  isWarehouseVisible(): boolean {
+    return _.indexOf(["IE", "IR", "GTR"], this.transactionType) != -1;
   }
 }

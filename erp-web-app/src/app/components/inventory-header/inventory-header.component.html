@@ -22,13 +22,29 @@
           <input pInputText id="systemNo" formControlName="systemNo" readonly placeholder="system generated" />
         </div>
       </div>
-      <div class="p-grid">
+      <div class="p-grid" *ngIf="isWarehouseVisible()">
         <div class="p-col-1 text-right">
-          <label for="termId">Warehouse*</label>
+          <label for="warehouseId">Warehouse*</label>
         </div>
         <div class="p-col-2">
           <p-dropdown [options]="warehouses" id="warehouseId" [style]="{width: '100%'}" formControlName="warehouseId"
             placeholder="Select warehouse"></p-dropdown>
+        </div>
+      </div>
+      <div class="p-grid" *ngIf="isWarehousesFromAndToVisible()">
+        <div class="p-col-1 text-right">
+          <label for="fromWarehouseId">From Warehouse*</label>
+        </div>
+        <div class="p-col-2">
+          <p-dropdown [options]="warehouses" id="fromWarehouseId" [style]="{width: '100%'}" formControlName="fromWarehouseId"
+            placeholder="Select source warehouse"></p-dropdown>
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="toWarehouseId">To Warehouse*</label>
+        </div>
+        <div class="p-col-2">
+          <p-dropdown [options]="warehouses" id="toWarehouseId" [style]="{width: '100%'}" formControlName="toWarehouseId"
+            placeholder="Select destination warehouse"></p-dropdown>
         </div>
       </div>
       <div class="p-grid">

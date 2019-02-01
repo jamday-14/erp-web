@@ -67,8 +67,8 @@ export class AppComponent {
         items: [
           { label: 'Item Entries', routerLink: ['/inventory/item-entries'] },
           { label: 'Item Releases', routerLink: ['/inventory/item-releases'] },
-          { label: 'Goods Transfer', routerLink: ['/inventory/goods-transfer'] },
-          { label: 'Goods Transfer Received', routerLink: ['/inventory/goods-transfer-received'] }
+          { label: 'Goods Transfer', routerLink: ['/inventory/goods-transfers'] },
+          { label: 'Goods Transfer Received', routerLink: ['/inventory/goods-transfer-receipts'] }
         ]
       },
       {
