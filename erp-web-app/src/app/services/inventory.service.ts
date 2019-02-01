@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class InventoryService {
-   
+     
   constructor(public api: ApiService) { }
 
   updateItemEntryDetail(request :any) {
@@ -34,5 +34,33 @@ export class InventoryService {
 
   queryItemEntryDetails(id: number): any {
     return this.api.get(`inventory/item-entries/${id}/details`, null, false);
+  }
+
+  queryItemReleases(): any {
+    return this.api.get(`inventory/item-releases`, null, false);
+  }
+
+  getItemRelease(id: number): any {
+    return this.api.get(`inventory/item-releases/${id}`, null, false);
+  }
+
+  queryItemReleaseDetails(id: number): any {
+    return this.api.get(`inventory/item-releases/${id}/details`, null, false);
+  }
+
+  updateItemReleaseDetail(request :any) {
+    return this.api.post(`inventory/item-releases/${request.id}/details/`, request);
+  }
+  addItemReleaseDetail(warehouseId: number, request: any) {
+    return this.api.post(`inventory/item-releases/warehouse/${warehouseId}/details`, request);
+  }
+  updateItemRelease(request:any){
+    return this.api.post(`inventory/item-releases/${request.id}`, request);
+  }
+  addItemRelease(request: any) {
+    return this.api.post(`inventory/item-releases`, request);
+  }
+  deleteItemReleaseDetail(id: any, salesOrderId: any): any {
+    
   }
 }

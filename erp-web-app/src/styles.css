@@ -1,16 +1,16 @@
-
 /* You can add global styles to this file, and also import other style files */
-body{
+
+body {
     font-family: "Open Sans", "Helvetica Neue", "sans-serif";
     font-size: 12px;
     background-image: url(assets/images/background.jpg)
 }
 
-body .ui-inputtext{
+body .ui-inputtext {
     font-size: 12px;
 }
 
-body .ui-widget{
+body .ui-widget {
     font-size: 12px;
 }
 
@@ -20,11 +20,11 @@ body .ui-progressbar {
     background: none !important;
 }
 
-body .ui-panelmenu .ui-panelmenu-header > a .ui-panelmenu-icon {
- display: none !important;
+body .ui-panelmenu .ui-panelmenu-header>a .ui-panelmenu-icon {
+    display: none !important;
 }
 
-body .ui-table .ui-editable-column input{
+body .ui-table .ui-editable-column input {
     font-size: 12px;
 }
 
@@ -33,7 +33,7 @@ body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link.ui-state
     color: #FFFFFF !important;
 }
 
-body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link{
+body .ui-panelmenu .ui-panelmenu-content .ui-menuitem .ui-menuitem-link {
     font-size: 14px;
     padding-left: 40px !important;
 }
@@ -42,52 +42,52 @@ body .ui-panelmenu .ui-panelmenu-content .ui-corner-all {
     border-radius: 0px !important;
 }
 
-.midTable.ui-table{
+.midTable.ui-table {
     width: 60%;
     margin-bottom: 10px;
 }
 
-body .ui-table .ui-table-tbody > tr > td {
+body .ui-table .ui-table-tbody>tr>td {
     height: 30px;
 }
 
-body .ui-table .ui-table-thead > tr > th {
+body .ui-table .ui-table-thead>tr>th {
     color: #FFF;
     background-color: #007AD9;
 }
 
-body .ui-table .ui-table-tfoot > tr > td {
+body .ui-table .ui-table-tfoot>tr>td {
     color: #FFF;
     background-color: #005b9f;
 }
 
-body .ui-table .ui-table-tbody > tr.ui-state-highlight {
+body .ui-table .ui-table-tbody>tr.ui-state-highlight {
     background-color: #DDF0FF;
     color: black;
     font-weight: bold;
 }
 
-body .ui-table .ui-table-tbody > tr:nth-child(even).ui-state-highlight {
+body .ui-table .ui-table-tbody>tr:nth-child(even).ui-state-highlight {
     background-color: #DDF0FF;
     color: black;
     font-weight: bold;
 }
 
-body .ui-table .ui-table-tbody > tr:nth-child(odd).ui-state-highlight {
+body .ui-table .ui-table-tbody>tr:nth-child(odd).ui-state-highlight {
     background-color: #DDF0FF;
     color: black;
     font-weight: bold;
-} 
-
+}
 
 .settings.ui-menubar {
     width: 210px;
     float: right;
 }
 
-.text-right{
+.text-right {
     text-align: right;
 }
+
 .text-center {
     text-align: center;
 }

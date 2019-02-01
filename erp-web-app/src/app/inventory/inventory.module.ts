@@ -17,7 +17,7 @@ export const routes: Routes = [
       { path: 'item-entries', component: ItemEntriesComponent },
       { path: 'item-entry/:id', component: ItemEntryComponent },
       { path: 'item-releases', component: ItemReleasesComponent },
-      { path: 'item-release', component: ItemReleaseComponent }
+      { path: 'item-release/:id', component: ItemReleaseComponent }
     ]
   }
 ];
