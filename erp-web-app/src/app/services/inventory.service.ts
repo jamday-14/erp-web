@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class InventoryService {
-       
+         
   constructor(public api: ApiService) { }
 
   updateItemEntryDetail(request :any) {
@@ -95,4 +95,37 @@ export class InventoryService {
   deleteGoodsTransferDetail(id: any, goodsTransferId: any): any {
     
   }
+
+  queryGoodsTransferReceipts(): any {
+    return this.api.get(`inventory/goods-transfer-receives`, null, false);
+  }
+
+  getGoodsTransferReceipt(id: number): any {
+    return this.api.get(`inventory/goods-transfer-receives/${id}`, null, false);
+  }
+
+  queryGoodsTransferReceiptDetails(id: number): any {
+    return this.api.get(`inventory/goods-transfer-receives/${id}/details`, null, false);
+  }
+
+  updateGoodsTransferReceiptDetail(request :any) {
+    return this.api.post(`inventory/goods-transfer-receives/${request.id}/details/`, request);
+  }
+
+  addGoodsTransferReceiptDetail(request: any) {
+    return this.api.post(`inventory/goods-transfer-receives/${request.goodTransferReceivedId}/details`, request);
+  }
+
+  updateGoodsTransferReceipt(request:any){
+    return this.api.post(`inventory/goods-transfer-receives/${request.id}`, request);
+  }
+
+  addGoodsTransferReceipt(request: any) {
+    return this.api.post(`inventory/goods-transfer-receives`, request);
+  }
+
+  deleteGoodsTransferReceiptDetail(id: any, goodTransferReceivedId: any): any {
+    
+  }
+
 }

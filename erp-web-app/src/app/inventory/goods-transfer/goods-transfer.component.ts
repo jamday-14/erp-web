@@ -133,7 +133,8 @@ export class GoodsTransferComponent implements AfterViewInit {
         var reason = this.inventoryDetailComponent.findReason(record.reasonId);
 
         this.details.push({
-          index: _.size(this.details), id: record.id, goodsTransferId: record.goodsTransferId, qtyOnHand: record.qtyOnHand,
+          index: _.size(this.details), id: record.id, goodsTransferId: record.goodsTransferId,
+          qtyOnHand: record.qtyOnHand, qtyReceived: record.qtyReceived, qtyLeft: record.qtyLeft,
           itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
           remarks: record.remarks, reasonId: reason.value, reasonDescription: reason.label
         });
@@ -146,7 +147,8 @@ export class GoodsTransferComponent implements AfterViewInit {
   private addTableRow() {
     this.details.unshift({
 
-      index: _.size(this.details), id: null, goodsTransferId: null, qtyOnHand: 0,
+      index: _.size(this.details), id: null, goodsTransferId: null,
+      qtyOnHand: 0, qtyReceived: null, qtyLeft: null,
       itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
       remarks: '', reasonId: null, reasonDescription: ''
     });
