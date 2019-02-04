@@ -171,7 +171,11 @@ export class InventoryDetailComponent implements OnInit {
     return this.transactionType == "GT";
   }
 
-  isQtyLeftVisible() {
+  isQtyLeftVisible(): boolean {
     return this.transactionType == "GT";
+  }
+
+  isRefNoVisible(): boolean {
+    return this.transactionType == "GTR";
   }
 }

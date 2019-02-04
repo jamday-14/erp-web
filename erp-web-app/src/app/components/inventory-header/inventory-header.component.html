@@ -28,7 +28,7 @@
         </div>
         <div class="p-col-2">
           <p-dropdown [options]="warehouses" id="warehouseId" [style]="{width: '100%'}" formControlName="warehouseId"
-            placeholder="Select warehouse"></p-dropdown>
+            placeholder="Select warehouse" (onChange)="warehouseChanged($event)"></p-dropdown>
         </div>
       </div>
       <div class="p-grid" *ngIf="isWarehousesFromAndToVisible()">

@@ -7,7 +7,11 @@
     [warehouses]="warehouses"
     [newItem]="newItem"
     (submit)="submit($event)"
-    (resetDetails)="initializeDetails($event)"></app-inventory-header>
+    (resetDetails)="resetHeaderDetails($event)"
+    (onWarehouseChanged)="onWarehouseChanged($event)"></app-inventory-header>
+  <app-reference-header
+    [orders]="referenceHeaders"
+    (initializeOrderDetails)="initializeDetails($event)"></app-reference-header>
   <app-inventory-detail
     [transactionType]="transactionType"
     [units]="units"

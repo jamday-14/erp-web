@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class InventoryService {
-         
+           
   constructor(public api: ApiService) { }
 
   updateItemEntryDetail(request :any) {
@@ -126,6 +126,14 @@ export class InventoryService {
 
   deleteGoodsTransferReceiptDetail(id: any, goodTransferReceivedId: any): any {
     
+  }
+
+  queryGoodsTransferDetailPendingReceipt(id: any): any {
+    return this.api.get(`inventory/goods-transfers/${id}/details/pending`, null, false);
+  }
+
+  queryGoodsTransfersByWarehouse(warehouseId: number): any {
+    return this.api.get(`inventory/goods-transfers/${warehouseId}/pending`, null, false);
   }
 
 }

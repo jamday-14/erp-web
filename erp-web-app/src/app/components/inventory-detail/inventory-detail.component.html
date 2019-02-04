@@ -9,6 +9,7 @@
       <th style="width:70px" *ngIf="isQtyReceivedVisible()">Qty Received</th>
       <th style="width:70px" *ngIf="isQtyLeftVisible()">Qty Left</th>
       <th style="width:120px">Unit</th>
+      <th style="width:150px" pResizableColumn *ngIf="isRefNoVisible()">Reference No</th>
       <th style="width:200px">Reason</th>
       <th style="width:250px" pResizableColumn>Remarks</th>
     </tr>
@@ -69,6 +70,9 @@
           </ng-template>
         </p-cellEditor>
       </td>
+      <td *ngIf="isRefNoVisible()">
+        {{rowData.refNo}}
+      </td>
       <td pEditableColumn>
         <p-cellEditor>
           <ng-template pTemplate="input">
@@ -107,6 +111,7 @@
       <td class="text-right" *ngIf="isQtyReceivedVisible()">{{ getTotal('qtyReceived') }}</td>
       <td class="text-right" *ngIf="isQtyLeftVisible()">{{ getTotal('qtyLeft') }}</td>
       <td></td>
+      <td *ngIf="isRefNoVisible()"></td>
       <td></td>
       <td></td>
     </tr>

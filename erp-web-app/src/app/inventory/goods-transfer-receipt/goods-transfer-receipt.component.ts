@@ -8,6 +8,7 @@ import { AppComponent } from 'src/app/app.component';
 import { InventoryDetailComponent } from 'src/app/components/inventory-detail/inventory-detail.component';
 import { InventoryHeaderComponent } from 'src/app/components/inventory-header/inventory-header.component';
 import { InventoryService } from 'src/app/services/inventory.service';
+import { CommonService } from 'src/app/services/common.service';
 
 @Component({
   selector: 'app-goods-transfer-receipt',
@@ -33,12 +34,14 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
   units: Array<any>;
   items: Array<any>;
   details: Array<any>;
+  referenceHeaders: Array<any>
 
   constructor(
     private maintenanceService: MaintenanceService,
     private inventoryService: InventoryService,
     private router: Router,
     private messaging: MessagingService,
+    private common: CommonService,
     private app: AppComponent,
     private route: ActivatedRoute
   ) {
@@ -47,6 +50,7 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
     this.reasons = [];
     this.warehouses = [];
     this.details = [];
+    this.referenceHeaders = [];
   }
 
   ngOnInit() {
@@ -75,13 +79,14 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
 
         this.inventoryHeaderComponent.updateForm(headerResponse);
 
-        this.initializeDetails(detailResponse);
+        this.initializeReferenceHeader(headerResponse.toWarehouseId);
+        this.initializeGoodsTransferReceivedDetails(detailResponse);
 
         this.loading = false;
 
       }, (err) => { });
     } else {
-      this.initializeDetails(null);
+      this.initializeGoodsTransferReceivedDetails(null);
     }
   }
 
@@ -121,26 +126,70 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
       }, (err) => { this.loading = false; });
   }
 
-  initializeDetails(arr: Array<any>): any {
+  private resetHeadersAndDetails() {
+    this.referenceHeaders = [];
     this.details = [];
+  }
 
-    if (arr == null)
-      this.addTableRow();
-    else {
-      _.forEach(arr, (record => {
-        var item = this.inventoryDetailComponent.findItem(record.itemId);
-        var unit = this.inventoryDetailComponent.findUnit(record.unitId);
-        var reason = this.inventoryDetailComponent.findReason(record.reasonId);
+  onWarehouseChanged(warehouseId) {
+    this.resetHeadersAndDetails();
+    this.initializeReferenceHeader(warehouseId);
+  }
 
-        this.details.push({
-          index: _.size(this.details), id: record.id, goodTransferReceivedId: record.goodTransferReceivedId, qtyOnHand: record.qtyOnHand,
-          itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
-          remarks: record.remarks, reasonId: reason.value, reasonDescription: reason.label
+  resetHeaderDetails() {
+    this.resetHeadersAndDetails();
+    this.initializeGoodsTransferReceivedDetails(null);
+  }
+
+  initializeGoodsTransferReceivedDetails(arr: Array<any>): any {
+    _.forEach(arr, (record => {
+      var item = this.inventoryDetailComponent.findItem(record.itemId);
+      var unit = this.inventoryDetailComponent.findUnit(record.unitId);
+      var reason = this.inventoryDetailComponent.findReason(record.reasonId);
+
+      this.details.push({
+        index: _.size(this.details), id: record.id, goodTransferReceivedId: record.goodTransferReceivedId, qtyOnHand: record.qtyOnHand,
+        itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+        remarks: record.remarks, reasonId: reason.value, reasonDescription: reason.label,
+        refNo: record.gtrefNo, gtid: record.gtid, gtdetailId: record.gtdetailId
+      });
+    }));
+
+    this.inventoryDetailComponent.ToggleDetailMenu();
+  }
+
+  initializeDetails(rowData): any {
+    var records = [];
+    if (rowData != null) {
+      this.loading = true;
+      this.inventoryService.queryGoodsTransferDetailPendingReceipt(rowData.id).subscribe(
+        (resp) => {
+          records = resp;
+          _.forEach(records, (record => {
+            var item = this.inventoryDetailComponent.findItem(record.itemId);
+            var unit = this.inventoryDetailComponent.findUnit(record.unitId);
+            var reason = this.inventoryDetailComponent.findReason(record.reasonId);
+
+            record.qty -= record.qtyReceived;
+
+            this.details.push({
+              index: _.size(this.details), id: null, goodTransferReceivedId: null, qtyOnHand: null,
+              itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit.value, unitDescription: unit.label,
+              remarks: record.remarks, reasonId: reason != null ? reason.value : null, reasonDescription: reason != null ? reason.label : '',
+              refNo: rowData.systemNo, gtid: record.goodsTransferId, gtdetailId: record.id
+            });
+
+          }));
+
+          this.inventoryDetailComponent.ToggleDetailMenu();
+          this.loading = false;
+        },
+        (err) => {
+          this.loading = false;
         });
-
-        this.inventoryDetailComponent.ToggleDetailMenu();
-      }));
     }
+    else
+      this.addTableRow();
   }
 
   private addTableRow() {
@@ -148,11 +197,34 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
 
       index: _.size(this.details), id: null, goodTransferReceivedId: null, qtyOnHand: 0,
       itemId: null, itemCode: null, description: '', qty: null, unitId: null, unitDescription: null,
-      remarks: '', reasonId: null, reasonDescription: ''
+      remarks: '', reasonId: null, reasonDescription: '',
+      refNo: null, gtid: null, gtdetailId: null
     });
     this.inventoryDetailComponent.ToggleDetailMenu();
     this.inventoryDetailComponent.selectedRows = [];
     this.inventoryDetailComponent.selectedRows.push(_.first(this.details));
+  }
+
+  private initializeReferenceHeader(warehouseId: number): any {
+    this.loading = true;
+    var records = [];
+    this.inventoryService.queryGoodsTransfersByWarehouse(warehouseId).subscribe((resp) => {
+      records = resp;
+      _.forEach(records, (record => {
+        this.referenceHeaders.push({
+          id: record.id, date: this.common.toLocaleDate(record.date),
+          systemNo: record.systemNo, refNo: record.refNo, closed: record.closed, isLoaded: false
+        });
+      }))
+
+      if (_.size(this.referenceHeaders) == 0 && this.newItem) {
+        this.initializeGoodsTransferReceivedDetails(null);
+      }
+
+      this.loading = false;
+    }, (err) => {
+      this.loading = false;
+    });
   }
 
   onAddRow(details: Array<any>) {
@@ -260,7 +332,10 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
                 qty: detail.qty,
                 unitId: detail.unitId,
                 reasonId: detail.reasonId,
-                remarks: detail.remarks
+                remarks: detail.remarks,
+                gtid: detail.gtid,
+                gtdetailId: detail.gtdetailId,
+                gtrefNo: detail.refNo
               })
           );
         else {
@@ -272,7 +347,10 @@ export class GoodsTransferReceiptComponent implements AfterViewInit {
               qty: detail.qty,
               unitId: detail.unitId,
               reasonId: detail.reasonId,
-              remarks: detail.remarks
+              remarks: detail.remarks,
+              gtid: detail.gtid,
+              gtdetailId: detail.gtdetailId,
+              gtrefNo: detail.refNo
             })
           );
         }

@@ -17,6 +17,7 @@ export class InventoryHeaderComponent implements OnInit {
   @Input() newItem: boolean;
   @Output() submit = new EventEmitter<Array<any>>();
   @Output() resetDetails = new EventEmitter<Array<any>>();
+  @Output() onWarehouseChanged = new EventEmitter<any>();
 
   form: FormGroup;
   menuItems: MenuItem[];
@@ -101,5 +102,12 @@ export class InventoryHeaderComponent implements OnInit {
 
   isWarehouseVisible(): boolean {
     return _.indexOf(["IE", "IR", "GTR"], this.transactionType) != -1;
+  }
+
+  warehouseChanged(event) {
+    if (event.value) {
+      
+      this.onWarehouseChanged.emit(event.value);
+    }
   }
 }
