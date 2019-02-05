@@ -18,13 +18,15 @@ import { RequestCacheWithMap } from './services/request-cache.service';
 import { CachingInterceptor } from './services/caching-interceptor.service';
 import { DatePipe } from '@angular/common';
 
+
 const appRoutes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'maintenance', loadChildren:'./maintenance/maintenance.module#MaintenanceModule' },
   { path: 'sales', loadChildren:'./sales/sales.module#SalesModule' },
   { path: 'purchasing', loadChildren:'./purchasing/purchasing.module#PurchasingModule' },
-  { path: 'inventory', loadChildren:'./inventory/inventory.module#InventoryModule' }
+  { path: 'inventory', loadChildren:'./inventory/inventory.module#InventoryModule' },
+  { path: 'accounting', loadChildren:'./accounting/accounting.module#AccountingModule' },
   //{ path: '**', component: PageNotFoundComponent }
 ];
 

@@ -73,13 +73,27 @@ export class AppComponent {
       },
       {
         label: 'Accounting',
+        routerLink: ['/accounting'],
         icon: 'pi pi-money-bill',
         items: [
-          { label: 'Chart of Accounts' },
-          { label: 'Subsidiary' },
-          { label: 'Journal Voucher' },
-          { label: 'Check Voucher' },
-          { label: 'Cash Receipt Voucher' }
+          { label: 'Bills Payment', routerLink: ['/accounting/bills-payments'] },
+          { label: 'Sales Invoice Payment', routerLink: ['/accounting/sales-invoice-payments'] },
+          {
+            label: 'Chart of Accounts',
+            routerLink: ['/accounting/chart-of-accounts'],
+            items: [
+              { label: 'Assets', routerLink: ['/accounting/chart-of-accounts/assets'] },
+              { label: 'Liabilities', routerLink: ['/accounting/chart-of-accounts/liabilities'] },
+              { label: 'Equities', routerLink: ['/accounting/chart-of-accounts/equities'] },
+              { label: 'Income', routerLink: ['/accounting/chart-of-accounts/income'] },
+              { label: 'Expenses', routerLink: ['/accounting/chart-of-accounts/expenses'] },
+            ]
+          },
+
+          { label: 'Journal Voucher', routerLink: ['/accounting/journal-vouchers'] },
+          { label: 'Check Voucher', routerLink: ['/accounting/check-vouchers'] },
+          { label: 'Cash Voucher', routerLink: ['/accounting/cash-vouchers'] },
+          { label: 'Cash Receipt Voucher', routerLink: ['/accounting/cash-receipt-vouchers'] }
         ]
       },
       {
