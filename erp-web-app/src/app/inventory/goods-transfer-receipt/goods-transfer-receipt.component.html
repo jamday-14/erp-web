@@ -6,8 +6,8 @@
     [transactionType]="transactionType"
     [warehouses]="warehouses"
     [newItem]="newItem"
-    (submit)="submit($event)"
-    (resetDetails)="resetHeaderDetails($event)"
+    (submit)="submit()"
+    (resetDetails)="resetHeaderDetails()"
     (onWarehouseChanged)="onWarehouseChanged($event)"></app-inventory-header>
   <app-reference-header
     [orders]="referenceHeaders"
