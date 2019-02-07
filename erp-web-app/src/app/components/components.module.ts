@@ -23,6 +23,7 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { CalendarModule } from 'primeng/calendar';
 import { AutoCompleteModule } from 'primeng/autocomplete';
 import { BlockUIModule } from 'primeng/blockui';
+import { TabViewModule } from 'primeng/tabview';
 import { HttpClientModule } from '@angular/common/http';
 
 import { ListItemComponent } from './list-item/list-item.component';
@@ -31,6 +32,8 @@ import { ReferenceHeaderComponent } from './reference-header/reference-header.co
 import { HeaderReturnComponent } from './header-return/header-return.component';
 import { InventoryHeaderComponent } from './inventory-header/inventory-header.component';
 import { InventoryDetailComponent } from './inventory-detail/inventory-detail.component';
+import { PaymentHeaderComponent } from './payment-header/payment-header.component';
+import { PaymentDetailComponent } from './payment-detail/payment-detail.component';
 
 @NgModule({
   imports: [
@@ -58,7 +61,8 @@ import { InventoryDetailComponent } from './inventory-detail/inventory-detail.co
     CheckboxModule,
     CalendarModule,
     AutoCompleteModule,
-    BlockUIModule
+    BlockUIModule,
+    TabViewModule
   ],
   declarations: [
     ListItemComponent,
@@ -66,7 +70,9 @@ import { InventoryDetailComponent } from './inventory-detail/inventory-detail.co
     ReferenceHeaderComponent,
     HeaderReturnComponent,
     InventoryHeaderComponent,
-    InventoryDetailComponent
+    InventoryDetailComponent,
+    PaymentHeaderComponent,
+    PaymentDetailComponent
   ],
   exports:[
     ListItemComponent,
@@ -97,8 +103,11 @@ import { InventoryDetailComponent } from './inventory-detail/inventory-detail.co
     CalendarModule,
     AutoCompleteModule,
     BlockUIModule,
+    TabViewModule,
     InventoryHeaderComponent,
-    InventoryDetailComponent
+    InventoryDetailComponent,
+    PaymentHeaderComponent,
+    PaymentDetailComponent
   ]
 })
 export class ComponentsModule { }

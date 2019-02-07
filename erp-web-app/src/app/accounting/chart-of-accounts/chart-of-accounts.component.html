@@ -1,1 +1,89 @@
-<router-outlet></router-outlet>
+<!-- <router-outlet></router-outlet> -->
+<div>
+    <p-toast></p-toast>
+    <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
+    <p-menubar [model]="menuItems"></p-menubar>
+    <p-tabView>
+        <p-tabPanel header="Assets">
+            <p-table [columns]="cols" [value]="accounts" [paginator]="true" [rows]="15">
+                <ng-template pTemplate="header" let-columns>
+                    <tr>
+                        <th *ngFor="let column of columns">
+                            {{column.header}}
+                        </th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-rowData let-columns="columns">
+                    <tr>
+                        <td *ngFor="let column of columns">
+                            {{rowData[column.field]}}
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </p-tabPanel>
+        <p-tabPanel header="Liabilities">
+            Liabilities
+        </p-tabPanel>
+        <p-tabPanel header="Equities">
+            Equities
+        </p-tabPanel>
+        <p-tabPanel header="Income">
+            Income
+        </p-tabPanel>
+        <p-tabPanel header="Expenses">
+            Expenses
+        </p-tabPanel>
+    </p-tabView>
+    <form *ngIf="form" [formGroup]="form" (ngSubmit)="createItem()">
+        <p-dialog header="Chart of Account Form" [(visible)]="displayDialog" [responsive]="true" showEffect="fade"
+            [modal]="true" [style]="{width:'800px'}">
+            <div class="p-grid ui-fluid">
+                <div class="p-col-12 p-md-6 p-lg-12">
+                    <div class="p-grid">
+                        <div class="p-col-3 text-right">
+                            <label for="code">Account Type*</label>
+                        </div>
+                        <div class="p-col-7">
+                            <p-dropdown [options]="accountTypes" formControlName="accountTypeId" placeholder="Select account type"
+                                optionLabel="optionLabel" [showClear]="bool" [style]="{width: '100%'}"></p-dropdown>
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-3 text-right">
+                            <label for="code">Code*</label>
+                        </div>
+                        <div class="p-col-7">
+                            <input pInputText id="code" formControlName="code" />
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-3 text-right">
+                            <label for="refNo">Name</label>
+                        </div>
+                        <div class="p-col-7">
+                            <input pInputText id="name" formControlName="name" />
+                        </div>
+                    </div>
+                    <div class="p-grid">
+                        <div class="p-col-3 text-right">
+                            <p-checkbox binary="true" label="Active" formControlName="active"></p-checkbox>
+                        </div>
+                        <div class="p-col-3 text-right">
+                            <p-checkbox binary="true" label="Postable" formControlName="isPostable"></p-checkbox>
+                        </div>
+                        <div class="p-col-3 text-right">
+                            <p-checkbox binary="true" label="Bank Account" formControlName="isBankAccount"></p-checkbox>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <p-footer>
+                <div class="ui-dialog-buttonpane ui-helper-clearfix">
+                    <button type="button" pButton icon="fa fa-close" label="Close" (click)="toggleDialog(false)"></button>
+                    <button type="submit" pButton icon="fa fa-check" label="Save"></button>
+                </div>
+            </p-footer>
+        </p-dialog>
+    </form>
+</div>

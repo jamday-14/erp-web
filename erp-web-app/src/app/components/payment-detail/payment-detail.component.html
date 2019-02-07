@@ -1,0 +1,81 @@
+<p-menubar [model]="detailMenuItems"></p-menubar>
+<p-table [value]="details" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pResizableColumn style="width:120px">Bill Ref No.</th>
+      <th pResizableColumn style="width:120px">Bill System No</th>
+      <th style="width:100px">Amount Applied</th>
+      <th style="width:100px">Amount Paid After Payment</th>
+      <th style="width:100px">Amount Due After Payment</th>
+      <th style="width:100px">Bill Running Amount</th>
+      <th style="width:100px">Bill Running Amount Due</th>
+      <th style="width:100px">Running Amount Paid</th>
+      <th style="width:250px" pResizableColumn>Remarks</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-index="rowIndex">
+    <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)" [pSelectableRow]="rowData">
+      <td>
+        {{rowData.billRefNo}}
+      </td>
+      <td>
+        {{rowData.billSystemNo}}
+      </td>
+      <td pEditableColumn class="text-right">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="text" [(ngModel)]="rowData.amountApplied" (input)="computeSubTotal(rowData)"
+              required>
+            <span class="pad5">
+              {{rowData.amountApplied}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.amountApplied}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td>
+        {{rowData.amountPaidAfterPayment}}
+      </td>
+      <td>
+        {{rowData.amountDueAfterPayment}}
+      </td>
+      <td>
+        {{rowData.billRunningAmount}}
+      </td>
+      <td>
+        {{rowData.billRunningAmountDue}}
+      </td>
+      <td>
+        {{rowData.runningAmountPaid}}
+      </td>
+      <td pEditableColumn>
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <input pInputText type="text" [(ngModel)]="rowData.remarks" required *ngIf="isDetailEditable(rowData)">
+            <span class="pad5" *ngIf="!isDetailEditable(rowData)">
+              {{rowData.remarks}}
+            </span>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.remarks}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td></td>
+    </tr>
+  </ng-template>
+</p-table>

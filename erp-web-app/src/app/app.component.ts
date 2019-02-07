@@ -80,14 +80,7 @@ export class AppComponent {
           { label: 'Sales Invoice Payment', routerLink: ['/accounting/sales-invoice-payments'] },
           {
             label: 'Chart of Accounts',
-            routerLink: ['/accounting/chart-of-accounts'],
-            items: [
-              { label: 'Assets', routerLink: ['/accounting/chart-of-accounts/assets'] },
-              { label: 'Liabilities', routerLink: ['/accounting/chart-of-accounts/liabilities'] },
-              { label: 'Equities', routerLink: ['/accounting/chart-of-accounts/equities'] },
-              { label: 'Income', routerLink: ['/accounting/chart-of-accounts/income'] },
-              { label: 'Expenses', routerLink: ['/accounting/chart-of-accounts/expenses'] },
-            ]
+            routerLink: ['/accounting/chart-of-accounts']
           },
 
           { label: 'Journal Voucher', routerLink: ['/accounting/journal-vouchers'] },

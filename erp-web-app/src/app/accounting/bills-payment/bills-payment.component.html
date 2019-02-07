@@ -1,3 +1,23 @@
-<p>
-  bills-payment works!
-</p>
+<div>
+  <p-toast></p-toast>
+  <p-blockUI [blocked]="loading"></p-blockUI>
+  <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
+  <app-payment-header
+      [transactionType]="transactionType"
+      [people]="customers"
+      [modeOfPayments]="modeOfPayments"
+      [newItem]="newItem"
+      (submit)="submit()"
+      (onPeopleChanged)="onCustomerChanged($event)"></app-payment-header>
+</div>
+<app-payment-detail
+    [transactionType]="transactionType"
+    [units]="units"
+    [items]="items"
+    [reasons]="warehouses"
+    [details]="details" 
+    [isRowDataEditable]="isRowDataEditable" 
+    [isDeleteRowsEnabled]="isDeleteRowsEnabled"
+    [isRowQuantityEditable]="isRowQuantityEditable"
+    (addRow)="onAddRow($event)" 
+    (deleteRow)="onDeleteRow($event)"></app-payment-detail>

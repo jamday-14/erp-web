@@ -1,0 +1,73 @@
+<p-menubar [model]="menuItems"></p-menubar>
+<form *ngIf="form" [formGroup]="form">
+  <div class="p-grid ui-fluid entry-header">
+    <div class="p-col-12 p-md-6 p-lg-12">
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="date">Date*</label>
+        </div>
+        <div class="p-col-2">
+          <p-calendar formControlName="date" [showIcon]="true" [monthNavigator]="true" [yearNavigator]="true" yearRange="1930:2030"></p-calendar>
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="refNo">Reference No.</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="refNo" formControlName="refNo" />
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="systemNo">System No.*</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="systemNo" formControlName="systemNo" readonly placeholder="system generated" />
+        </div>
+      </div>
+      <div class="p-grid" *ngIf="isPeopleACustomer()">
+        <div class="p-col-1 text-right">
+          <label for="customerId">Customer*</label>
+        </div>
+        <div class="p-col-5">
+          <p-dropdown [options]="people" id="customerId" [style]="{width: '100%'}" formControlName="customerId"
+            placeholder="Select customer" filter="true" (onChange)="peopleChanged($event)" [readonly]="!newItem"></p-dropdown>
+        </div>
+      </div>
+      <div class="p-grid" *ngIf="!isPeopleACustomer()">
+        <div class="p-col-1 text-right">
+          <label for="customerId">Vendor*</label>
+        </div>
+        <div class="p-col-5">
+          <p-dropdown [options]="people" id="vendorId" [style]="{width: '100%'}" formControlName="vendorId"
+              placeholder="Select vendor" filter="true" (onChange)="peopleChanged($event)" [readonly]="!newItem"></p-dropdown>
+        </div>
+      </div>
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="mopid">Mode of Payment</label>
+        </div>
+        <div class="p-col-2">
+          <p-dropdown [options]="modeOfPayments" id="mopid" [style]="{width: '100%'}" formControlName="mopid" placeholder="Select mode of payment"></p-dropdown>
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="amount">Amount Collected</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="amount" type="number" formControlName="amount" />
+        </div>
+      </div>
+      <div class="p-grid">
+        <div class="p-col-1 text-right">
+          <label for="date">Check Date</label>
+        </div>
+        <div class="p-col-2">
+          <p-calendar formControlName="checkDate" [showIcon]="true" [monthNavigator]="true" [yearNavigator]="true" yearRange="1930:2030"></p-calendar>
+        </div>
+        <div class="p-col-1 text-right">
+          <label for="checkRefNo">Check Ref. No.</label>
+        </div>
+        <div class="p-col-2">
+          <input pInputText id="checkRefNo" formControlName="checkRefNo" />
+        </div>
+      </div>
+    </div>
+  </div>
+</form>

@@ -11,6 +11,8 @@ import { BillsPaymentComponent } from './bills-payment/bills-payment.component';
 import { SalesInvoicePaymentsComponent } from './sales-invoice-payments/sales-invoice-payments.component';
 import { SalesInvoicePaymentComponent } from './sales-invoice-payment/sales-invoice-payment.component';
 import { AccountingComponent } from './accounting.component';
+import { ComponentsModule } from '../components/components.module';
+import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 
 
 export const routes: Routes = [
@@ -27,7 +29,8 @@ export const routes: Routes = [
       { path: 'check-vouchers', component: CheckVouchersComponent },
       { path: 'cash-vouchers', component: CashVouchersComponent },
       { path: 'cash-receipt-vouchers', component: CashReceiptVouchersComponent },
-      { path: 'chart-of-accounts', loadChildren:'./chart-of-accounts/chart-of-accounts.module#ChartOfAccountsModule' }
+      { path: 'chart-of-accounts', component: ChartOfAccountsComponent },
+      //{ path: 'chart-of-accounts', loadChildren:'./chart-of-accounts/chart-of-accounts.module#ChartOfAccountsModule' }
     ]
   }
 ];
@@ -35,6 +38,7 @@ export const routes: Routes = [
 @NgModule({
   imports: [
     CommonModule,
+    ComponentsModule,
     RouterModule.forChild(routes)
   ],
   declarations: [
@@ -46,6 +50,8 @@ export const routes: Routes = [
     CheckVouchersComponent, 
     CashVouchersComponent, 
     CashReceiptVouchersComponent, 
-    AccountingComponent]
+    AccountingComponent,
+    ChartOfAccountsComponent
+  ]
 })
 export class AccountingModule { }
