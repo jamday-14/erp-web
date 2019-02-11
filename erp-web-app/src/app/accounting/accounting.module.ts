@@ -13,6 +13,7 @@ import { SalesInvoicePaymentComponent } from './sales-invoice-payment/sales-invo
 import { AccountingComponent } from './accounting.component';
 import { ComponentsModule } from '../components/components.module';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
+import { SharedModule } from '../shared/shared.module';
 
 
 export const routes: Routes = [
@@ -39,6 +40,7 @@ export const routes: Routes = [
   imports: [
     CommonModule,
     ComponentsModule,
+    SharedModule,
     RouterModule.forChild(routes)
   ],
   declarations: [

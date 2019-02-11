@@ -6,6 +6,7 @@ import _ from "lodash";
 import { AccountingService } from 'src/app/services/accounting.service';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CommonService } from 'src/app/services/common.service';
+import { MaintenanceService } from 'src/app/services/maintenance.service';
 
 @Component({
   selector: 'app-chart-of-accounts',
@@ -17,6 +18,7 @@ export class ChartOfAccountsComponent implements OnInit {
   menuItems: MenuItem[];
   loading: boolean;
   accounts: Array<any>;
+  accountTypes: Array<any>;
   account: any;
   customers: Array<any>;
   cols: any[];
@@ -30,10 +32,12 @@ export class ChartOfAccountsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private app: AppComponent,
     private accountingService: AccountingService,
+    private maintenanceServie: MaintenanceService,
     private messageService: MessageService
   ) {
 
     this.accounts = [];
+    this.accountTypes = [];
     this.customers = [];
     this.enableFilter = false;
   }
@@ -41,8 +45,18 @@ export class ChartOfAccountsComponent implements OnInit {
   ngOnInit() {
     this.app.title = "Chart of Accounts";
     this.initializeMenu();
+    this.initializeTabs();
     this.initializeColumns();
     this.getData();
+  }
+
+  initializeTabs(): any {
+    this.maintenanceServie.queryAccountTypes()
+      .subscribe((resp) => {
+        _.forEach(resp, (element => {
+          this.accountTypes.push({ value: element.id, label: element.name2 })
+        }));
+      }, (err) => { })
   }
 
   private initializeMenu() {
@@ -56,7 +70,7 @@ export class ChartOfAccountsComponent implements OnInit {
       },
       {
         label: 'Refresh', icon: 'pi pi-refresh', command: () => {
-
+          this.getData();
         }
       },
       {
@@ -130,7 +144,8 @@ export class ChartOfAccountsComponent implements OnInit {
       active: this.f.active.value,
       isPostable: this.f.isPostable.value,
       isBankAccount: this.f.isBankAccount.value,
-      accountTypeId: this.f.accountTypeId.value
+      accountTypeId: this.f.accountTypeId.value,
+      level: 0
     }).subscribe((resp) => {
       this.messageService.add({ severity: 'success', summary: 'Success Message', detail: 'Record has been created.' });
       this.toggleDialog(false);

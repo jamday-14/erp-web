@@ -4,14 +4,20 @@
     <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
     <p-menubar [model]="menuItems"></p-menubar>
     <p-tabView>
-        <p-tabPanel header="Assets">
-            <p-table [columns]="cols" [value]="accounts" [paginator]="true" [rows]="15">
+        <p-tabPanel [header]="item.label" *ngFor="let item of accountTypes; let i = index" [selected]="i == 0">
+            <p-table #dt1 [columns]="cols" [value]="accounts | accountTypes: (i+1)" [paginator]="true" [rows]="15">
                 <ng-template pTemplate="header" let-columns>
                     <tr>
                         <th *ngFor="let column of columns">
                             {{column.header}}
                         </th>
                     </tr>
+                    <tr *ngIf="enableFilter">
+                        <th *ngFor="let col of columns" [ngSwitch]="col.field" class="ui-fluid">
+                          <input pInputText type="text" (input)="dt1.filter($event.target.value, col.field, col.filterMatchMode)"
+                            [value]="dt1.filters[col.field]?.value">
+                        </th>
+                      </tr>
                 </ng-template>
                 <ng-template pTemplate="body" let-rowData let-columns="columns">
                     <tr>
@@ -21,18 +27,6 @@
                     </tr>
                 </ng-template>
             </p-table>
-        </p-tabPanel>
-        <p-tabPanel header="Liabilities">
-            Liabilities
-        </p-tabPanel>
-        <p-tabPanel header="Equities">
-            Equities
-        </p-tabPanel>
-        <p-tabPanel header="Income">
-            Income
-        </p-tabPanel>
-        <p-tabPanel header="Expenses">
-            Expenses
         </p-tabPanel>
     </p-tabView>
     <form *ngIf="form" [formGroup]="form" (ngSubmit)="createItem()">
@@ -45,8 +39,9 @@
                             <label for="code">Account Type*</label>
                         </div>
                         <div class="p-col-7">
-                            <p-dropdown [options]="accountTypes" formControlName="accountTypeId" placeholder="Select account type"
-                                optionLabel="optionLabel" [showClear]="bool" [style]="{width: '100%'}"></p-dropdown>
+                            <p-dropdown [options]="accountTypes" formControlName="accountTypeId"
+                                placeholder="Select account type" [showClear]="bool" [style]="{width: '100%'}">
+                            </p-dropdown>
                         </div>
                     </div>
                     <div class="p-grid">
@@ -80,7 +75,8 @@
             </div>
             <p-footer>
                 <div class="ui-dialog-buttonpane ui-helper-clearfix">
-                    <button type="button" pButton icon="fa fa-close" label="Close" (click)="toggleDialog(false)"></button>
+                    <button type="button" pButton icon="fa fa-close" label="Close"
+                        (click)="toggleDialog(false)"></button>
                     <button type="submit" pButton icon="fa fa-check" label="Save"></button>
                 </div>
             </p-footer>

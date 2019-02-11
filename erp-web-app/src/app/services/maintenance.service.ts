@@ -5,7 +5,7 @@ import { ApiService } from './api.service';
   providedIn: 'root'
 })
 export class MaintenanceService {
-
+ 
   items: any[];
   
   constructor(public api: ApiService) {
@@ -58,6 +58,10 @@ export class MaintenanceService {
 
   queryWarehouses(params?: any) {
     return this.api.get('maintenance/warehouses', params);
+  }
+
+  queryAccountTypes(params?: any): any {
+    return this.api.get('maintenance/account-types', params);
   }
 
   addItem(item: any) {
