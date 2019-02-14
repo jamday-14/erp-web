@@ -14,11 +14,18 @@
 <app-payment-reference-header
     [records]="invoices"
     (loadInvoice)="loadInvoice($event)"></app-payment-reference-header>
-<app-payment-detail
-    [transactionType]="transactionType"
-    [units]="units"
-    [items]="items"
-    [reasons]="warehouses"
-    [details]="details" 
-    (addRow)="onAddRow($event)" 
-    (deleteRow)="onDeleteRow($event)"></app-payment-detail>
+    <p-tabView>
+        <p-tabPanel header="Purchase Invoice">
+            <app-payment-detail
+            [transactionType]="transactionType"
+            [units]="units"
+            [items]="items"
+            [reasons]="warehouses"
+            [details]="details" 
+            (addRow)="onAddRow($event)" 
+            (deleteRow)="onDeleteRow($event)"></app-payment-detail>
+        </p-tabPanel>
+        <p-tabPanel header="Adjustments">
+            <app-adjustments></app-adjustments>
+        </p-tabPanel>
+    </p-tabView>

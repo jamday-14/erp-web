@@ -14,6 +14,10 @@ import { AccountingComponent } from './accounting.component';
 import { ComponentsModule } from '../components/components.module';
 import { ChartOfAccountsComponent } from './chart-of-accounts/chart-of-accounts.component';
 import { SharedModule } from '../shared/shared.module';
+import { AdjustmentsComponent } from './components/adjustments/adjustments.component';
+import { PaymentDetailComponent } from './components/payment-detail/payment-detail.component';
+import { PaymentHeaderComponent } from './components/payment-header/payment-header.component';
+import { PaymentReferenceHeaderComponent } from './components/payment-reference-header/payment-reference-header.component';
 
 
 export const routes: Routes = [
@@ -53,7 +57,11 @@ export const routes: Routes = [
     CashVouchersComponent, 
     CashReceiptVouchersComponent, 
     AccountingComponent,
-    ChartOfAccountsComponent
+    ChartOfAccountsComponent,
+    AdjustmentsComponent,
+    PaymentDetailComponent,
+    PaymentHeaderComponent,
+    PaymentReferenceHeaderComponent
   ]
 })
 export class AccountingModule { }

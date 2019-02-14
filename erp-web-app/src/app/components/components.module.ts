@@ -32,9 +32,6 @@ import { ReferenceHeaderComponent } from './reference-header/reference-header.co
 import { HeaderReturnComponent } from './header-return/header-return.component';
 import { InventoryHeaderComponent } from './inventory-header/inventory-header.component';
 import { InventoryDetailComponent } from './inventory-detail/inventory-detail.component';
-import { PaymentHeaderComponent } from './payment-header/payment-header.component';
-import { PaymentDetailComponent } from './payment-detail/payment-detail.component';
-import { PaymentReferenceHeaderComponent } from './payment-reference-header/payment-reference-header.component';
 
 @NgModule({
   imports: [
@@ -71,10 +68,7 @@ import { PaymentReferenceHeaderComponent } from './payment-reference-header/paym
     ReferenceHeaderComponent,
     HeaderReturnComponent,
     InventoryHeaderComponent,
-    InventoryDetailComponent,
-    PaymentHeaderComponent,
-    PaymentDetailComponent,
-    PaymentReferenceHeaderComponent
+    InventoryDetailComponent
   ],
   exports:[
     ListItemComponent,
@@ -107,10 +101,7 @@ import { PaymentReferenceHeaderComponent } from './payment-reference-header/paym
     BlockUIModule,
     TabViewModule,
     InventoryHeaderComponent,
-    InventoryDetailComponent,
-    PaymentHeaderComponent,
-    PaymentDetailComponent,
-    PaymentReferenceHeaderComponent
+    InventoryDetailComponent
   ]
 })
 export class ComponentsModule { }

@@ -1,5 +1,4 @@
 import { Component, ViewChild, AfterViewInit } from '@angular/core';
-import { PaymentHeaderComponent } from 'src/app/components/payment-header/payment-header.component';
 import { MaintenanceService } from 'src/app/services/maintenance.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { MessagingService } from 'src/app/services/messaging.service';
@@ -8,8 +7,9 @@ import { AppComponent } from 'src/app/app.component';
 import { forkJoin } from 'rxjs';
 import { AccountingService } from 'src/app/services/accounting.service';
 import _ from "lodash";
-import { PaymentDetailComponent } from 'src/app/components/payment-detail/payment-detail.component';
 import { PurchasingService } from 'src/app/services/purchasing.service';
+import { PaymentHeaderComponent } from '../components/payment-header/payment-header.component';
+import { PaymentDetailComponent } from '../components/payment-detail/payment-detail.component';
 
 @Component({
   selector: 'app-bills-payment',
