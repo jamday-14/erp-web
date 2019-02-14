@@ -14,6 +14,7 @@ export class PaymentHeaderComponent implements OnInit {
   @Input() transactionType: string;
   @Input() people: Array<any>;
   @Input() modeOfPayments: Array<any>;
+  @Input() banks: Array<any>;
   @Input() newItem: boolean;
   @Output() submit = new EventEmitter<Array<any>>();
   @Output() resetOrderDetails = new EventEmitter<Array<any>>();
@@ -66,7 +67,8 @@ export class PaymentHeaderComponent implements OnInit {
       systemNo: [''],
       mopid: [null, Validators.required],
       amount: [0, Validators.required],
-      checkDate: [new Date()],
+      bankId: [null],
+      checkDate: [null],
       checkRefNo: ['']
     });
 
@@ -77,8 +79,17 @@ export class PaymentHeaderComponent implements OnInit {
     }
   }
 
-  isPeopleACustomer(): boolean {
-    return true;
+  updateForm(headerResponse: any): any {
+    throw new Error("Method not implemented.");
   }
 
+  isPeopleACustomer(): boolean {
+    return _.indexOf(["SIP"], this.transactionType) != -1;
+  }
+
+  peopleChanged(event) {
+    if (event.value) {
+      this.onPeopleChanged.emit(event.value);
+    }
+  }
 }

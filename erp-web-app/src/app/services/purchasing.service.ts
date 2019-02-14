@@ -52,7 +52,7 @@ export class PurchasingService {
   queryPurchasingInvoicesByVendor(vendorId: number): any {
     return this.api.get(`purchasing/vendors/${vendorId}/bills`, null, false);
   }
-  
+
   queryReceivingReportDetails(id: number): any {
     return this.api.get(`purchasing/receiving-reports/${id}/details`, null, false);
   }
@@ -99,6 +99,10 @@ export class PurchasingService {
 
   queryAvailablePurchasingInvoicesByVendor(vendorId: number): any {
     return this.api.get(`purchasing/vendors/${vendorId}/bills/available`, null, false);
+  }
+
+  queryVendorInvoicesForPayment(vendorId: any): any {
+    return this.api.get(`purchasing/vendors/${vendorId}/bills/for-payment`, null, false);
   }
 
   queryAvailablePurchasingInvoiceDetails(id: any): any {

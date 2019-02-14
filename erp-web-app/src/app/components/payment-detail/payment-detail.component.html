@@ -2,53 +2,52 @@
 <p-table [value]="details" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
   <ng-template pTemplate="header">
     <tr>
-      <th pResizableColumn style="width:120px">Bill Ref No.</th>
       <th pResizableColumn style="width:120px">Bill System No</th>
-      <th style="width:100px">Amount Applied</th>
+      <th pResizableColumn style="width:120px">Bill Ref No.</th>
+      <th style="width:100px">Amount</th>
+      <th style="width:100px">Amount Paid</th>
+      <th style="width:100px">Amount Due</th>
+      <th style="width:100px">Amount to Pay</th>
       <th style="width:100px">Amount Paid After Payment</th>
       <th style="width:100px">Amount Due After Payment</th>
-      <th style="width:100px">Bill Running Amount</th>
-      <th style="width:100px">Bill Running Amount Due</th>
-      <th style="width:100px">Running Amount Paid</th>
       <th style="width:250px" pResizableColumn>Remarks</th>
     </tr>
   </ng-template>
   <ng-template pTemplate="body" let-rowData let-index="rowIndex">
     <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)" [pSelectableRow]="rowData">
       <td>
-        {{rowData.billRefNo}}
+        {{rowData.billSystemNo}}
       </td>
       <td>
-        {{rowData.billSystemNo}}
+        {{rowData.billRefNo}}
+      </td>
+      <td class="text-right">
+        {{rowData.billAmount}}
+      </td>
+      <td class="text-right">
+        {{rowData.billAmountPaid}}
+      </td>
+      <td class="text-right">
+        {{rowData.billAmountDue}}
       </td>
       <td pEditableColumn class="text-right">
         <p-cellEditor>
           <ng-template pTemplate="input">
-            <input pInputText type="text" [(ngModel)]="rowData.amountApplied" (input)="computeSubTotal(rowData)"
-              required>
-            <span class="pad5">
-              {{rowData.amountApplied}}
-            </span>
+            <input pInputText type="text" [(ngModel)]="rowData.amount" (input)="compute(rowData)" required>
+            <!-- <span class="pad5">
+              {{rowData.amount}}
+            </span> -->
           </ng-template>
           <ng-template pTemplate="output">
-            {{rowData.amountApplied}}
+            {{rowData.amount}}
           </ng-template>
         </p-cellEditor>
       </td>
-      <td>
+      <td class="text-right">
         {{rowData.amountPaidAfterPayment}}
       </td>
-      <td>
+      <td class="text-right">
         {{rowData.amountDueAfterPayment}}
-      </td>
-      <td>
-        {{rowData.billRunningAmount}}
-      </td>
-      <td>
-        {{rowData.billRunningAmountDue}}
-      </td>
-      <td>
-        {{rowData.runningAmountPaid}}
       </td>
       <td pEditableColumn>
         <p-cellEditor>
@@ -69,12 +68,12 @@
     <tr>
       <td></td>
       <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
-      <td></td>
+      <td class="text-right">{{ getTotal('billAmount') }}</td>
+      <td class="text-right">{{ getTotal('billAmountPaid') }}</td>
+      <td class="text-right">{{ getTotal('billAmountDue') }}</td>
+      <td class="text-right">{{ getTotal('amount') }}</td>
+      <td class="text-right">{{ getTotal('amountPaidAfterPayment') }}</td>
+      <td class="text-right">{{ getTotal('amountDueAfterPayment') }}</td>
       <td></td>
     </tr>
   </ng-template>

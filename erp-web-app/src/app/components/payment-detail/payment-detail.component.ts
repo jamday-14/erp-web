@@ -45,14 +45,9 @@ export class PaymentDetailComponent implements OnInit {
   initializeMenu() {
     this.detailMenuItems = [
       {
-        label: 'New', icon: 'pi pi-file', command: () => {
-          this.addRow.emit(this.details);
-        }
-      },
-      {
         label: 'Select All', icon: 'pi pi-list', command: () => {
           this.allSelected = !this.allSelected;
-          this.detailMenuItems[1].label = this.allSelected ? 'De-select All' : 'Select All';
+          this.detailMenuItems[0].label = this.allSelected ? 'De-select All' : 'Select All';
           this.selectedRows = this.allSelected ? this.getDetails() : [];
         }
       },
@@ -65,77 +60,16 @@ export class PaymentDetailComponent implements OnInit {
   }
 
   ToggleDetailMenu() {
-    this.detailMenuItems[2].disabled = !this.isDeleteDetailsEnabled();
+    //this.detailMenuItems[1].disabled = !this.isDeleteDetailsEnabled();
   }
 
-  itemChanged(event, rowData) {
-    let item = this.findItem(event.value);
-    let unit = this.findUnit(item.unitId);
-
-    rowData.itemId = item.value;
-    rowData.description = item.label;
-    rowData.itemCode = item.code;
-    rowData.unitPrice = item.unitPrice;
-
-    if (unit) {
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
-    }
-
-    this.ToggleDetailMenu();
-  }
-
-  findItem(itemId) {
-    var item = this.items.find(x => x.value == itemId);
-    if (item == null)
-      item = { value: null, label: '' };
-    return item;
-  }
-
-  findUnit(id) {
-    var unit = this.units.find(x => x.value == id);
-    if (unit == null)
-      unit = { value: null, label: '' };
-    return unit;
-  }
-
-  findReason(id) {
-    var reason = this.reasons.find(x => x.value == id);
-    if (reason == null)
-      reason = { value: null, label: '' };
-    return reason;
-  }
-
-  searchItems(event) {
-    this.searchedItems = this.items.filter((item) => {
-      return (item.label.toLowerCase().indexOf(event.query.toLowerCase()) > -1);
-    })
-  }
-
-  computeSubTotal(rowData) {
-    rowData.subTotal = (rowData.qty * rowData.unitPrice) - rowData.discount;
-  }
-
-  unitChanged(event, rowData) {
-    if (event.value) {
-      let unit = this.findUnit(event.value);
-
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
-    }
-  }
-
-  reasonChanged(event, rowData) {
-    if (event.value) {
-      let unit = this.findUnit(event.value);
-
-      rowData.unitId = unit.value;
-      rowData.unitDescription = unit.label;
-    }
+  compute(rowData) {
+    rowData.amountPaidAfterPayment = _.sum([_.toNumber(rowData.billAmountPaid), _.toNumber(rowData.amount)]);
+    rowData.amountDueAfterPayment = _.subtract(_.toNumber(rowData.billAmountDue), _.toNumber(rowData.amount));
   }
 
   getDetails(): any {
-    return this.details.filter(x => x.itemCode != null);
+    return this.details.filter(x => x.billId != null);
   }
 
   getTotal(property: string) {
@@ -144,39 +78,6 @@ export class PaymentDetailComponent implements OnInit {
 
   getTotalItem() {
     return _.size(this.getDetails());
-  }
-
-  OnEnter(index, rowData) {
-    if (this.details.length == (index + 1) && rowData.itemCode != null)
-      this.addRow.emit(this.details);
-  }
-
-  isDetailEditable(rowData) {
-    return this.isRowDataEditable(rowData);
-  }
-
-  isDeleteDetailsEnabled(): boolean {
-    return this.isDeleteRowsEnabled(this.getDetails());
-  }
-
-  isQuantityEditable(rowData): boolean {
-    return this.isRowQuantityEditable(rowData)
-  }
-
-  isQtyOnHandVisible(): boolean {
-    return _.indexOf(["IE", "IR", "GT"], this.transactionType) != -1;
-  }
-
-  isQtyReceivedVisible(): boolean {
-    return this.transactionType == "GT";
-  }
-
-  isQtyLeftVisible(): boolean {
-    return this.transactionType == "GT";
-  }
-
-  isRefNoVisible(): boolean {
-    return this.transactionType == "GTR";
   }
 
 }

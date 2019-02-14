@@ -4,20 +4,21 @@
   <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
   <app-payment-header
       [transactionType]="transactionType"
-      [people]="customers"
+      [people]="vendors"
       [modeOfPayments]="modeOfPayments"
+      [banks]="banks"
       [newItem]="newItem"
       (submit)="submit()"
-      (onPeopleChanged)="onCustomerChanged($event)"></app-payment-header>
+      (onPeopleChanged)="onVendorChanged($event)"></app-payment-header>
 </div>
+<app-payment-reference-header
+    [records]="invoices"
+    (loadInvoice)="loadInvoice($event)"></app-payment-reference-header>
 <app-payment-detail
     [transactionType]="transactionType"
     [units]="units"
     [items]="items"
     [reasons]="warehouses"
     [details]="details" 
-    [isRowDataEditable]="isRowDataEditable" 
-    [isDeleteRowsEnabled]="isDeleteRowsEnabled"
-    [isRowQuantityEditable]="isRowQuantityEditable"
     (addRow)="onAddRow($event)" 
     (deleteRow)="onDeleteRow($event)"></app-payment-detail>
