@@ -34,7 +34,8 @@ export class BillsPaymentComponent implements AfterViewInit {
   banks: Array<any>;
   vendors: Array<any>;
   details: Array<any>;
-  invoices: Array<any>
+  invoices: Array<any>;
+  adjustments: Array<any>;
 
   constructor(
     private maintenanceService: MaintenanceService,
@@ -50,6 +51,7 @@ export class BillsPaymentComponent implements AfterViewInit {
     this.modeOfPayments = [];
     this.banks = [];
     this.details = [];
+    this.adjustments = [];
     this.invoices = [];
   }
 
@@ -240,5 +242,10 @@ export class BillsPaymentComponent implements AfterViewInit {
       this.loading = false;
       this.messaging.errorMessage(this.messaging.ADD_ERROR);
     });
+  }
+
+  onAddRowAdjustment(adjustments: Array<any>){
+    this.adjustments = adjustments;
+    this.adjustments.unshift({});
   }
 }

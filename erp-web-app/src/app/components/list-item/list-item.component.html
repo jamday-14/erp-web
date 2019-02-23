@@ -62,11 +62,11 @@
       <td class="text-right" *ngIf="isQtyInvoiceVisible()">
         {{rowData.qtyInvoice}}
       </td>
-      <td class="text-right" *ngIf="isQtyReturnVisible()">
-        {{rowData.qtyReturn}}
-      </td>
       <td class="text-right" *ngIf="isQtyBilledVisible()">
         {{rowData.qtyBill}}
+      </td>
+      <td class="text-right" *ngIf="isQtyReturnVisible()">
+        {{rowData.qtyReturn}}
       </td>
       <td pEditableColumn *ngIf="isWarehouseVisible()">
         <p-cellEditor>

@@ -1,0 +1,17 @@
+<div>
+  <p-toast></p-toast>
+  <p-blockUI [blocked]="loading"></p-blockUI>
+  <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>    
+  <app-voucher-header
+    [transactionType]="transactionType"
+    [newItem]="newItem"
+    (submit)="submit()"
+  ></app-voucher-header>
+  <app-voucher-detail
+    [transactionType]="transactionType"
+    [subsidiaries]="subsidiaries"
+    [accounts]="accounts"
+    [details]="details" 
+    (addRow)="onAddRow($event)" 
+    (deleteRow)="onDeleteRow($event)"></app-voucher-detail>
+</div>

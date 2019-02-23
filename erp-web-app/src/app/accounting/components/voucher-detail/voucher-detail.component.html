@@ -1,0 +1,58 @@
+<p-menubar [model]="detailMenuItems"></p-menubar>
+<p-table [value]="details" resizableColumns="true" #searchItemLoc selectionMode="multiple" [(selection)]="selectedRows">
+  <ng-template pTemplate="header">
+    <tr>
+      <th pResizableColumn style="width:200px">Account Code</th>
+      <th pResizableColumn style="width:200px">Account Name</th>
+      <th pResizableColumn style="width:200px">Subsidiary</th>
+      <th style="width:150px">Debit</th>
+      <th style="width:150px">Credit</th>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="body" let-rowData let-index="rowIndex">
+    <tr tabindex="0" (keydown.enter)="OnEnter(index, rowData)" [pSelectableRow]="rowData">
+      <td>
+        {{rowData.accountCode}}
+      </td>
+      <td pEditableColumn class="ui-fluid">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown [options]="accounts" id="accountId" [style]="{width: '100%'}" placeholder="Select account"
+              filter="true" (onChange)="onAccountChanged($event)">
+            </p-dropdown>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.accountName}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td pEditableColumn class="ui-fluid">
+        <p-cellEditor>
+          <ng-template pTemplate="input">
+            <p-dropdown [options]="subsidiaries" id="subsidiaryId" [style]="{width: '100%'}"
+              placeholder="Select subsidiary" filter="true" (onChange)="onSubsidiaryChanged($event)">
+            </p-dropdown>
+          </ng-template>
+          <ng-template pTemplate="output">
+            {{rowData.subsidiary}}
+          </ng-template>
+        </p-cellEditor>
+      </td>
+      <td class="text-right">
+        {{rowData.debit}}
+      </td>
+      <td class="text-right">
+        {{rowData.credit}}
+      </td>
+    </tr>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <tr>
+      <td></td>
+      <td></td>
+      <td></td>
+      <td class="text-right">{{ getTotal('debit') }}</td>
+      <td class="text-right">{{ getTotal('credit') }}</td>
+    </tr>
+  </ng-template>
+</p-table>

@@ -1,3 +1,10 @@
-<p>
-  journal-vouchers works!
-</p>
+<div>
+  <p-toast></p-toast>
+  <p-progressBar mode="indeterminate" *ngIf="loading"></p-progressBar>
+  <app-vouchers
+    [transactionType]="transactionType"
+    [vouchers]="vouchers"
+    (refresh)="refresh($event)" 
+    (navigate)="navigate($event)"
+  ></app-vouchers>
+</div>

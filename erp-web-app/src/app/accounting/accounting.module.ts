@@ -18,6 +18,10 @@ import { AdjustmentsComponent } from './components/adjustments/adjustments.compo
 import { PaymentDetailComponent } from './components/payment-detail/payment-detail.component';
 import { PaymentHeaderComponent } from './components/payment-header/payment-header.component';
 import { PaymentReferenceHeaderComponent } from './components/payment-reference-header/payment-reference-header.component';
+import { VoucherHeaderComponent } from './components/voucher-header/voucher-header.component';
+import { VoucherDetailComponent } from './components/voucher-detail/voucher-detail.component';
+import { VouchersComponent } from './components/vouchers/vouchers.component';
+import { JournalVoucherComponent } from './journal-voucher/journal-voucher.component';
 
 
 export const routes: Routes = [
@@ -31,6 +35,7 @@ export const routes: Routes = [
       { path: 'sales-invoice-payments', component: SalesInvoicePaymentsComponent },
       { path: 'sales-invoice-payment/:id', component: SalesInvoicePaymentComponent },
       { path: 'journal-vouchers', component: JournalVouchersComponent },
+      { path: 'journal-voucher/:id', component: JournalVoucherComponent },
       { path: 'check-vouchers', component: CheckVouchersComponent },
       { path: 'cash-vouchers', component: CashVouchersComponent },
       { path: 'cash-receipt-vouchers', component: CashReceiptVouchersComponent },
@@ -61,7 +66,11 @@ export const routes: Routes = [
     AdjustmentsComponent,
     PaymentDetailComponent,
     PaymentHeaderComponent,
-    PaymentReferenceHeaderComponent
+    PaymentReferenceHeaderComponent,
+    VoucherHeaderComponent,
+    VoucherDetailComponent,
+    VouchersComponent,
+    JournalVoucherComponent
   ]
 })
 export class AccountingModule { }

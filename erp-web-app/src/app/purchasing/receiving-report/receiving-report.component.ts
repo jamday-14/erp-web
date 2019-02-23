@@ -395,7 +395,7 @@ export class ReceivingReportComponent implements AfterViewInit {
         itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
         unitDescription: unit == null ? null : unit.label, poId: record.poId, podetailId: record.podetailId, refNo: record.porefNo,
         warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label,
-        unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, comments: record.comments
+        unitPrice: record.unitPrice, discount: record.discount, subTotal: record.subTotal, comments: record.comments, closed: record.closed
       });
     }));
     this.listItemComponent.ToggleDetailMenu();

@@ -26,6 +26,11 @@
             (deleteRow)="onDeleteRow($event)"></app-payment-detail>
         </p-tabPanel>
         <p-tabPanel header="Adjustments">
-            <app-adjustments></app-adjustments>
+            <app-adjustments
+                [transactionType]="transactionType"
+                [adjustments]="adjustments" 
+                (addRow)="onAddRowAdjustment($event)" 
+                (deleteRow)="onDeleteRow($event)"
+            ></app-adjustments>
         </p-tabPanel>
     </p-tabView>

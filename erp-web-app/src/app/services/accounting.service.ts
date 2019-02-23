@@ -6,6 +6,10 @@ import { ApiService } from './api.service';
 })
 export class AccountingService {
 
+  queryVouchers(): any {
+    return this.api.get('accounting/chart-of-accounts', null, false);
+  }
+
   constructor(public api: ApiService) { }
 
   queryAccounts(): any {
