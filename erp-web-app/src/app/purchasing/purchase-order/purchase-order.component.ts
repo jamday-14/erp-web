@@ -91,14 +91,12 @@ export class PurchaseOrderComponent implements AfterViewInit {
     var termsRequest = this.maintenanceService.queryTerms();
     var vendorsRequest = this.maintenanceService.queryVendors();
     var unitsRequest = this.maintenanceService.queryUnits();
-    var itemsRequest = this.maintenanceService.queryItems();
 
-    forkJoin([termsRequest, vendorsRequest, unitsRequest, itemsRequest])
+    forkJoin([termsRequest, vendorsRequest, unitsRequest])
       .subscribe((response) => {
         let termsResponse = response[0];
         let vendorsReponse = response[1];
         let unitsResponse = response[2];
-        let itemsResponse = response[3];
 
         _.forEach(termsResponse, (element => {
           this.terms.push({ value: element.id, label: element.name })
@@ -110,10 +108,6 @@ export class PurchaseOrderComponent implements AfterViewInit {
 
         _.forEach(unitsResponse, (element => {
           this.units.push({ value: element.id, label: element.name })
-        }));
-
-        _.forEach(itemsResponse, (element => {
-          this.items.push({ value: element.id, label: element.description, code: element.itemCode, unitPrice: element.unitPrice, unitId: element.unitId })
         }));
 
         this.initializeHeader();
@@ -190,6 +184,15 @@ export class PurchaseOrderComponent implements AfterViewInit {
         this.loading = false;
       });
     }
+  }
+
+  onVendorChanged(id: any) {
+    this.maintenanceService.queryVendorItems(id)
+      .subscribe(response => {
+        _.forEach(response, (element => {
+          this.items.push({ value: element.id, label: element.description, code: element.itemCode, unitPrice: element.unitPrice, unitId: element.unitId, qtyOnHand: element.qtyOnHand })
+        }));
+      });
   }
 
   isRowDataEditable(rowData: any): boolean {

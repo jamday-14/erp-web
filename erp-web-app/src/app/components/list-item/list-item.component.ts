@@ -76,6 +76,7 @@ export class ListItemComponent implements OnInit {
     rowData.description = item.label;
     rowData.itemCode = item.code;
     rowData.unitPrice = item.unitPrice;
+    rowData.qtyOnHand = item.qtyOnHand;
 
     if (unit) {
       rowData.unitId = unit.value;

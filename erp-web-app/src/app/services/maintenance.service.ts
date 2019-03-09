@@ -16,6 +16,10 @@ export class MaintenanceService {
     return this.api.get('maintenance/items', params);
   }
 
+  queryVendorItems(vendorId: number) {
+    return this.api.get(`maintenance/vendors/${vendorId}/items`, null, false);
+  }
+
   queryEmployees(params?: any) {
     return this.api.get('maintenance/employees', params);
   }

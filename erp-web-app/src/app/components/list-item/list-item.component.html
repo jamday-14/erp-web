@@ -5,6 +5,7 @@
       <th pResizableColumn style="width:120px">Item Code</th>
       <th pResizableColumn style="width:450px">Description</th>
       <th style="width:60px">Qty</th>
+      <th style="width:60px">Qty on Hand</th>
       <th style="width:70px" *ngIf="isQtyDrVisible()">Qty Dr</th>
       <th style="width:70px" *ngIf="isQtyReceivedVisible()">Qty Received</th>
       <th style="width:70px" *ngIf="isQtyInvoiceVisible()">Qty Invoice</th>
@@ -52,6 +53,9 @@
             {{rowData.qty}}
           </ng-template>
         </p-cellEditor>
+      </td>
+      <td class="text-right">
+        {{rowData.qtyOnHand}}
       </td>
       <td class="text-right" *ngIf="isQtyDrVisible()">
         {{rowData.qtyDr}}
@@ -152,6 +156,7 @@
       <td>No. of Items : {{ getTotalItem() }}</td>
       <td></td>
       <td class="text-right">{{ getTotal('qty') }}</td>
+      <td class="text-right">{{ getTotal('qtyOnHand') }}</td>
       <td class="text-right" *ngIf="isQtyDrVisible()">{{ getTotal('qtyDr') }}</td>
       <td class="text-right" *ngIf="isQtyReceivedVisible()">{{ getTotal('qtyReceived') }}</td>
       <td class="text-right" *ngIf="isQtyInvoiceVisible()">{{ getTotal('qtyInvoice') }}</td>

@@ -268,7 +268,7 @@ export class ReceivingReportComponent implements AfterViewInit {
             this.listItemComponent.computeSubTotal(record);
 
             this.orderDetails.push({
-              index: _.size(this.orderDetails), id: null, receivingReportId: null, qtyBill: 0, qtyReturn: 0, qtyOriginal: record.qty,
+              index: _.size(this.orderDetails), id: null, receivingReportId: null, qtyBill: 0, qtyReturn: 0, qtyOriginal: record.qty, qtyOnHand: record.qtyOnHand,
               itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
               unitDescription: unit == null ? null : unit.label, unitPrice: record.unitPrice, discount: record.discount, refNo: rowData.systemNo,
               subTotal: record.subTotal, closed: record.closed, poId: record.purchaseOrderId, podetailId: record.id,
@@ -324,7 +324,7 @@ export class ReceivingReportComponent implements AfterViewInit {
     var termsRequest = this.maintenanceService.queryTerms();
     var vendorsRequest = this.maintenanceService.queryVendors();
     var unitsRequest = this.maintenanceService.queryUnits();
-    var itemsRequest = this.maintenanceService.queryItems();
+    var itemsRequest = this.maintenanceService.queryVendorItems(1);
     var warehouseRequest = this.maintenanceService.queryWarehouses();
 
     forkJoin([termsRequest, vendorsRequest, unitsRequest, itemsRequest, warehouseRequest])
@@ -348,7 +348,7 @@ export class ReceivingReportComponent implements AfterViewInit {
         }));
 
         _.forEach(itemsResponse, (element => {
-          this.items.push({ value: element.id, label: element.description, code: element.itemCode, unitPrice: element.unitPrice, unitId: element.unitId })
+          this.items.push({ value: element.id, label: element.description, code: element.itemCode, unitPrice: element.unitPrice, unitId: element.unitId, qtyOnHand: element.qtyOnHand })
         }));
 
         _.forEach(warehousesResponse, (element => {
@@ -391,7 +391,7 @@ export class ReceivingReportComponent implements AfterViewInit {
 
       this.orderDetails.push({
         index: _.size(this.orderDetails), id: record.id, receivingReportId: record.receivingReportId, qtyBill: record.qtyBill,
-        qtyReturn: record.qtyReturn, qtyOriginal: record.qty,
+        qtyReturn: record.qtyReturn, qtyOriginal: record.qty, qtyOnHand: record.qtyOnHand,
         itemId: item.value, itemCode: item.code, description: item.label, qty: record.qty, unitId: unit == null ? null : unit.value,
         unitDescription: unit == null ? null : unit.label, poId: record.poId, podetailId: record.podetailId, refNo: record.porefNo,
         warehouseId: whouse == null ? null : whouse.value, warehouseDescription: whouse == null ? null : whouse.label,

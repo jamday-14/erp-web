@@ -18,7 +18,7 @@ export class HeaderComponent implements OnInit {
   @Input() newItem: boolean;
   @Output() submit = new EventEmitter<Array<any>>();
   @Output() resetOrderDetails = new EventEmitter<Array<any>>();
-  @Output() onPeopleChanged = new EventEmitter<Array<any>>();
+  @Output() onPeopleChanged = new EventEmitter<any>();
 
   form: FormGroup;
   menuItems: MenuItem[];
